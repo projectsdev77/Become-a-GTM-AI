@@ -206,28 +206,45 @@ function DangerZone() {
   }
 
   return (
-    <div className="rounded-panel border-2 border-fail bg-fail-bg p-6">
-      <p className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-fail-ink">Session</p>
+    <div className="rounded-panel bg-fail-wash p-6" style={{ border: '1px solid var(--color-fail-border)' }}>
+      <p className="meta text-fail-ink">Session</p>
       <p className="mt-2 text-[14px] text-fail-ink">Signing out ends your session on this device.</p>
-      <Button type="button" variant="secondary" onClick={() => void signOut()} className="mt-4 border-fail text-fail-ink">
+      <Button
+        type="button"
+        variant="secondary"
+        onClick={() => void signOut()}
+        className="mt-4 text-fail-ink"
+        style={{ borderColor: 'var(--color-fail-border)' }}
+      >
         Log out
       </Button>
 
-      <div className="mt-6 border-t-2 border-fail/30 pt-6">
-        <p className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-fail-ink">Delete account</p>
+      <div className="mt-6 pt-6" style={{ borderTop: '1px solid var(--color-fail-border)' }}>
+        <p className="meta text-fail-ink">Delete account</p>
         <p className="mt-2 text-[14px] text-fail-ink">
           Permanently deletes your account and everything tied to it — submissions, messages, progress. This cannot
           be undone.
         </p>
 
         {!confirming ? (
-          <Button type="button" variant="secondary" onClick={() => setConfirming(true)} className="mt-4 border-fail text-fail-ink">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setConfirming(true)}
+            className="mt-4 text-fail-ink"
+            style={{ borderColor: 'var(--color-fail-border)' }}
+          >
             Delete my account
           </Button>
         ) : (
           <div className="mt-4 space-y-3">
             <Label htmlFor="confirm_delete">Type DELETE to confirm</Label>
-            <Field id="confirm_delete" value={confirmText} onChange={(e) => setConfirmText(e.target.value)} className="border-fail" />
+            <Field
+              id="confirm_delete"
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              style={{ borderColor: 'var(--color-fail-border)' }}
+            />
             {error && <p className="text-sm font-bold text-fail-ink">{error}</p>}
             <div className="flex gap-3">
               <Button
@@ -235,7 +252,8 @@ function DangerZone() {
                 variant="secondary"
                 onClick={() => void handleDelete()}
                 disabled={confirmText !== 'DELETE' || deleting}
-                className="border-fail bg-fail text-white"
+                className="text-white"
+                style={{ background: 'var(--color-fail-ink)', borderColor: 'var(--color-fail-ink)' }}
               >
                 {deleting ? 'Deleting…' : 'Permanently delete'}
               </Button>
@@ -273,8 +291,8 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-paper">
       <AppNav />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ your account ]</p>
-        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Profile & settings</h1>
+        <p className="eyebrow">Your account</p>
+        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.035em] text-ink">Profile & settings</h1>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
           <div className="space-y-6">

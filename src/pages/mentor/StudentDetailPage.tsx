@@ -97,10 +97,10 @@ export default function StudentDetailPage() {
             {data.weeks.map((w) => (
               <div
                 key={w.week_id}
-                className={`rounded-card border-2 p-3 text-center ${w.unlocked ? 'border-ink bg-surface' : 'border-disabled bg-stone'}`}
+                className={`rounded-card p-3 text-center ${w.unlocked ? 'border border-ink' : 'bg-panel text-muted'}`}
               >
-                <p className="font-mono text-[10px] font-bold uppercase tracking-wide text-faint">Week {w.position}</p>
-                <p className="mt-1 text-[13px] font-bold text-ink">
+                <p className="font-mono text-[10px] text-muted">Week {w.position}</p>
+                <p className="mt-1 text-[13px] font-semibold text-ink">
                   {w.unlocked ? `${w.lessons_completed}/${w.lessons_total}` : 'Locked'}
                 </p>
               </div>
@@ -111,7 +111,7 @@ export default function StudentDetailPage() {
         <section className="mt-9">
           <p className="meta">Recent submissions</p>
           <div className="mt-3 space-y-3">
-            {submissionsLoading && <p className="font-mono text-xs font-bold uppercase text-muted">loading…</p>}
+            {submissionsLoading && <p className="text-[13px] text-muted">loading…</p>}
             {!submissionsLoading && submissions.length === 0 && (
               <p className="text-[14.5px] text-muted">No submissions yet.</p>
             )}
@@ -119,7 +119,7 @@ export default function StudentDetailPage() {
               <Card key={s.id} className="flex items-center justify-between gap-4">
                 <div>
                   <p className="font-bold text-ink">{s.assignmentTitle}</p>
-                  <p className="font-mono text-[11px] text-faint">
+                  <p className="font-mono text-[11px] text-muted">
                     {new Date(s.submitted_at).toLocaleDateString()} · attempt {s.attempt_number}
                   </p>
                 </div>
@@ -134,8 +134,8 @@ export default function StudentDetailPage() {
           <div className="mt-3">{studentId && <MessageThread studentId={studentId} />}</div>
         </section>
 
-        <Link to="/mentor" className="mt-8 inline-block font-mono text-xs font-bold uppercase tracking-wide text-blue-700">
-          ← back to your students
+        <Link to="/mentor" className="mt-8 inline-block text-[13.5px] font-semibold text-blue-500">
+          ← Back to your students
         </Link>
       </main>
     </div>

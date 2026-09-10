@@ -5,7 +5,7 @@ export type StatusVariant = 'pass' | 'progress' | 'warn' | 'fail' | 'locked' | '
 
 const config: Record<StatusVariant, { cls: string; icon?: ReactNode }> = {
   pass: { cls: 'pill-pass', icon: <CheckIcon className="h-3 w-3" /> },
-  progress: { cls: 'pill-progress' },
+  progress: { cls: 'pill-active' },
   warn: { cls: 'pill-warn', icon: <AlertIcon className="h-3 w-3" /> },
   fail: { cls: 'pill-fail', icon: <AlertIcon className="h-3 w-3" /> },
   locked: { cls: 'pill-locked', icon: <LockIcon className="h-3 w-3" /> },

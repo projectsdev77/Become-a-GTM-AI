@@ -91,14 +91,51 @@ export function ChevronRightIcon(props: IconProps) {
   )
 }
 
-/** The wordmark monogram: "AI" in ink on a lime rounded chip. Minimum 26px. Never recolour. */
-export function Monogram({ size = 26, className = '' }: { size?: number; className?: string }) {
+export function InfoIcon(props: IconProps) {
   return (
-    <span
-      className={`inline-flex shrink-0 items-center justify-center rounded-[8px] bg-lime font-display font-bold text-ink ${className}`}
-      style={{ width: size, height: size, fontSize: size * 0.5, lineHeight: 1 }}
-    >
-      AI
-    </span>
+    <Base {...props}>
+      <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 4.5a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8ZM10.8 11h2.4v7.2h-2.4V11Z" />
+    </Base>
+  )
+}
+
+export function SparkleIcon(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="M12 2c.5 3.6 2.4 5.5 6 6-3.6.5-5.5 2.4-6 6-.5-3.6-2.4-5.5-6-6 3.6-.5 5.5-2.4 6-6ZM19 15.5c.25 1.7 1.05 2.5 2.75 2.75C20.05 18.5 19.25 19.3 19 21c-.25-1.7-1.05-2.5-2.75-2.75C18.05 18 18.85 17.2 19 15.5Z" />
+    </Base>
+  )
+}
+
+export function ChartIcon(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="M4 20V10h4v10H4Zm6 0V4h4v16h-4Zm6 0v-7h4v7h-4Z" />
+    </Base>
+  )
+}
+
+export function DocumentIcon(props: IconProps) {
+  return (
+    <Base {...props}>
+      <path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Zm8 1.5V8h4.5L14 3.5ZM7.5 12h9v1.6h-9V12Zm0 4h9v1.6h-9V16Zm0-8h4.5v1.6H7.5V8Z" />
+    </Base>
+  )
+}
+
+/**
+ * The wordmark monogram — a rounded square carrying three ascending bars
+ * and a single signal-orange node. `reverse` draws the paper-ground variant
+ * for placement on ink backgrounds. Minimum 24px. Never recolour.
+ */
+export function Monogram({ size = 26, reverse = false, className = '' }: { size?: number; reverse?: boolean; className?: string }) {
+  const squareFill = reverse ? '#FFFFFF' : 'var(--color-ink)'
+  const barStroke = reverse ? 'var(--color-ink)' : '#FFFFFF'
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" role="img" aria-label="Become a GTM AI" className={`shrink-0 ${className}`}>
+      <rect width="32" height="32" rx="9" fill={squareFill} />
+      <path d="M8 10h16M11 16h13M14 22h10" stroke={barStroke} strokeWidth="2.6" strokeLinecap="round" />
+      <circle cx="23.5" cy="22" r="3.2" fill="var(--color-signal)" />
+    </svg>
   )
 }

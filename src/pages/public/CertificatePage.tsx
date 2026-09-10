@@ -68,7 +68,7 @@ export default function CertificatePage() {
         {!loading && snapshot && (
           <>
             <CertificateCard fields={snapshot} />
-            <p className="mt-6 text-center font-mono text-[11px] uppercase tracking-[0.06em] text-faint">
+            <p className="mt-6 text-center font-mono text-[11px] text-muted">
               issued {issuedAt && new Date(issuedAt).toLocaleDateString()} · anyone with this code can verify it
             </p>
           </>

@@ -39,7 +39,7 @@ function useAdminStats() {
 
 function StatCard({ label, value, to, alert }: { label: string; value: number; to: string; alert?: boolean }) {
   return (
-    <Link to={to} className="card block no-underline hover:shadow-app">
+    <Link to={to} className="card block no-underline hover:border-ink">
       <p className={`font-display text-[44px] font-bold leading-none ${alert && value > 0 ? 'text-fail-ink' : 'text-ink'}`}>
         {value}
       </p>
@@ -56,8 +56,8 @@ export default function AdminDashboardPage() {
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
-        <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ system overview ]</p>
-        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Admin overview</h1>
+        <p className="eyebrow">System overview</p>
+        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.035em] text-ink">Admin overview</h1>
         {stats && (
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-5">
             <StatCard label="Students" value={stats.students} to="/admin/students" />

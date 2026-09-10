@@ -14,6 +14,15 @@ import { useAdminCollection } from '@/hooks/useAdminCollection'
 import type { Lesson, Resource, ResourceType } from '@/types/database'
 
 const RESOURCE_TYPES: ResourceType[] = ['video', 'article', 'docs', 'paper', 'repo', 'tool', 'other']
+const RESOURCE_TYPE_LABEL: Record<ResourceType, string> = {
+  video: 'Video',
+  article: 'Article',
+  docs: 'Docs',
+  paper: 'Paper',
+  repo: 'Template',
+  tool: 'Tool',
+  other: 'Other',
+}
 
 function useLesson(lessonId: string | undefined) {
   const [lesson, setLesson] = useState<Lesson | null>(null)
@@ -79,7 +88,7 @@ export default function LessonEditorPage() {
       <AppNav />
       <AdminNav />
       {lesson && (
-        <div className="border-b-2 border-hairline bg-surface">
+        <div className="border-b-2 border-stone bg-surface">
           <div className="mx-auto flex max-w-[1000px] flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
             <Breadcrumb items={[{ label: 'curriculum', to: '/admin/curriculum' }, { label: 'week', to: `/admin/curriculum/weeks/${lesson.week_id}` }, { label: 'lesson' }]} />
             <div className="flex items-center gap-3">
@@ -102,7 +111,7 @@ export default function LessonEditorPage() {
               </div>
               <div>
                 <Label htmlFor="body">
-                  Framing (markdown) <span className="normal-case text-faint">· keep it short, the substance is in the resources</span>
+                  Framing (markdown) <span className="normal-case text-muted">· keep it short, the substance is in the resources</span>
                 </Label>
                 <TextAreaField
                   id="body"
@@ -137,7 +146,7 @@ export default function LessonEditorPage() {
                         onMoveDown={() => void resources.moveDown(resource.id)}
                       />
                       <span
-                        className={`h-2.5 w-2.5 shrink-0 rounded-full ${resource.is_broken ? 'bg-fail' : 'bg-pass'}`}
+                        className={`h-2.5 w-2.5 shrink-0 rounded-full ${resource.is_broken ? 'bg-fail-ink' : 'bg-pass-ink'}`}
                         title={resource.is_broken ? 'Broken link' : 'Link healthy'}
                       />
                       <select
@@ -147,7 +156,7 @@ export default function LessonEditorPage() {
                       >
                         {RESOURCE_TYPES.map((t) => (
                           <option key={t} value={t}>
-                            {t}
+                            {RESOURCE_TYPE_LABEL[t]}
                           </option>
                         ))}
                       </select>
@@ -186,7 +195,7 @@ export default function LessonEditorPage() {
                     })
                     setNewResource({ title: '', url: '', resource_type: 'article' })
                   }}
-                  className="grid gap-2 rounded-panel border-2 border-dashed border-disabled p-3 sm:grid-cols-[1fr_1fr_auto_auto]"
+                  className="grid gap-2 rounded-panel bg-panel p-3 sm:grid-cols-[1fr_1fr_auto_auto]"
                 >
                   <Field
                     value={newResource.title}
@@ -205,7 +214,7 @@ export default function LessonEditorPage() {
                   >
                     {RESOURCE_TYPES.map((t) => (
                       <option key={t} value={t}>
-                        {t}
+                        {RESOURCE_TYPE_LABEL[t]}
                       </option>
                     ))}
                   </select>

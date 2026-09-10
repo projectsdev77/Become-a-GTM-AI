@@ -70,8 +70,8 @@ export default function BrokenLinksPage() {
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ {resources.length} flagged ]</p>
-        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Broken links</h1>
+        <p className="eyebrow">{resources.length} flagged</p>
+        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.035em] text-ink">Broken links</h1>
         <p className="mt-2 text-[14.5px] text-muted">
           Flagged by the periodic link checker. Students are never blocked by these (PD-009) — this is admin-only
           visibility.
@@ -91,7 +91,7 @@ export default function BrokenLinksPage() {
               </THead>
               <TBody>
                 {resources.map((r) => (
-                  <TR key={r.id} style={{ background: 'var(--color-warn-bg)' }}>
+                  <TR key={r.id} style={{ background: 'var(--color-warn-wash)' }}>
                     <TD>
                       <p className="font-bold text-ink">{r.title}</p>
                       <a href={r.url} target="_blank" rel="noreferrer" className="block truncate font-mono text-[12px] text-blue-700">
@@ -102,7 +102,7 @@ export default function BrokenLinksPage() {
                     <TD className="text-[13.5px] text-muted">
                       Week {r.weekPosition} · {r.lessonTitle}
                     </TD>
-                    <TD className="font-mono text-[12px] text-faint">
+                    <TD className="font-mono text-[12px] text-muted">
                       {r.last_checked_at ? new Date(r.last_checked_at).toLocaleDateString() : 'never'}
                     </TD>
                     <TD>

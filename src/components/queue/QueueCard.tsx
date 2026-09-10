@@ -19,7 +19,7 @@ export default function QueueCard({
 
   const isFailed = item.evaluation_status === 'failed'
   const cause = isFailed ? 'AI evaluation failed' : 'Student requested review'
-  const railColor = isFailed ? 'var(--color-fail)' : 'var(--color-warn)'
+  const railColor = isFailed ? 'var(--color-fail-border)' : 'var(--color-warn-border)'
 
   async function handleResolve() {
     if (!onResolve || !feedback.trim()) return
@@ -30,15 +30,15 @@ export default function QueueCard({
   }
 
   return (
-    <div className="overflow-hidden rounded-panel border-2 border-ink bg-surface" style={{ borderLeftWidth: 8, borderLeftColor: railColor }}>
+    <div className="overflow-hidden rounded-panel border border-stone bg-paper" style={{ borderLeftWidth: 6, borderLeftColor: railColor }}>
       <div className="p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-blue-50 font-display text-base font-bold text-ink">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-base font-bold text-ink">
               {item.studentName.charAt(0)}
             </span>
             <div>
-              <p className="font-display text-lg font-bold text-ink">{item.studentName}</p>
+              <p className="text-[17px] font-bold text-ink">{item.studentName}</p>
               <p className="text-[13.5px] text-muted">
                 Week {item.weekPosition} · {item.assignmentTitle} · attempt {item.attempt_number}
               </p>
@@ -46,17 +46,15 @@ export default function QueueCard({
           </div>
           <div className="text-right">
             <StatusPill variant={isFailed ? 'fail' : 'warn'}>{cause}</StatusPill>
-            <p className="mt-1.5 font-mono text-[11px] text-faint">
-              {new Date(item.submitted_at).toLocaleDateString()}
-            </p>
+            <p className="mt-1.5 font-mono text-[11px] text-muted">{new Date(item.submitted_at).toLocaleDateString()}</p>
           </div>
         </div>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {item.content && (
-            <div className="rounded-card border-2 border-hairline bg-paper p-4">
-              <p className="meta mb-1.5 text-faint">Submission</p>
-              <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-ink">{item.content}</p>
+            <div className="rounded-card bg-panel p-4">
+              <p className="meta mb-1.5">Submission</p>
+              <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-body">{item.content}</p>
             </div>
           )}
           {item.flag_reason && (
@@ -78,23 +76,16 @@ export default function QueueCard({
         )}
 
         {item.reviewed_at ? (
-          <div className="mt-5 border-t-2 border-hairline pt-4">
-            <p className="meta">
-              Resolved: {item.final_status === 'passed' ? 'passed' : 'needs work'}
-            </p>
+          <div className="mt-5 border-t border-stone pt-4">
+            <p className="meta">Resolved: {item.final_status === 'passed' ? 'passed' : 'needs work'}</p>
             {item.human_feedback && <p className="mt-1.5 text-[14.5px] text-ink">{item.human_feedback}</p>}
           </div>
         ) : (
           onResolve && (
-            <div className="mt-5 space-y-3 border-t-2 border-hairline pt-4">
+            <div className="mt-5 space-y-3 border-t border-stone pt-4">
               <div className="flex items-center gap-3">
                 <span className="meta">Verdict</span>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={status === 'passed' ? 'primary' : 'secondary'}
-                  onClick={() => setStatus('passed')}
-                >
+                <Button type="button" size="sm" variant={status === 'passed' ? 'primary' : 'secondary'} onClick={() => setStatus('passed')}>
                   <CheckIcon className="h-3.5 w-3.5" /> Pass
                 </Button>
                 <Button
@@ -102,7 +93,6 @@ export default function QueueCard({
                   size="sm"
                   variant={status === 'needs_work' ? 'primary' : 'secondary'}
                   onClick={() => setStatus('needs_work')}
-                  className={status === 'needs_work' ? '!bg-warn !border-warn' : ''}
                 >
                   <AlertIcon className="h-3.5 w-3.5" /> Needs work
                 </Button>
@@ -114,9 +104,7 @@ export default function QueueCard({
                 rows={2}
               />
               <div className="flex items-center justify-between gap-4">
-                <p className="font-mono text-[11px] font-bold uppercase tracking-wide text-faint">
-                  student is notified immediately on resolve
-                </p>
+                <p className="text-[13px] text-muted">student is notified immediately on resolve</p>
                 <Button type="button" variant="primary" onClick={() => void handleResolve()} disabled={saving || !feedback.trim()}>
                   {saving ? 'Saving…' : 'Resolve'}
                 </Button>

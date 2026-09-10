@@ -23,13 +23,11 @@ export default function MentorDashboardPage() {
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">
-              [ {students.length} assigned ]
-            </p>
-            <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Your students</h1>
+            <p className="eyebrow">{students.length} assigned</p>
+            <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.035em] text-ink">Your students</h1>
           </div>
-          <Link to="/mentor/queue" className="font-mono text-xs font-bold uppercase tracking-wide text-blue-700">
-            exception queue →
+          <Link to="/mentor/queue" className="text-[13.5px] font-semibold text-blue-500">
+            Exception queue →
           </Link>
         </div>
 
@@ -47,11 +45,11 @@ export default function MentorDashboardPage() {
             <TBody>
               {students.map((student) => (
                 <TR key={student.id}>
-                  <TD className="font-bold text-ink">{student.full_name ?? 'Unnamed student'}</TD>
+                  <TD className="font-semibold text-ink">{student.full_name ?? 'Unnamed student'}</TD>
                   <TD className="font-mono text-[12px] text-muted">{timeAgo(student.last_active_at)}</TD>
                   <TD className="text-right">
-                    <Link to={`/mentor/students/${student.id}`} className="font-mono text-[11.5px] font-bold uppercase text-blue-700 no-underline hover:underline">
-                      view →
+                    <Link to={`/mentor/students/${student.id}`} className="text-[13px] font-semibold text-blue-500 no-underline hover:underline">
+                      View →
                     </Link>
                   </TD>
                 </TR>
@@ -59,7 +57,7 @@ export default function MentorDashboardPage() {
             </TBody>
           </Table>
           {students.length === 0 && (
-            <p className="py-8 text-center font-mono text-xs font-bold uppercase text-muted">No students assigned yet.</p>
+            <p className="py-8 text-center text-[13.5px] text-muted">No students assigned yet.</p>
           )}
         </div>
       </main>

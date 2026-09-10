@@ -74,8 +74,8 @@ export default function StudentsListPage() {
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ {students.length} total ]</p>
-            <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Students</h1>
+            <p className="eyebrow">{students.length} total</p>
+            <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.035em] text-ink">Students</h1>
           </div>
           <Field value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search students…" className="w-64" />
         </div>

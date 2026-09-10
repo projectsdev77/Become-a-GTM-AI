@@ -2,23 +2,23 @@ import type { HTMLAttributes, ReactNode, ThHTMLAttributes, TdHTMLAttributes } fr
 
 export function Table({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`overflow-x-auto rounded-card border-2 border-ink ${className}`}>
+    <div className={`overflow-x-auto rounded-card border border-stone ${className}`}>
       <table className="w-full min-w-[560px] border-collapse text-left">{children}</table>
     </div>
   )
 }
 
 export function THead({ children }: { children: ReactNode }) {
-  return <thead className="bg-stone">{children}</thead>
+  return <thead className="border-b-[1.5px] border-ink">{children}</thead>
 }
 
 export function TBody({ children }: { children: ReactNode }) {
-  return <tbody className="divide-y divide-hairline">{children}</tbody>
+  return <tbody className="divide-y divide-stone">{children}</tbody>
 }
 
 export function TR({ children, className = '', ...rest }: HTMLAttributes<HTMLTableRowElement> & { children: ReactNode }) {
   return (
-    <tr className={`odd:bg-surface even:bg-paper ${className}`} {...rest}>
+    <tr className={`bg-paper ${className}`} {...rest}>
       {children}
     </tr>
   )

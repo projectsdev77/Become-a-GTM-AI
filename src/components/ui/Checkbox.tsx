@@ -15,8 +15,12 @@ export function Checkbox({ checked, onChange, disabled, label, className = '' }:
       className={`inline-flex min-h-11 items-center gap-3 ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${className}`}
     >
       <span
-        className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border-2 border-ink"
-        style={checked ? { background: 'var(--color-lime)' } : { background: 'var(--color-surface)' }}
+        className="relative inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px]"
+        style={
+          checked
+            ? { background: 'var(--color-pass-ink)', border: '2px solid var(--color-pass-ink)' }
+            : { background: 'var(--color-paper)', border: '2px solid var(--color-stone-strong)' }
+        }
       >
         <input
           type="checkbox"
@@ -25,7 +29,7 @@ export function Checkbox({ checked, onChange, disabled, label, className = '' }:
           onChange={(e) => onChange?.(e.target.checked)}
           className="absolute inset-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
         />
-        {checked && <CheckIcon className="h-4 w-4 text-ink" />}
+        {checked && <CheckIcon className="h-3.5 w-3.5 text-white" />}
       </span>
       {label != null && <span>{label}</span>}
     </label>

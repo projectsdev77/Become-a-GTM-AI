@@ -41,9 +41,9 @@ export default function LoginPage() {
     <div className="min-h-screen bg-paper">
       <PublicNav />
       <main className="flex items-center justify-center px-4 py-16">
-        <div className="w-full max-w-[420px] rounded-panel border-[3px] border-ink bg-surface p-8 shadow-site">
-          <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ welcome back ]</p>
-          <h1 className="mt-2 font-display text-[38px] font-bold leading-none tracking-[-0.03em] text-ink">Log in</h1>
+        <div className="w-full max-w-[420px] rounded-panel border border-stone bg-paper p-8" style={{ boxShadow: 'var(--shadow-site)' }}>
+          <p className="eyebrow">Welcome back</p>
+          <h1 className="mt-2 font-display text-[38px] font-bold leading-none tracking-[-0.035em] text-ink">Log in</h1>
 
           {error && (
             <Callout tone="fail" heading="couldn't log in" icon={<AlertIcon className="h-3.5 w-3.5" />} className="mt-6">
@@ -80,15 +80,15 @@ export default function LoginPage() {
               />
             </div>
 
-            <Button type="submit" variant="site" disabled={submitting} className="w-full">
+            <Button type="submit" variant="primary" shadow="app" disabled={submitting} className="w-full">
               {submitting ? 'Logging in…' : 'Log in'}
             </Button>
           </form>
 
           <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-hairline" />
-            <span className="font-mono text-[11px] uppercase text-faint">or</span>
-            <div className="h-px flex-1 bg-hairline" />
+            <div className="h-px flex-1 bg-stone" />
+            <span className="text-[12px] text-muted">or</span>
+            <div className="h-px flex-1 bg-stone" />
           </div>
 
           <Button type="button" variant="secondary" onClick={handleGoogle} className="w-full">

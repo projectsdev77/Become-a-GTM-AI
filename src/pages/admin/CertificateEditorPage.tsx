@@ -68,8 +68,8 @@ export default function CertificateEditorPage() {
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
-        <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ public-facing template ]</p>
-        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Certificate template</h1>
+        <p className="eyebrow">Public-facing template</p>
+        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.035em] text-ink">Certificate template</h1>
         <p className="mt-2 max-w-2xl text-[14.5px] text-muted">
           Structured fields only — merge fields are substituted into escaped text, so nothing you type here can
           become markup on the public certificate page.
@@ -78,7 +78,7 @@ export default function CertificateEditorPage() {
         {error && <p className="mt-4 text-sm font-bold text-fail-ink">{error}</p>}
 
         {!template && !error && (
-          <div className="mt-6 rounded-panel border-2 border-dashed border-disabled p-8 text-center">
+          <div className="mt-6 rounded-panel bg-panel p-8 text-center">
             <p className="text-[14.5px] text-muted">No active template yet.</p>
             <Button type="button" variant="primary" onClick={() => void createDefault()} className="mt-4">
               Create default template

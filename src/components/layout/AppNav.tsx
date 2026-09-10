@@ -1,58 +1,48 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Monogram } from '@/components/ui/icons'
 import Avatar from '@/components/ui/Avatar'
 
 export default function AppNav() {
   const { profile, signOut } = useAuth()
+  const { pathname } = useLocation()
 
   return (
-    <header className="border-b-2 border-ink bg-ink text-paper">
-      <nav className="mx-auto flex max-w-[1280px] items-center justify-between gap-4 px-4 py-3.5 sm:px-6">
-        <Link to="/dashboard" className="flex items-center gap-3 no-underline">
-          <Monogram />
-          <span className="hidden font-mono text-[13px] font-bold uppercase tracking-[0.08em] text-paper sm:inline">
-            Become a GTM AI
-          </span>
+    <header className="border-b border-stone bg-paper">
+      <nav className="mx-auto flex max-w-[1280px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
+        <Link to="/dashboard" className="flex items-center gap-2.5 no-underline">
+          <Monogram size={28} />
+          <span className="hidden text-[14px] font-semibold text-ink sm:inline">Become a GTM AI</span>
+          {profile?.role === 'mentor' && <span className="pill pill-locked">Mentor</span>}
+          {profile?.role === 'admin' && <span className="pill pill-locked">Admin</span>}
+        </Link>
+        <div className="flex items-center gap-6">
           {profile?.role === 'mentor' && (
-            <span
-              className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-paper"
-              style={{ background: '#3B3B4C' }}
+            <Link
+              to="/mentor"
+              className={`border-b-[2px] pb-1 text-[14px] no-underline ${
+                pathname.startsWith('/mentor') ? 'border-signal font-semibold text-ink' : 'border-transparent text-muted hover:text-ink'
+              }`}
             >
-              Mentor
-            </span>
+              Your students
+            </Link>
           )}
           {profile?.role === 'admin' && (
-            <span
-              className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-paper"
-              style={{ background: '#3B3B4C' }}
+            <Link
+              to="/admin"
+              className={`border-b-[2px] pb-1 text-[14px] no-underline ${
+                pathname.startsWith('/admin') ? 'border-signal font-semibold text-ink' : 'border-transparent text-muted hover:text-ink'
+              }`}
             >
               Admin
-            </span>
-          )}
-        </Link>
-        <div className="flex items-center gap-5">
-          {profile?.role === 'mentor' && (
-            <Link to="/mentor" className="font-mono text-xs text-paper no-underline hover:text-lime">
-              your students
             </Link>
           )}
-          {profile?.role === 'admin' && (
-            <Link to="/admin" className="font-mono text-xs text-paper no-underline hover:text-lime">
-              admin
-            </Link>
-          )}
-          <Link to="/settings" className="flex items-center gap-2 no-underline hover:text-lime">
-            <Avatar name={profile?.full_name} url={profile?.avatar_url} size={26} />
-            <span className="hidden font-mono text-xs text-paper/80 sm:inline">
-              {profile?.full_name?.toLowerCase() ?? 'settings'}
-            </span>
+          <Link to="/settings" className="flex items-center gap-2 no-underline">
+            <Avatar name={profile?.full_name} url={profile?.avatar_url} size={28} />
+            <span className="hidden text-[14px] text-body sm:inline">{profile?.full_name ?? 'Settings'}</span>
           </Link>
-          <button
-            onClick={() => void signOut()}
-            className="rounded-field border-2 border-paper/40 px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-wide text-paper hover:border-paper"
-          >
-            log out
+          <button onClick={() => void signOut()} className="text-[13.5px] font-semibold text-muted hover:text-ink">
+            Log out
           </button>
         </div>
       </nav>

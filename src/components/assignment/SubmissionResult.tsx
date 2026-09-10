@@ -27,7 +27,7 @@ export default function SubmissionResult({
     submission.evaluation_status === 'complete'
 
   return (
-    <div className="card">
+    <div className={`card ${isLatest ? 'card-active' : ''}`}>
       <div className="flex items-center justify-between">
         <span className="meta">Attempt {submission.attempt_number}</span>
         {submission.final_status === 'passed' && <StatusPill variant="pass">passed</StatusPill>}
@@ -36,9 +36,9 @@ export default function SubmissionResult({
       </div>
 
       {submission.content && (
-        <div className="mt-4 rounded-card border-2 border-hairline bg-paper p-4">
-          <p className="meta mb-1.5 text-faint">Submission</p>
-          <p className="whitespace-pre-wrap text-[14.5px] leading-relaxed text-ink">{submission.content}</p>
+        <div className="mt-4 rounded-card bg-panel p-4">
+          <p className="meta mb-1.5">Submission</p>
+          <p className="whitespace-pre-wrap text-[14.5px] leading-relaxed text-body">{submission.content}</p>
         </div>
       )}
 
@@ -64,7 +64,7 @@ export default function SubmissionResult({
       )}
 
       {submission.human_feedback && (
-        <div className="mt-4 rounded-card border-2 border-ink bg-surface p-4">
+        <div className="mt-4 rounded-card border border-ink p-4">
           <p className="meta mb-1.5">Mentor feedback</p>
           <p className="text-[14.5px] leading-relaxed text-ink">{submission.human_feedback}</p>
         </div>
@@ -78,10 +78,8 @@ export default function SubmissionResult({
       )}
 
       {submission.final_status === 'passed' && isLatest && (
-        <div className="mt-5 flex items-center justify-between gap-4 rounded-card border-2 border-pass bg-pass-bg px-4 py-3">
-          <p className="font-mono text-[11px] font-bold uppercase tracking-wide text-pass-ink">
-            ✓ Nice work — the next week is ready.
-          </p>
+        <div className="mt-5 flex items-center justify-between gap-4 rounded-card bg-pass-wash px-4 py-3">
+          <p className="text-[14px] font-semibold text-pass-ink">✓ Nice work — the next week is ready.</p>
           {continueHref && (
             <LinkButton to={continueHref} variant="primary" size="sm" className="shrink-0">
               Continue
@@ -90,13 +88,13 @@ export default function SubmissionResult({
         </div>
       )}
       {submission.final_status === 'needs_work' && isLatest && (
-        <p className="mt-5 font-mono text-[11px] font-bold uppercase tracking-wide text-warn-ink">
+        <p className="mt-5 text-[14px] font-semibold text-warn-ink">
           Give it another attempt when you're ready — retries don't cost you anything.
         </p>
       )}
 
       {canFlag && (
-        <div className="mt-5 border-t-2 border-hairline pt-4">
+        <div className="mt-5 border-t border-stone pt-4">
           {showFlagForm ? (
             <div className="space-y-2">
               <TextAreaField
