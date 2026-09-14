@@ -47,7 +47,7 @@ export default function UrlForm({
         onChange={(e) => setUrl(e.target.value)}
         onBlur={() => setTouched(true)}
         disabled={disabled}
-        placeholder="https://docs.google.com/document/d/..."
+        placeholder="https://github.com/you/your-project"
         error={touched && validUrl && !hostOk}
       />
       {touched && validUrl && !hostOk && (

@@ -1,48 +1,88 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { useUnreadMessages } from '@/hooks/useUnreadMessages'
 import { Monogram } from '@/components/ui/icons'
 import Avatar from '@/components/ui/Avatar'
 
+function UnreadBadge({ count }: { count: number }) {
+  if (count === 0) return null
+  return (
+    <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-fail px-1 font-mono text-[10px] font-bold leading-none text-white">
+      {count > 9 ? '9+' : count}
+    </span>
+  )
+}
+
 export default function AppNav() {
   const { profile, signOut } = useAuth()
-  const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const unreadMessages = useUnreadMessages()
+
+  // Navigate to the landing page ourselves rather than letting
+  // ProtectedRoute's own redirect fire: that redirect attaches the current
+  // page as `state.from` so the next login returns here — useful when a
+  // session expires mid-browse, but wrong for an explicit "log out", which
+  // should always land the next login on the dashboard, not wherever the
+  // user happened to click log out from.
+  async function handleLogout() {
+    await signOut()
+    navigate('/', { replace: true })
+  }
 
   return (
-    <header className="border-b border-stone bg-paper">
-      <nav className="mx-auto flex max-w-[1280px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
-        <Link to="/dashboard" className="flex items-center gap-2.5 no-underline">
-          <Monogram size={28} />
-          <span className="hidden text-[14px] font-semibold text-ink sm:inline">Become a GTM AI</span>
-          {profile?.role === 'mentor' && <span className="pill pill-locked">Mentor</span>}
-          {profile?.role === 'admin' && <span className="pill pill-locked">Admin</span>}
-        </Link>
-        <div className="flex items-center gap-6">
+    <header className="border-b-2 border-ink bg-ink text-paper">
+      <nav className="mx-auto flex max-w-[1280px] items-center justify-between gap-4 px-4 py-3.5 sm:px-6">
+        <Link to="/dashboard" className="flex items-center gap-3 no-underline">
+          <Monogram size={32} />
+          <span className="hidden font-mono text-[13px] font-bold uppercase tracking-[0.08em] text-paper sm:inline">
+            Become an AI Engineer
+          </span>
           {profile?.role === 'mentor' && (
-            <Link
-              to="/mentor"
-              className={`border-b-[2px] pb-1 text-[14px] no-underline ${
-                pathname.startsWith('/mentor') ? 'border-signal font-semibold text-ink' : 'border-transparent text-muted hover:text-ink'
-              }`}
+            <span
+              className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-paper"
+              style={{ background: '#3B3B4C' }}
             >
-              Your students
+              Mentor
+            </span>
+          )}
+          {profile?.role === 'admin' && (
+            <span
+              className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-paper"
+              style={{ background: '#3B3B4C' }}
+            >
+              Admin
+            </span>
+          )}
+        </Link>
+        <div className="flex items-center gap-5">
+          {profile?.role === 'student' && (
+            <Link to="/messages" className="flex items-center gap-1.5 font-mono text-xs text-paper no-underline hover:text-lime">
+              messages
+              <UnreadBadge count={unreadMessages} />
+            </Link>
+          )}
+          {profile?.role === 'mentor' && (
+            <Link to="/mentor" className="flex items-center gap-1.5 font-mono text-xs text-paper no-underline hover:text-lime">
+              your students
+              <UnreadBadge count={unreadMessages} />
             </Link>
           )}
           {profile?.role === 'admin' && (
-            <Link
-              to="/admin"
-              className={`border-b-[2px] pb-1 text-[14px] no-underline ${
-                pathname.startsWith('/admin') ? 'border-signal font-semibold text-ink' : 'border-transparent text-muted hover:text-ink'
-              }`}
-            >
-              Admin
+            <Link to="/admin" className="font-mono text-xs text-paper no-underline hover:text-lime">
+              admin
             </Link>
           )}
-          <Link to="/settings" className="flex items-center gap-2 no-underline">
-            <Avatar name={profile?.full_name} url={profile?.avatar_url} size={28} />
-            <span className="hidden text-[14px] text-body sm:inline">{profile?.full_name ?? 'Settings'}</span>
+          <Link to="/settings" className="flex items-center gap-2 no-underline hover:text-lime">
+            <Avatar name={profile?.full_name} size={26} />
+            <span className="hidden font-mono text-xs text-paper/80 sm:inline">
+              {profile?.full_name?.toLowerCase() ?? 'settings'}
+            </span>
           </Link>
-          <button onClick={() => void signOut()} className="text-[13.5px] font-semibold text-muted hover:text-ink">
-            Log out
+          <button
+            onClick={() => void handleLogout()}
+            className="rounded-field border-2 border-paper/40 px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-wide text-paper hover:border-paper"
+          >
+            log out
           </button>
         </div>
       </nav>

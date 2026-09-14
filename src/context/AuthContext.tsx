@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { functionErrorMessage } from '@/lib/functionsError'
 import type { Profile } from '@/types/database'
 
 interface AuthContextValue {
@@ -18,7 +19,7 @@ interface AuthContextValue {
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
   requestPasswordReset: (email: string) => Promise<{ error: string | null }>
-  updatePassword: (newPassword: string) => Promise<{ error: string | null }>
+  updatePassword: (newPassword: string, currentPassword?: string) => Promise<{ error: string | null }>
   deleteAccount: () => Promise<{ error: string | null }>
 }
 
@@ -34,6 +35,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(data as Profile | null)
   }
 
+  // profiles.last_active_at otherwise never gets written anywhere — the
+  // mentor dashboard's "last activity" column and send-reengagement-emails'
+  // inactivity filter both read it, but a column nothing ever updates stays
+  // null forever (and .lt('last_active_at', ...) never matches a null row,
+  // so that edge function has never actually selected anyone). Touching it
+  // once per app load is a simple, good-enough "was here recently" signal
+  // without writing on every token refresh while a tab sits open.
+  function touchLastActive(userId: string) {
+    supabase
+      .from('profiles')
+      .update({ last_active_at: new Date().toISOString() })
+      .eq('id', userId)
+      .then(undefined, () => {})
+  }
+
   useEffect(() => {
     let active = true
 
@@ -42,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(data.session)
       if (data.session?.user) {
         await loadProfile(data.session.user.id)
+        touchLastActive(data.session.user.id)
       }
       setLoading(false)
     })
@@ -65,7 +82,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } },
+      options: {
+        data: { full_name: fullName },
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+      },
     })
     if (!error && data.user) {
       // Fire-and-forget: a failed welcome email should never block signup.
@@ -107,7 +127,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error?.message ?? null }
   }
 
-  async function updatePassword(newPassword: string) {
+  // When currentPassword is supplied (the "change password while logged in"
+  // flow, as opposed to the emailed reset-link flow which already proves
+  // identity), verify it against the account before applying the change —
+  // updateUser alone would let anyone with a live session set a new password
+  // without ever proving they knew the old one.
+  async function updatePassword(newPassword: string, currentPassword?: string) {
+    if (currentPassword) {
+      if (!session?.user?.email) {
+        return { error: 'Your session has expired. Please log in again.' }
+      }
+      const { error: reauthError } = await supabase.auth.signInWithPassword({
+        email: session.user.email,
+        password: currentPassword,
+      })
+      if (reauthError) {
+        return { error: 'Current password is incorrect.' }
+      }
+    }
     const { error } = await supabase.auth.updateUser({ password: newPassword })
     return { error: error?.message ?? null }
   }
@@ -118,12 +155,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // locally on success since the session is invalid the moment the user
   // row is gone.
   async function deleteAccount() {
-    const { data, error } = await supabase.functions.invoke('delete-account')
-    if (error) {
-      return { error: error.message }
-    }
-    if (data?.error) {
-      return { error: data.error as string }
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-account')
+      if (error) {
+        return { error: await functionErrorMessage(error) }
+      }
+      if (data?.error) {
+        return { error: data.error as string }
+      }
+    } catch (e) {
+      // A thrown network/CORS failure here (rather than the invoke's own
+      // {error} field) would otherwise leave the caller's "Deleting…" state
+      // stuck forever with no message — same class of silent-hang bug as
+      // evaluate-submission's invoke.
+      return { error: e instanceof Error ? e.message : "Couldn't reach the delete-account service." }
     }
     await supabase.auth.signOut()
     return { error: null }

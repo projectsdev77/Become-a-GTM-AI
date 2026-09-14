@@ -10,11 +10,13 @@ import { MessageIcon } from '@/components/ui/icons'
 export default function SubmissionResult({
   submission,
   onFlag,
+  onRefresh,
   isLatest,
   continueHref,
 }: {
   submission: Submission
   onFlag: (reason: string) => void
+  onRefresh?: () => void
   isLatest?: boolean
   continueHref?: string
 }) {
@@ -27,7 +29,7 @@ export default function SubmissionResult({
     submission.evaluation_status === 'complete'
 
   return (
-    <div className={`card ${isLatest ? 'card-active' : ''}`}>
+    <div className="card">
       <div className="flex items-center justify-between">
         <span className="meta">Attempt {submission.attempt_number}</span>
         {submission.final_status === 'passed' && <StatusPill variant="pass">passed</StatusPill>}
@@ -36,15 +38,22 @@ export default function SubmissionResult({
       </div>
 
       {submission.content && (
-        <div className="mt-4 rounded-card bg-panel p-4">
-          <p className="meta mb-1.5">Submission</p>
-          <p className="whitespace-pre-wrap text-[14.5px] leading-relaxed text-body">{submission.content}</p>
+        <div className="mt-4 rounded-card border-2 border-hairline bg-paper p-4">
+          <p className="meta mb-1.5 text-faint">Submission</p>
+          <p className="whitespace-pre-wrap text-[14.5px] leading-relaxed text-ink">{submission.content}</p>
         </div>
       )}
 
       {(submission.evaluation_status === 'pending' || submission.evaluation_status === 'processing') && (
         <Callout tone="info" className="mt-4">
-          Evaluating — usually under a minute.
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span>Evaluating — usually under a minute.</span>
+            {isLatest && onRefresh && (
+              <Button type="button" variant="secondary" size="sm" onClick={onRefresh}>
+                Check again
+              </Button>
+            )}
+          </div>
         </Callout>
       )}
 
@@ -56,7 +65,7 @@ export default function SubmissionResult({
       )}
 
       {submission.ai_feedback && (
-        <Callout tone="info" heading="AI feedback" icon={<MessageIcon className="h-3.5 w-3.5" />} className="mt-4">
+        <Callout tone="info" heading="Feedback" icon={<MessageIcon className="h-3.5 w-3.5" />} className="mt-4">
           <div className="prose prose-sm max-w-none">
             <ReactMarkdown>{submission.ai_feedback}</ReactMarkdown>
           </div>
@@ -64,7 +73,7 @@ export default function SubmissionResult({
       )}
 
       {submission.human_feedback && (
-        <div className="mt-4 rounded-card border border-ink p-4">
+        <div className="mt-4 rounded-card border-2 border-ink bg-surface p-4">
           <p className="meta mb-1.5">Mentor feedback</p>
           <p className="text-[14.5px] leading-relaxed text-ink">{submission.human_feedback}</p>
         </div>
@@ -78,8 +87,10 @@ export default function SubmissionResult({
       )}
 
       {submission.final_status === 'passed' && isLatest && (
-        <div className="mt-5 flex items-center justify-between gap-4 rounded-card bg-pass-wash px-4 py-3">
-          <p className="text-[14px] font-semibold text-pass-ink">✓ Nice work — the next week is ready.</p>
+        <div className="mt-5 flex items-center justify-between gap-4 rounded-card border-2 border-pass bg-pass-bg px-4 py-3">
+          <p className="font-mono text-[11px] font-bold uppercase tracking-wide text-pass-ink">
+            ✓ Nice work — the next week is ready.
+          </p>
           {continueHref && (
             <LinkButton to={continueHref} variant="primary" size="sm" className="shrink-0">
               Continue
@@ -88,13 +99,13 @@ export default function SubmissionResult({
         </div>
       )}
       {submission.final_status === 'needs_work' && isLatest && (
-        <p className="mt-5 text-[14px] font-semibold text-warn-ink">
+        <p className="mt-5 font-mono text-[11px] font-bold uppercase tracking-wide text-warn-ink">
           Give it another attempt when you're ready — retries don't cost you anything.
         </p>
       )}
 
       {canFlag && (
-        <div className="mt-5 border-t border-stone pt-4">
+        <div className="mt-5 border-t-2 border-hairline pt-4">
           {showFlagForm ? (
             <div className="space-y-2">
               <TextAreaField
@@ -122,7 +133,7 @@ export default function SubmissionResult({
             </div>
           ) : (
             <button onClick={() => setShowFlagForm(true)} className="font-bold text-blue-700 underline decoration-2 underline-offset-2">
-              This feedback is AI-generated. Ask a mentor for a second look →
+              Ask a mentor for a second look →
             </button>
           )}
         </div>

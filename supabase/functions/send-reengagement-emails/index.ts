@@ -4,6 +4,7 @@
 // email_log the same way send-welcome-email does.
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { sendEmail } from '../_shared/resend.ts'
+import { corsHeaders, handlePreflight } from '../_shared/cors.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -13,10 +14,16 @@ const INACTIVITY_THRESHOLD_DAYS = 7
 const RESEND_COOLDOWN_DAYS = 14
 
 function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders },
+  })
 }
 
-Deno.serve(async () => {
+Deno.serve(async (req) => {
+  const preflight = handlePreflight(req)
+  if (preflight) return preflight
+
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
 
   const inactiveSince = new Date(Date.now() - INACTIVITY_THRESHOLD_DAYS * 86_400_000).toISOString()
@@ -58,7 +65,7 @@ Deno.serve(async () => {
         to: email,
         subject: "You've got a week waiting for you",
         html: `<p>Hi ${student.full_name ?? 'there'},</p>
-<p>It's been a little while since you were last in Become a GTM AI. Your progress is saved — pick up right where you left off whenever you're ready.</p>
+<p>It's been a little while since you were last in Become an AI Engineer. Your progress is saved — pick up right where you left off whenever you're ready.</p>
 <p><a href="${SITE_URL}/dashboard">Continue learning</a></p>`,
       })
       await supabase.from('email_log').insert({ user_id: student.id, email_type: 'reengagement' })

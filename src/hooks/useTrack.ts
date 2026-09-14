@@ -9,7 +9,9 @@ export function useTrack() {
   const [error, setError] = useState<string | null>(null)
 
   const refresh = useCallback(async () => {
-    setLoading(true)
+    // Deliberately not setLoading(true) here: createDefaultTrack() also
+    // calls refresh(), and flipping loading back to true would unmount
+    // the whole page back to a full-page spinner right after clicking it.
     const { data, error } = await supabase
       .from('tracks')
       .select('*')
@@ -31,9 +33,9 @@ export function useTrack() {
 
   async function createDefaultTrack() {
     const { error } = await supabase.from('tracks').insert({
-      title: 'Become a GTM AI',
-      slug: 'become-a-gtm-ai',
-      description: 'A self-paced, 12-week path into AI-powered go-to-market.',
+      title: 'Become an AI Engineer',
+      slug: 'become-an-ai-engineer',
+      description: 'A self-paced, 12-week path into AI engineering.',
       status: 'draft',
     })
     if (error) {

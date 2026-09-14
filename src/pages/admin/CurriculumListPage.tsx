@@ -56,7 +56,7 @@ export default function CurriculumListPage() {
         {trackError && <p className="text-sm font-bold text-fail-ink">{trackError}</p>}
 
         {!track && !trackError && (
-          <div className="rounded-panel bg-panel p-8 text-center">
+          <div className="rounded-panel border-2 border-dashed border-disabled p-8 text-center">
             <p className="text-[14.5px] text-muted">No track exists yet.</p>
             <Button type="button" variant="primary" onClick={() => void createDefaultTrack()} className="mt-4">
               Create the track
@@ -66,12 +66,14 @@ export default function CurriculumListPage() {
 
         {track && (
           <>
-            <p className="eyebrow">{weeks.length} weeks · {publishedCount} published · {draftCount} draft</p>
-            <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.035em] text-ink">Curriculum</h1>
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">
+              [ {weeks.length} weeks · {publishedCount} published · {draftCount} draft ]
+            </p>
+            <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Curriculum</h1>
             {weeksError && <p className="mt-4 text-sm font-bold text-fail-ink">{weeksError}</p>}
 
             {weeksLoading ? (
-              <p className="mt-6 text-[13px] text-muted">loading weeks…</p>
+              <p className="mt-6 font-mono text-xs font-bold uppercase text-muted">loading weeks…</p>
             ) : (
               <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_280px]">
                 <div>
@@ -87,9 +89,9 @@ export default function CurriculumListPage() {
                     <TBody>
                       {weeks.map((week, i) => (
                         <TR key={week.id}>
-                          <TD className="font-mono font-semibold text-muted">{String(week.position).padStart(2, '0')}</TD>
+                          <TD className="font-mono font-bold text-faint">{String(week.position).padStart(2, '0')}</TD>
                           <TD>
-                            <Link to={`/admin/curriculum/weeks/${week.id}`} className="font-semibold text-ink no-underline hover:text-blue-500">
+                            <Link to={`/admin/curriculum/weeks/${week.id}`} className="font-bold text-ink no-underline hover:text-blue-700">
                               {week.title}
                             </Link>
                             {week.goal && <p className="mt-0.5 truncate text-[13px] text-muted">{week.goal}</p>}
@@ -109,9 +111,9 @@ export default function CurriculumListPage() {
                                 onClick={() => {
                                   if (confirm(`Delete "${week.title}" and everything in it?`)) void remove(week.id)
                                 }}
-                                className="text-[13px] font-semibold text-fail-ink hover:underline"
+                                className="font-mono text-[11.5px] font-bold uppercase text-fail-ink hover:underline"
                               >
-                                Delete
+                                del
                               </button>
                             </div>
                           </TD>
@@ -127,7 +129,7 @@ export default function CurriculumListPage() {
                       void create({ title: newTitle.trim(), status: 'draft' })
                       setNewTitle('')
                     }}
-                    className="mt-4 flex gap-2 rounded-panel bg-panel p-4"
+                    className="mt-4 flex gap-2 rounded-panel border-2 border-dashed border-disabled p-4"
                   >
                     <Field value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="New week title…" className="flex-1" />
                     <Button type="submit" variant="primary">

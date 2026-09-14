@@ -91,51 +91,25 @@ export function ChevronRightIcon(props: IconProps) {
   )
 }
 
-export function InfoIcon(props: IconProps) {
+/** The wordmark monogram: "AI" in ink on a lime rounded chip. Minimum 26px. Never recolour. */
+export function GoogleIcon({ size = 18 }: { size?: number }) {
   return (
-    <Base {...props}>
-      <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 4.5a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8ZM10.8 11h2.4v7.2h-2.4V11Z" />
-    </Base>
-  )
-}
-
-export function SparkleIcon(props: IconProps) {
-  return (
-    <Base {...props}>
-      <path d="M12 2c.5 3.6 2.4 5.5 6 6-3.6.5-5.5 2.4-6 6-.5-3.6-2.4-5.5-6-6 3.6-.5 5.5-2.4 6-6ZM19 15.5c.25 1.7 1.05 2.5 2.75 2.75C20.05 18.5 19.25 19.3 19 21c-.25-1.7-1.05-2.5-2.75-2.75C18.05 18 18.85 17.2 19 15.5Z" />
-    </Base>
-  )
-}
-
-export function ChartIcon(props: IconProps) {
-  return (
-    <Base {...props}>
-      <path d="M4 20V10h4v10H4Zm6 0V4h4v16h-4Zm6 0v-7h4v7h-4Z" />
-    </Base>
-  )
-}
-
-export function DocumentIcon(props: IconProps) {
-  return (
-    <Base {...props}>
-      <path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Zm8 1.5V8h4.5L14 3.5ZM7.5 12h9v1.6h-9V12Zm0 4h9v1.6h-9V16Zm0-8h4.5v1.6H7.5V8Z" />
-    </Base>
-  )
-}
-
-/**
- * The wordmark monogram — a rounded square carrying three ascending bars
- * and a single signal-orange node. `reverse` draws the paper-ground variant
- * for placement on ink backgrounds. Minimum 24px. Never recolour.
- */
-export function Monogram({ size = 26, reverse = false, className = '' }: { size?: number; reverse?: boolean; className?: string }) {
-  const squareFill = reverse ? '#FFFFFF' : 'var(--color-ink)'
-  const barStroke = reverse ? 'var(--color-ink)' : '#FFFFFF'
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" role="img" aria-label="Become a GTM AI" className={`shrink-0 ${className}`}>
-      <rect width="32" height="32" rx="9" fill={squareFill} />
-      <path d="M8 10h16M11 16h13M14 22h10" stroke={barStroke} strokeWidth="2.6" strokeLinecap="round" />
-      <circle cx="23.5" cy="22" r="3.2" fill="var(--color-signal)" />
+    <svg width={size} height={size} viewBox="0 0 18 18" aria-hidden="true">
+      <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" />
+      <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" />
+      <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" />
+      <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.581C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" />
     </svg>
+  )
+}
+
+export function Monogram({ size = 26, className = '' }: { size?: number; className?: string }) {
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center justify-center rounded-[10px] border-2 border-ink bg-lime font-display font-bold text-ink ${className}`}
+      style={{ width: size, height: size, fontSize: size * 0.42, lineHeight: 1 }}
+    >
+      AI
+    </span>
   )
 }

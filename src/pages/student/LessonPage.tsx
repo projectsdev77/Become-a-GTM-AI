@@ -17,7 +17,7 @@ const RESOURCE_TYPE_LABEL: Record<string, string> = {
   article: 'Article',
   docs: 'Docs',
   paper: 'Paper',
-  repo: 'Template',
+  repo: 'Repo',
   tool: 'Tool',
   other: 'Resource',
 }
@@ -30,7 +30,7 @@ function ResourceRow({
   onToggle: (checked: boolean) => void
 }) {
   return (
-    <li className="rounded-card bg-paper p-4" style={!resource.is_required ? { border: '1.5px dashed var(--color-stone-strong)' } : undefined}>
+    <li className={`rounded-card border-2 p-4 ${resource.is_required ? 'border-ink bg-surface' : 'border-dashed border-disabled bg-transparent'}`}>
       <div className="flex items-start gap-3">
         <Checkbox checked={resource.checked} onChange={onToggle} className="mt-0.5" />
         <div className="min-w-0 flex-1">
@@ -39,19 +39,23 @@ function ResourceRow({
               href={resource.url}
               target="_blank"
               rel="noreferrer"
-              className={`font-semibold no-underline hover:underline ${resource.checked ? 'text-muted line-through' : 'text-ink'}`}
+              className={`font-bold no-underline hover:underline ${resource.checked ? 'text-faint line-through' : 'text-ink'}`}
             >
               {resource.title}
             </a>
-            <a href={resource.url} target="_blank" rel="noreferrer" className="text-[12px] font-semibold text-blue-500">
+            <a href={resource.url} target="_blank" rel="noreferrer" className="font-mono text-[11px] font-bold uppercase text-blue-700">
               open ↗
             </a>
           </div>
-          <div className="mt-1.5 flex flex-wrap items-center gap-2 font-mono text-[11px] text-muted">
-            <span>{RESOURCE_TYPE_LABEL[resource.resource_type] ?? resource.resource_type}</span>
-            {resource.source_name && <span>· {resource.source_name}</span>}
-            {resource.estimated_minutes && <span>· {resource.estimated_minutes} min</span>}
-            {!resource.is_required && <span>· optional</span>}
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <span className="rounded-full border-2 border-ink px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink">
+              {RESOURCE_TYPE_LABEL[resource.resource_type] ?? resource.resource_type}
+            </span>
+            {resource.source_name && <span className="font-mono text-[11px] text-faint">{resource.source_name}</span>}
+            {resource.estimated_minutes && <span className="font-mono text-[11px] text-faint">{resource.estimated_minutes} min</span>}
+            {!resource.is_required && (
+              <span className="font-mono text-[11px] font-bold uppercase text-faint">Optional</span>
+            )}
           </div>
         </div>
       </div>
@@ -72,7 +76,6 @@ export default function LessonPage() {
   const doneCount = requiredResources.filter((r) => r.checked).length
   const currentIndex = lessons.findIndex((l) => l.id === lessonId)
   const nextLesson = currentIndex >= 0 ? lessons[currentIndex + 1] : undefined
-  const isLastLesson = currentIndex >= 0 && !nextLesson
 
   return (
     <div className="min-h-screen bg-paper">
@@ -91,41 +94,34 @@ export default function LessonPage() {
         {error && <p className="text-sm font-bold text-fail-ink">{error}</p>}
 
         {lesson && (
-          <div className="grid gap-8 lg:grid-cols-[1.9fr_0.8fr]">
-            <article>
+          <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+            <div>
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="meta">
-                    Week {week?.position} · Lesson {lesson.position}
-                    {lesson.estimated_minutes ? ` · ${lesson.estimated_minutes} min` : ''}
+                  <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">
+                    [ week {week?.position} · lesson {lesson.position}
+                    {lesson.estimated_minutes ? ` · ${lesson.estimated_minutes} min` : ''} ]
                   </p>
-                  <h1 className="mt-2 font-display text-[40px] font-bold tracking-[-0.035em] text-ink">{lesson.title}</h1>
+                  <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">{lesson.title}</h1>
                 </div>
                 {completedAt && <StatusPill variant="pass">complete</StatusPill>}
               </div>
 
               {lesson.body && (
-                <div className="prose mt-6 max-w-[68ch] text-[17px] leading-[1.75] text-ink">
+                <div className="prose prose-sm mt-6 max-w-none text-ink">
                   <ReactMarkdown>{lesson.body}</ReactMarkdown>
                 </div>
               )}
 
-              {assignments.length > 0 && (
-                <Callout tone="info" className="mt-8 max-w-[68ch]">
-                  This lesson feeds directly into this week's assignment, <strong>{assignments[0].title}</strong> — keep
-                  it in mind as you work through the resources.
-                </Callout>
-              )}
-
               {resources.length > 0 ? (
                 <>
-                  <div className="mt-9 flex max-w-[68ch] items-center justify-between">
+                  <div className="mt-9 flex items-center justify-between">
                     <p className="meta">Resources · check each one off</p>
-                    <p className="font-mono text-xs font-semibold text-muted">
+                    <p className="font-mono text-xs font-bold text-muted">
                       {doneCount}/{requiredResources.length} done
                     </p>
                   </div>
-                  <ul className="mt-3 max-w-[68ch] space-y-3">
+                  <ul className="mt-3 space-y-3">
                     {resources.map((resource) => (
                       <ResourceRow
                         key={resource.id}
@@ -134,17 +130,9 @@ export default function LessonPage() {
                       />
                     ))}
                   </ul>
-                  <p className="mt-4 max-w-[68ch] text-[13px] text-muted">
-                    Checking these off is for your own tracking — grading never looks at it.
-                  </p>
-                  {!completedAt && (
-                    <Button type="button" variant="secondary" onClick={() => void markCompleteManually()} className="mt-4">
-                      Mark lesson complete
-                    </Button>
-                  )}
                 </>
               ) : (
-                <Card className="mt-8 max-w-[68ch] text-center">
+                <Card className="mt-8 text-center">
                   <p className="text-[14.5px] text-muted">This lesson has no external resources.</p>
                   {!completedAt && (
                     <Button type="button" variant="primary" onClick={() => void markCompleteManually()} className="mt-4">
@@ -154,40 +142,55 @@ export default function LessonPage() {
                 </Card>
               )}
 
-              {completedAt && (nextLesson || isLastLesson) && (
-                <div className="card-ink mt-8 flex max-w-[68ch] flex-col gap-4 rounded-panel p-6 sm:flex-row sm:items-center sm:justify-between" style={{ boxShadow: 'var(--shadow-accent)' }}>
+              {resources.length > 0 && (
+                <div
+                  className={`mt-8 flex flex-col gap-4 rounded-panel border-2 border-ink p-6 sm:flex-row sm:items-center sm:justify-between ${
+                    completedAt ? 'bg-lime' : 'bg-stone'
+                  }`}
+                >
                   <div>
-                    <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-signal-light">Up next</p>
-                    <p className="mt-1 font-display text-xl font-bold text-paper">{nextLesson?.title ?? 'Nice work'}</p>
+                    <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-ink/60">
+                      {completedAt ? 'Next up' : `${doneCount}/${requiredResources.length} required checked`}
+                    </p>
+                    <p className="mt-1 font-display text-xl font-bold text-ink">
+                      {completedAt
+                        ? (nextLesson?.title ?? 'Nice work')
+                        : 'Check off the required resources to continue'}
+                    </p>
                   </div>
-                  {nextLesson && (
-                    <Button
-                      type="button"
-                      variant="primary"
-                      onClick={() => navigate(`/weeks/${weekId}/lessons/${nextLesson.id}`)}
-                      className="shrink-0"
-                    >
-                      Mark complete & continue
-                    </Button>
-                  )}
+                  <Button
+                    type="button"
+                    variant="primary"
+                    disabled={!completedAt}
+                    onClick={() => {
+                      if (nextLesson) {
+                        navigate(`/weeks/${weekId}/lessons/${nextLesson.id}`)
+                      } else {
+                        navigate(`/weeks/${weekId}#assignments`)
+                      }
+                    }}
+                    className="shrink-0 text-ink"
+                  >
+                    {nextLesson ? 'Continue →' : 'Go to assignments →'}
+                  </Button>
                 </div>
               )}
-            </article>
+            </div>
 
-            <aside className="space-y-6 border-l border-stone pl-6">
+            <aside className="space-y-6">
               {week && (
                 <Card>
                   <p className="meta">Week {week.position} contents</p>
-                  <ul className="mt-3 divide-y divide-stone">
+                  <ul className="mt-3 divide-y divide-hairline">
                     {lessons.map((l) => (
                       <li key={l.id}>
                         <Link
                           to={`/weeks/${weekId}/lessons/${l.id}`}
-                          className={`flex items-center gap-3 py-2.5 no-underline ${l.id === lessonId ? 'font-semibold text-ink' : 'text-ink'}`}
+                          className={`flex items-center gap-3 py-2.5 no-underline ${l.id === lessonId ? 'font-bold text-ink' : 'text-ink'}`}
                         >
                           <span
-                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-bold ${
-                              l.completed ? 'bg-pass-wash text-pass-ink' : 'border-2 border-stone-strong text-muted'
+                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border-2 font-mono text-[10px] font-bold ${
+                              l.completed ? 'border-pass bg-pass-bg text-pass-ink' : 'border-ink text-ink'
                             }`}
                           >
                             {l.completed ? '✓' : l.position}
@@ -199,8 +202,8 @@ export default function LessonPage() {
                     {assignments.map((a) => (
                       <li key={a.id}>
                         <Link to={`/weeks/${weekId}/assignments/${a.id}`} className="flex items-center gap-3 py-2.5 text-ink no-underline">
-                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-signal-wash">
-                            <AssignmentIcon className="h-3 w-3 text-signal-ink" />
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border-2 border-ink bg-lilac/40">
+                            <AssignmentIcon className="h-3 w-3 text-ink" />
                           </span>
                           <span className="text-[14px]">{a.title}</span>
                         </Link>

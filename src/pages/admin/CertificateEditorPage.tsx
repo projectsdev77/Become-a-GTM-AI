@@ -10,7 +10,7 @@ import { useCertificateTemplate } from '@/hooks/useCertificateTemplate'
 
 const SAMPLE = {
   student_name: 'Jamie Rivera',
-  track_title: 'Become a GTM AI',
+  track_title: 'Become an AI Engineer',
   completion_date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
   certificate_code: 'SAMPLE1234',
 }
@@ -68,8 +68,8 @@ export default function CertificateEditorPage() {
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
-        <p className="eyebrow">Public-facing template</p>
-        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.035em] text-ink">Certificate template</h1>
+        <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ public-facing template ]</p>
+        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Certificate template</h1>
         <p className="mt-2 max-w-2xl text-[14.5px] text-muted">
           Structured fields only — merge fields are substituted into escaped text, so nothing you type here can
           become markup on the public certificate page.
@@ -78,7 +78,7 @@ export default function CertificateEditorPage() {
         {error && <p className="mt-4 text-sm font-bold text-fail-ink">{error}</p>}
 
         {!template && !error && (
-          <div className="mt-6 rounded-panel bg-panel p-8 text-center">
+          <div className="mt-6 rounded-panel border-2 border-dashed border-disabled p-8 text-center">
             <p className="text-[14.5px] text-muted">No active template yet.</p>
             <Button type="button" variant="primary" onClick={() => void createDefault()} className="mt-4">
               Create default template
@@ -133,20 +133,16 @@ export default function CertificateEditorPage() {
 
             <div>
               <p className="meta mb-3">Live preview (sample data)</p>
-              <div className="flex items-center justify-center rounded-panel border-2 border-ink bg-stone p-8">
-                <div style={{ transform: 'scale(0.6)', transformOrigin: 'top center' }}>
-                  <CertificateCard
-                    fields={{
-                      title_text: form.title_text,
-                      body_text: substitutePreview(form.body_text),
-                      signature_name: form.signature_name,
-                      signature_title: form.signature_title,
-                      logo_url: form.logo_url,
-                      accent_color: form.accent_color,
-                    }}
-                  />
-                </div>
-              </div>
+              <CertificateCard
+                fields={{
+                  title_text: form.title_text,
+                  body_text: substitutePreview(form.body_text),
+                  signature_name: form.signature_name,
+                  signature_title: form.signature_title,
+                  logo_url: form.logo_url,
+                  accent_color: form.accent_color,
+                }}
+              />
             </div>
           </div>
         )}

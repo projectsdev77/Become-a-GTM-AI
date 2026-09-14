@@ -10,9 +10,9 @@ export default function MessageThread({ studentId }: { studentId: string }) {
   const [draft, setDraft] = useState('')
 
   return (
-    <div className="overflow-hidden rounded-panel border border-stone bg-paper">
+    <div className="overflow-hidden rounded-panel border-2 border-ink bg-surface">
       <div className="max-h-96 space-y-3 overflow-y-auto p-4">
-        {loading && <p className="text-[13px] text-muted">loading…</p>}
+        {loading && <p className="font-mono text-xs font-bold uppercase text-muted">loading…</p>}
         {error && <p className="text-sm font-bold text-fail-ink">{error}</p>}
         {!loading && messages.length === 0 && (
           <p className="text-[14.5px] text-muted">No messages yet — say hello.</p>
@@ -22,12 +22,12 @@ export default function MessageThread({ studentId }: { studentId: string }) {
           return (
             <div key={m.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
               <div
-                className={`max-w-[75%] rounded-card px-3.5 py-2.5 text-[14.5px] ${
-                  mine ? 'bg-ink text-paper' : 'bg-panel text-ink'
+                className={`max-w-[75%] rounded-card border-2 border-ink px-3.5 py-2.5 text-[14.5px] ${
+                  mine ? 'bg-ink text-paper' : 'bg-paper text-ink'
                 }`}
               >
                 <p>{m.body}</p>
-                <p className={`mt-1 font-mono text-[10px] ${mine ? 'text-paper/50' : 'text-muted'}`}>
+                <p className={`mt-1 font-mono text-[10px] ${mine ? 'text-paper/50' : 'text-faint'}`}>
                   {new Date(m.created_at).toLocaleString()}
                 </p>
               </div>
@@ -42,7 +42,7 @@ export default function MessageThread({ studentId }: { studentId: string }) {
           void send(draft)
           setDraft('')
         }}
-        className="flex gap-2 border-t border-stone p-3"
+        className="flex gap-2 border-t-2 border-ink p-3"
       >
         <Field value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Write a message…" className="flex-1" />
         <Button type="submit" variant="primary" disabled={sending || !draft.trim()}>

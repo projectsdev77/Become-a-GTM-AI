@@ -22,27 +22,38 @@ import {
   type GeminiGenerateContentResponse,
   type UrlFetchResult,
 } from './grading.ts'
+import { corsHeaders, handlePreflight } from '../_shared/cors.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!
-const GEMINI_MODEL = 'gemini-2.5-flash'
+const GEMINI_MODEL = 'gemini-3.6-flash'
 
 const MAX_AI_EVALS_PER_DAY = 30 // PD-008
 const MAX_AI_ATTEMPTS = 2 // "AI evaluation failed after retries" (PD-002)
 
 const URL_FETCH_TIMEOUT_MS = 10_000
+// Gemini's API has no client-side timeout of its own — an unbounded fetch()
+// here can hang past the edge function's own execution limit, which kills
+// the isolate before the try/catch around gradeWithAI ever runs and leaves
+// the row stuck at evaluation_status='processing' forever (PD-002 promises
+// every submission ends at 'complete' or 'failed'; that promise only holds
+// if every awaited call inside is itself bounded).
+const GEMINI_TIMEOUT_MS = 25_000
 const MAX_URL_CONTENT_CHARS = 6000
 const MAX_URL_CONTENT_LENGTH_BYTES = 2_000_000 // skip parsing anything advertising >2MB
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...corsHeaders },
   })
 }
 
 Deno.serve(async (req) => {
+  const preflight = handlePreflight(req)
+  if (preflight) return preflight
+
   let submissionId: string | undefined
   try {
     ;({ submissionId } = await req.json())
@@ -204,42 +215,55 @@ async function gradeWithAI(supabase: any, submission: any, assignment: any) {
 
 async function callGemini(system: string, userMessage: string): Promise<GeminiGenerateContentResponse> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: system }] },
-      contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-      tools: [
-        {
-          function_declarations: [
-            {
-              name: 'submit_grade',
-              description: 'Submit the grading verdict and feedback for this assignment submission.',
-              parameters: {
-                type: 'object',
-                properties: {
-                  status: {
-                    type: 'string',
-                    enum: ['passed', 'needs_work'],
-                    description: 'Whether the submission meets the rubric well enough to pass.',
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS)
+  let res: Response
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: system }] },
+        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+        tools: [
+          {
+            function_declarations: [
+              {
+                name: 'submit_grade',
+                description: 'Submit the grading verdict and feedback for this assignment submission.',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    status: {
+                      type: 'string',
+                      enum: ['passed', 'needs_work'],
+                      description: 'Whether the submission meets the rubric well enough to pass.',
+                    },
+                    feedback: {
+                      type: 'string',
+                      description: 'Constructive, specific markdown feedback for the student (2-5 sentences).',
+                    },
                   },
-                  feedback: {
-                    type: 'string',
-                    description: 'Constructive, specific markdown feedback for the student (2-5 sentences).',
-                  },
+                  required: ['status', 'feedback'],
                 },
-                required: ['status', 'feedback'],
               },
-            },
-          ],
+            ],
+          },
+        ],
+        tool_config: {
+          function_calling_config: { mode: 'ANY', allowed_function_names: ['submit_grade'] },
         },
-      ],
-      tool_config: {
-        function_calling_config: { mode: 'ANY', allowed_function_names: ['submit_grade'] },
-      },
-    }),
-  })
+      }),
+    })
+  } catch (e) {
+    if (e instanceof Error && e.name === 'AbortError') {
+      throw new Error(`Gemini API call timed out after ${GEMINI_TIMEOUT_MS}ms`)
+    }
+    throw e
+  } finally {
+    clearTimeout(timer)
+  }
 
   if (!res.ok) {
     throw new Error(`Gemini API error ${res.status}: ${await res.text()}`)
@@ -266,7 +290,7 @@ async function fetchWithTimeout(url: string, init: RequestInit = {}): Promise<Re
 }
 
 async function fetchGithubReadme(owner: string, repo: string): Promise<UrlFetchResult> {
-  const headers = { Accept: 'application/vnd.github.v3.raw', 'User-Agent': 'gtm-ai-bootcamp-grader' }
+  const headers = { Accept: 'application/vnd.github.v3.raw', 'User-Agent': 'ai-engineer-bootcamp-grader' }
   try {
     const readmeRes = await fetchWithTimeout(`https://api.github.com/repos/${owner}/${repo}/readme`, { headers })
     if (readmeRes.ok) {
@@ -277,7 +301,7 @@ async function fetchGithubReadme(owner: string, repo: string): Promise<UrlFetchR
     // No README (404), or something else — repo metadata is still a real,
     // verifiable signal (does it exist, is it public, what is it).
     const metaRes = await fetchWithTimeout(`https://api.github.com/repos/${owner}/${repo}`, {
-      headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'gtm-ai-bootcamp-grader' },
+      headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'ai-engineer-bootcamp-grader' },
     })
     if (!metaRes.ok) {
       return { ok: false, error: `GitHub repo not found or not public (${owner}/${repo}, HTTP ${metaRes.status})` }

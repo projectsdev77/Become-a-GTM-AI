@@ -5,16 +5,23 @@
 // per user, one existing row is enough to skip.
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { sendEmail } from '../_shared/resend.ts'
+import { corsHeaders, handlePreflight } from '../_shared/cors.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'http://localhost:5173'
 
 function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders },
+  })
 }
 
 Deno.serve(async (req) => {
+  const preflight = handlePreflight(req)
+  if (preflight) return preflight
+
   let userId: string | undefined
   try {
     ;({ userId } = await req.json())
@@ -45,9 +52,9 @@ Deno.serve(async (req) => {
   try {
     await sendEmail({
       to: email,
-      subject: 'Welcome to Become a GTM AI',
+      subject: 'Welcome to Become an AI Engineer',
       html: `<p>Hi ${profile?.full_name ?? 'there'},</p>
-<p>Welcome to Become a GTM AI. Week 1 is already unlocked and waiting for you.</p>
+<p>Welcome to Become an AI Engineer. Week 1 is already unlocked and waiting for you.</p>
 <p><a href="${SITE_URL}/dashboard">Go to your dashboard</a></p>`,
     })
   } catch (e) {

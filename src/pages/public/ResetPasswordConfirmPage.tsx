@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/Button'
 import { Field, Label } from '@/components/ui/Field'
 import Callout from '@/components/ui/Callout'
 import { AlertIcon } from '@/components/ui/icons'
+import PasswordRequirementsList from '@/components/ui/PasswordRequirementsList'
+import { validatePassword } from '@/lib/passwordPolicy'
 
 // Reached via the link in the reset email. Supabase's client library
 // exchanges the URL's recovery token for a session automatically on load
@@ -22,8 +24,13 @@ export default function ResetPasswordConfirmPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    setSubmitting(true)
     setError(null)
+    const passwordError = validatePassword(password)
+    if (passwordError) {
+      setError(passwordError)
+      return
+    }
+    setSubmitting(true)
     const { error } = await updatePassword(password)
     setSubmitting(false)
     if (error) {
@@ -37,20 +44,20 @@ export default function ResetPasswordConfirmPage() {
     <div className="min-h-screen bg-paper">
       <PublicNav />
       <main className="flex items-center justify-center px-4 py-16">
-        <div className="w-full max-w-[420px] rounded-panel border border-stone bg-paper p-8" style={{ boxShadow: 'var(--shadow-site)' }}>
+        <div className="w-full max-w-[420px] rounded-panel border-[3px] border-ink bg-surface p-8 shadow-site">
           {done ? (
             <>
               <Callout tone="pass" heading="password updated">
                 You can now log in with your new password.
               </Callout>
-              <Button variant="primary" shadow="app" onClick={() => navigate('/dashboard')} className="mt-6 w-full">
+              <Button variant="site" onClick={() => navigate('/dashboard')} className="mt-6 w-full">
                 Go to dashboard
               </Button>
             </>
           ) : (
             <>
-              <p className="eyebrow">Almost done</p>
-              <h1 className="mt-2 font-display text-[32px] font-bold leading-none tracking-[-0.035em] text-ink">
+              <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ almost done ]</p>
+              <h1 className="mt-2 font-display text-[32px] font-bold leading-none tracking-[-0.03em] text-ink">
                 Choose a new password
               </h1>
 
@@ -66,13 +73,14 @@ export default function ResetPasswordConfirmPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
+                  <PasswordRequirementsList password={password} />
                 </div>
                 {error && (
                   <Callout tone="fail" heading="couldn't update password" icon={<AlertIcon className="h-3.5 w-3.5" />}>
                     {error}
                   </Callout>
                 )}
-                <Button type="submit" variant="primary" shadow="app" disabled={submitting} className="w-full">
+                <Button type="submit" variant="site" disabled={submitting} className="w-full">
                   {submitting ? 'Updating…' : 'Update password'}
                 </Button>
               </form>

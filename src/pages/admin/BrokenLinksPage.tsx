@@ -5,7 +5,9 @@ import AppNav from '@/components/layout/AppNav'
 import AdminNav from '@/components/layout/AdminNav'
 import { Table, THead, TBody, TR, TH, TD } from '@/components/ui/Table'
 import Callout from '@/components/ui/Callout'
+import { Button } from '@/components/ui/Button'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
+import { functionErrorMessage } from '@/lib/functionsError'
 import type { Resource } from '@/types/database'
 
 interface BrokenResource extends Resource {
@@ -19,7 +21,9 @@ function useBrokenResources() {
   const [loading, setLoading] = useState(true)
 
   async function refresh() {
-    setLoading(true)
+    // Deliberately not setLoading(true) here: dismiss()/runCheck() also
+    // call refresh(), and flipping loading back to true would unmount the
+    // whole page back to a full-page spinner on every action.
     const { data: broken } = await supabase.from('resources').select('*').eq('is_broken', true)
     const lessonIds = [...new Set((broken ?? []).map((r) => r.lesson_id))]
     const { data: lessons } = lessonIds.length
@@ -57,9 +61,30 @@ function useBrokenResources() {
 
 export default function BrokenLinksPage() {
   const { resources, loading, refresh } = useBrokenResources()
+  const [checking, setChecking] = useState(false)
+  const [checkError, setCheckError] = useState<string | null>(null)
+  const [lastCheck, setLastCheck] = useState<{ checked: number; brokenCount: number } | null>(null)
 
   async function dismiss(resourceId: string) {
     await supabase.from('resources').update({ is_broken: false }).eq('id', resourceId)
+    await refresh()
+  }
+
+  async function alwaysAllow(resourceId: string) {
+    await supabase.from('resources').update({ is_broken: false, skip_health_check: true }).eq('id', resourceId)
+    await refresh()
+  }
+
+  async function runCheck() {
+    setChecking(true)
+    setCheckError(null)
+    const { data, error } = await supabase.functions.invoke('check-resource-links')
+    setChecking(false)
+    if (error) {
+      setCheckError(await functionErrorMessage(error))
+      return
+    }
+    setLastCheck({ checked: data.checked, brokenCount: data.brokenCount })
     await refresh()
   }
 
@@ -70,12 +95,33 @@ export default function BrokenLinksPage() {
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        <p className="eyebrow">{resources.length} flagged</p>
-        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.035em] text-ink">Broken links</h1>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ {resources.length} flagged ]</p>
+            <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Broken links</h1>
+          </div>
+          <div className="flex flex-col items-end gap-1.5">
+            <Button type="button" variant="secondary" onClick={() => void runCheck()} disabled={checking}>
+              {checking ? 'Checking…' : 'Check links now'}
+            </Button>
+            {lastCheck && !checking && (
+              <p className="font-mono text-[11px] text-muted">
+                checked {lastCheck.checked} · {lastCheck.brokenCount} broken
+              </p>
+            )}
+          </div>
+        </div>
         <p className="mt-2 text-[14.5px] text-muted">
-          Flagged by the periodic link checker. Students are never blocked by these (PD-009) — this is admin-only
-          visibility.
+          Links that failed a check. Students never see this. Use{' '}
+          <span className="font-bold text-ink">mark fixed</span> once you've fixed a link, or{' '}
+          <span className="font-bold text-ink">always allow</span> if it keeps flagging a link you've confirmed
+          works.
         </p>
+        {checkError && (
+          <Callout tone="fail" className="mt-3">
+            {checkError}
+          </Callout>
+        )}
 
         <div className="mt-6">
           {resources.length > 0 ? (
@@ -91,7 +137,7 @@ export default function BrokenLinksPage() {
               </THead>
               <TBody>
                 {resources.map((r) => (
-                  <TR key={r.id} style={{ background: 'var(--color-warn-wash)' }}>
+                  <TR key={r.id} style={{ background: 'var(--color-warn-bg)' }}>
                     <TD>
                       <p className="font-bold text-ink">{r.title}</p>
                       <a href={r.url} target="_blank" rel="noreferrer" className="block truncate font-mono text-[12px] text-blue-700">
@@ -102,7 +148,7 @@ export default function BrokenLinksPage() {
                     <TD className="text-[13.5px] text-muted">
                       Week {r.weekPosition} · {r.lessonTitle}
                     </TD>
-                    <TD className="font-mono text-[12px] text-muted">
+                    <TD className="font-mono text-[12px] text-faint">
                       {r.last_checked_at ? new Date(r.last_checked_at).toLocaleDateString() : 'never'}
                     </TD>
                     <TD>
@@ -112,6 +158,13 @@ export default function BrokenLinksPage() {
                         </Link>
                         <button onClick={() => void dismiss(r.id)} className="font-mono text-[11.5px] font-bold uppercase text-muted hover:text-ink">
                           mark fixed
+                        </button>
+                        <button
+                          onClick={() => void alwaysAllow(r.id)}
+                          title="I've checked this link myself and it works — stop flagging it, even if automated checks keep failing it"
+                          className="font-mono text-[11.5px] font-bold uppercase text-muted hover:text-ink"
+                        >
+                          always allow
                         </button>
                       </div>
                     </TD>

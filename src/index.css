@@ -1,133 +1,91 @@
-/* ============================================================
-   Become a GTM AI — design tokens, rev 2.0 (GTint re-skin)
+/* Become an AI Engineer — design tokens
    Tailwind v4. Nothing in the codebase should reference a color that is
-   not defined here. Handoff rev 2.0 · 9 Sep 2026.
-   ============================================================ */
+   not defined here. Handoff rev 1.0 · Sep 6 2026 */
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* self-hosted fonts */
-@import "@fontsource/poppins/400.css";
-@import "@fontsource/poppins/500.css";
-@import "@fontsource/poppins/600.css";
-@import "@fontsource/poppins/700.css";
-@import "@fontsource/poppins/800.css";
+/* self-hosted fonts — see "Before you start" in the handoff README */
+@import "@fontsource/space-grotesk/700.css";
+@import "@fontsource/archivo/400.css";
+@import "@fontsource/archivo/500.css";
+@import "@fontsource/archivo/600.css";
+@import "@fontsource/archivo/700.css";
 @import "@fontsource/jetbrains-mono/500.css";
 @import "@fontsource/jetbrains-mono/700.css";
-@import "@fontsource/caveat/600.css";
 
 @theme {
-  /* ---- ground + ink ---------------------------------------- */
-  --color-paper:          #FFFFFF;   /* default page ground            */
-  --color-panel:          #F6F5F3;   /* alternating bands, inert rows  */
-  --color-app-bg:         #FBFAF8;   /* in-app canvas behind cards     */
-  --color-stone:          #E8E6E2;   /* 1px hairline borders           */
-  --color-stone-strong:   #D6D4D0;   /* field borders, dividers        */
+  /* ---- ground + ink ---- */
+  --color-paper:     #FBF8EE; /* page background */
+  --color-stone:     #E7E5DE; /* alt band, disabled, table head */
+  --color-surface:   #FFFFFF; /* cards */
+  --color-ink:       #14141E; /* text + every border */
+  --color-ink-soft:  #1B1B26; /* nested dark surfaces (admin tab strip) */
+  --color-muted:     #5C5A52; /* secondary text */
+  --color-faint:     #8A887E; /* placeholder text */
+  --color-hairline:  #DDDBD2; /* 1px table rules */
+  --color-disabled:  #B8B6AD; /* locked borders */
 
-  --color-ink:            #16161A;   /* headlines, buttons, wordmark   */
-  --color-body:           #4A4A56;   /* paragraphs                     */
-  --color-muted:          #8A8A96;   /* labels, meta, disabled text    */
+  /* ---- lime: primary action. one per view ---- */
+  --color-lime:      #D8FA4B;
 
-  /* ---- primary action — replaces lime ------------------------ */
-  --color-signal:         #F04E23;   /* 4.6:1 on white w/ white ink    */
-  --color-signal-hover:   #D8431B;
-  --color-signal-wash:    #FDEDE7;   /* tinted pill grounds            */
-  --color-signal-border:  #F7C9B8;
-  --color-signal-ink:     #B93A16;   /* orange text on wash            */
-  --color-signal-light:   #FF9273;   /* orange on ink grounds only     */
+  /* ---- blue: links, focus, info. NEVER a button fill ---- */
+  --color-blue-50:   #EAF0FF;
+  --color-blue-200:  #C9D8FF;
+  --color-blue-500:  #2F6BFF; /* background / focus ring only */
+  --color-blue-700:  #1B44B8; /* blue TEXT on paper (7.4:1) */
 
-  /* ---- links + focus (never a button) ------------------------ */
-  --color-blue-50:        #EAF0FF;
-  --color-blue-200:       #C3D3FF;
-  --color-blue-500:       #2F6BFF;   /* anchors, focus ring            */
-  --color-blue-700:       #1B44B8;   /* callout headings               */
-  --color-blue-900:       #2A3E7A;   /* callout body                   */
+  /* ---- status: tinted bg + same-hue border + dark ink ---- */
+  --color-pass:      #2FBF71;
+  --color-pass-bg:   #E8F8EF;
+  --color-pass-ink:  #14432A;
+  --color-warn:      #FF6B2C;
+  --color-warn-bg:   #FFF1E9;
+  --color-warn-ink:  #8A3A10;
+  --color-fail:      #D6263C;
+  --color-fail-bg:   #FDE8EB;
+  --color-fail-ink:  #8A1220;
 
-  /* ---- status: wash / border / ink ---------------------------- */
-  --color-pass-wash:      #E6F5EE;
-  --color-pass-border:    #A9DCC7;
-  --color-pass-ink:       #0F6B4B;
+  /* ---- accents: category codes only, never decoration ---- */
+  --color-blush:     #FFE0D2;
+  --color-lilac:     #B79CF7;
 
-  --color-warn-wash:      #FFF6E5;
-  --color-warn-border:    #F2D79B;
-  --color-warn-ink:       #7A5200;
+  /* ---- type ---- */
+  --font-display: "Space Grotesk", sans-serif;
+  --font-sans:    "Archivo", system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
 
-  --color-fail-wash:      #FDECEE;
-  --color-fail-border:    #F2B9C1;
-  --color-fail-ink:       #A3182B;
+  /* ---- shape ---- */
+  --radius-field: 10px;
+  --radius-card:  14px;
+  --radius-panel: 16px;
+  --radius-shell: 22px;
 
-  --color-locked-wash:    #F6F5F3;
-  --color-locked-border:  #E8E6E2;
-  --color-locked-ink:     #6E6C66;
-
-  /* ---- type ---------------------------------------------------- */
-  --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-body:    "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-data:    "JetBrains Mono", ui-monospace, monospace;
-  --font-mono:    "JetBrains Mono", ui-monospace, monospace; /* alias, data-only use */
-  --font-accent:  "Caveat", cursive;
-
-  --text-hero:      52px;  --leading-hero:     1.03;  --tracking-hero:    -0.04em;
-  --text-display:   44px;  --leading-display:  1.05;  --tracking-display: -0.035em;
-  --text-page:      38px;  --leading-page:     1.06;  --tracking-page:    -0.035em;
-  --text-section:   34px;  --leading-section:  1.08;  --tracking-section: -0.03em;
-  --text-card:      19px;  --leading-card:     1.3;   --tracking-card:    -0.02em;
-  --text-lede:      19px;  --leading-lede:     1.6;
-  --text-prose:     17px;  --leading-prose:    1.75;
-  --text-body:      16px;  --leading-body:     1.6;
-  --text-meta:    13.5px;  --leading-meta:     1.55;
-  --text-label:     11px;  --tracking-label:   0.08em;
-
-  /* ---- shape ----------------------------------------------- */
-  --radius-field:  10px;
-  --radius-card:   16px;
-  --radius-panel:  20px;
-  --radius-pill:  999px;
-
-  --border-hair:  1px;
-  --border-firm:  1.5px;
-
-  /* ---- elevation — hard offset, never blur ----------------- */
-  --shadow-site:    5px 5px 0 var(--color-ink);
-  --shadow-app:     4px 4px 0 var(--color-ink);
-  --shadow-accent:  4px 4px 0 var(--color-signal);
-  --shadow-reverse: 4px 4px 0 var(--color-paper);
-  --shadow-float:   0 12px 30px rgb(22 22 26 / 0.06);
-
-  /* ---- spacing (8pt) ---------------------------------------- */
-  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
-  --space-5: 20px;  --space-6: 24px;  --space-8: 32px;  --space-10: 40px;
-  --space-14: 56px; --space-18: 72px; --space-22: 88px; --space-30: 120px;
-
-  /* ---- focus -------------------------------------------------- */
-  --focus-ring:   3px solid var(--color-blue-500);
-  --focus-offset: 3px;
+  /* ---- elevation: hard offset only. never blur ---- */
+  --shadow-app:  4px 4px 0 var(--color-ink);
+  --shadow-site: 5px 5px 0 var(--color-ink);
+  --shadow-hero: 5px 5px 0 var(--color-lime);
 }
 
 @layer base {
-  :root { color-scheme: light; }
-
   body {
     background: var(--color-paper);
-    color: var(--color-body);
-    font-family: var(--font-body);
-    font-size: 16px;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
     text-wrap: pretty;
   }
 
-  a { color: var(--color-blue-500); text-decoration: none; }
-  a:hover { color: var(--color-ink); text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
+  a {
+    color: var(--color-blue-700);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  a:hover { color: var(--color-blue-500); }
 
   :focus-visible {
-    outline: var(--focus-ring);
-    outline-offset: var(--focus-offset);
-    border-radius: var(--radius-field);
+    outline: 3px solid var(--color-blue-500);
+    outline-offset: 2px;
   }
-
-  h1, h2, h3, h4 { font-family: var(--font-display); color: var(--color-ink); text-wrap: balance; }
-  p { text-wrap: pretty; }
 
   /* inputs never below 16px — iOS zooms the viewport below that */
   input, textarea, select { font-size: 16px; }
@@ -139,117 +97,117 @@
 
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    flex: none; white-space: nowrap;
-    min-height: 46px; padding: 15px 26px;
-    border-radius: var(--radius-pill);
-    font-weight: 600; font-size: 15px;
+    min-height: 44px; padding: 14px 24px;
+    border: 2px solid var(--color-ink);
+    border-radius: var(--radius-field);
+    font-weight: 700; font-size: 15px;
+    white-space: nowrap;
     text-decoration: none;
-    transition: background-color 120ms ease-out, box-shadow 120ms ease-out,
-                transform 120ms ease-out, filter 120ms ease-out;
+    transition: transform 120ms ease-out, box-shadow 120ms ease-out,
+                filter 120ms ease-out;
   }
-  .btn:active { transform: translate(2px, 2px); }
+  .btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--color-ink); }
+  .btn:hover  { filter: brightness(0.95); }
 
-  .btn-primary { background: var(--color-signal); color: #FFFFFF; border: none; }
-  .btn-primary:hover { background: var(--color-signal-hover); }
-
-  .btn-ink { background: var(--color-ink); color: var(--color-paper); border: none; }
-  .btn-ink:hover { filter: brightness(1.25); }
-
-  .btn-secondary {
-    background: transparent; color: var(--color-ink);
-    border: var(--border-firm) solid var(--color-ink); padding: 14px 25px;
-  }
-  .btn-secondary:hover { background: var(--color-panel); }
-
-  .btn-ghost {
-    background: transparent; color: var(--color-ink);
-    border-bottom: 1.5px solid var(--color-stone-strong);
-    border-radius: 0; padding: 4px 2px 2px; min-height: 0;
-  }
-  .btn-ghost:hover { color: var(--color-signal); border-color: var(--color-signal); }
-
+  /* in-app primary */
+  .btn-primary { background: var(--color-lime); box-shadow: var(--shadow-app); }
+  /* marketing primary — ink fill, lime shadow */
+  .btn-site    { background: var(--color-ink); color: var(--color-paper);
+                 border-width: 3px; box-shadow: var(--shadow-hero); }
+  .btn-secondary { background: var(--color-paper); }
+  .btn-ghost   { background: var(--color-blue-50); color: var(--color-blue-700);
+                 border-color: var(--color-blue-200); }
   .btn:disabled, .btn[aria-disabled="true"] {
-    background: #F2EFEB; color: var(--color-muted); border-color: var(--color-stone);
-    box-shadow: none; transform: none; cursor: not-allowed; filter: none;
+    background: var(--color-stone); color: var(--color-faint);
+    border-color: var(--color-disabled); box-shadow: none;
+    transform: none; cursor: not-allowed;
   }
 
   .pill {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 6px 12px; border-radius: var(--radius-pill); border: 1px solid;
-    font-family: var(--font-body); font-size: 12.5px; font-weight: 600;
-    white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px; border: 2px solid;
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
   }
-  .pill-pass     { background: var(--color-pass-wash);   border-color: var(--color-pass-border);   color: var(--color-pass-ink); }
-  .pill-warn     { background: var(--color-warn-wash);   border-color: var(--color-warn-border);   color: var(--color-warn-ink); }
-  .pill-fail     { background: var(--color-fail-wash);   border-color: var(--color-fail-border);   color: var(--color-fail-ink); }
-  .pill-active   { background: var(--color-signal-wash); border-color: var(--color-signal-border); color: var(--color-signal-ink); }
-  .pill-locked   { background: var(--color-locked-wash); border-color: var(--color-locked-border);  color: var(--color-locked-ink); }
+  .pill-pass     { background: var(--color-pass-bg); border-color: var(--color-pass); color: var(--color-pass-ink); }
+  .pill-warn     { background: var(--color-warn-bg); border-color: var(--color-warn); color: var(--color-warn-ink); }
+  .pill-fail     { background: var(--color-fail-bg); border-color: var(--color-fail); color: var(--color-fail-ink); }
+  .pill-locked   { background: var(--color-stone);   border-color: var(--color-disabled); color: var(--color-muted); }
+  .pill-progress { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-lime); }
 
   .card {
-    background: var(--color-paper);
-    border: var(--border-hair) solid var(--color-stone);
+    background: var(--color-surface);
+    border: 2px solid var(--color-ink);
     border-radius: var(--radius-card);
     padding: 22px;
   }
-  .card-active { border: var(--border-firm) solid var(--color-ink); }
-  .card-locked { background: var(--color-panel); border-color: var(--color-stone); color: var(--color-muted); }
-  .card-panel  { background: var(--color-panel); border: none; }
-  .card-ink    { background: var(--color-ink); color: var(--color-paper); border: none; }
-  .card-float  { border: var(--border-hair) solid var(--color-stone); box-shadow: var(--shadow-float); }
+  .card-locked {
+    background: #F1F0EA; border-color: var(--color-disabled);
+    color: var(--color-muted);
+  }
+  /* at most ONE of these per viewport */
+  .card-active { box-shadow: var(--shadow-app); }
 
   .field {
-    width: 100%; padding: 15px 16px; font-size: 16px;
-    background: var(--color-paper); color: var(--color-ink);
-    border: 1px solid var(--color-stone-strong);
+    width: 100%; padding: 13px 16px; font-size: 16px;
+    background: var(--color-surface);
+    border: 2px solid var(--color-ink);
     border-radius: var(--radius-field);
-    transition: border-color 120ms ease-out;
   }
-  .field::placeholder { color: var(--color-muted); }
+  .field::placeholder { color: var(--color-faint); }
   .field:focus {
-    border: var(--border-firm) solid var(--color-ink);
-    outline: var(--focus-ring); outline-offset: 2px;
+    border-color: var(--color-blue-500);
+    box-shadow: 0 0 0 3px var(--color-blue-200);
+    outline: none;
   }
-  .field-error { border: 1.5px solid #C41F35; }
+  .field-error { border-color: var(--color-warn); }
 
   .label {
-    font-family: var(--font-data); font-size: var(--text-label); font-weight: 700;
-    letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-muted);
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
   }
   .meta {
-    font-family: var(--font-data); font-size: var(--text-label); font-weight: 700;
-    letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-muted);
-  }
-  .eyebrow {
-    font-family: var(--font-body); font-size: 13px; font-weight: 600;
-    letter-spacing: 0.04em; color: var(--color-signal);
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted);
   }
 
-  .callout { border-radius: var(--radius-card); border: 1px solid; padding: 20px; }
-  .callout-info { background: var(--color-blue-50); border-color: var(--color-blue-200); color: var(--color-blue-900); }
-  .callout-info .meta, .callout-info p:first-child:has(+ div) { color: var(--color-blue-700); }
-  .callout-pass { background: var(--color-pass-wash); border-color: var(--color-pass-border); color: var(--color-pass-ink); }
-  .callout-warn { background: var(--color-warn-wash); border-color: var(--color-warn-border); color: var(--color-warn-ink); }
-  .callout-fail { background: var(--color-fail-wash); border-color: var(--color-fail-border); color: var(--color-fail-ink); }
-
-  .progress-track { height: 8px; border-radius: var(--radius-pill); background: var(--color-panel); overflow: hidden; }
-  .progress-fill   { height: 100%; border-radius: var(--radius-pill); transition: width 200ms ease-out; }
-
-  /* pull-quote — one per lesson maximum, per components.md §9 */
-  .prose blockquote {
-    border-left: 3px solid var(--color-signal);
-    padding-left: 22px;
-    font-size: 18px;
-    font-weight: 500;
-    font-style: normal;
-    color: var(--color-ink);
-  }
-  .prose blockquote p::before, .prose blockquote p::after { content: none; }
+  .callout { border: 2px solid; border-radius: var(--radius-card); padding: 18px 20px; }
+  .callout-info { background: var(--color-blue-50); border-color: var(--color-blue-500); color: #26264A; }
+  .callout-pass { background: var(--color-pass-bg); border-color: var(--color-pass); color: var(--color-pass-ink); }
+  .callout-warn { background: var(--color-warn-bg); border-color: var(--color-warn); color: var(--color-warn-ink); }
+  .callout-fail { background: var(--color-fail-bg); border-color: var(--color-fail); color: var(--color-fail-ink); }
 
   /* line-art illustration frame */
-  .ill-frame { overflow: hidden; }
-  .ill-frame > svg, .ill-frame > img { width: 100%; height: 100%; object-fit: contain; }
+  .ill-frame {
+    background: var(--color-paper);
+    border: 2px solid var(--color-ink);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+  }
+  .ill-frame > svg, .ill-frame > img {
+    width: 100%; height: 100%; object-fit: contain;
+  }
   .ill-frame svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
   .ill-frame svg * { vector-effect: non-scaling-stroke; }
+
+  /*
+   * Raster illustrations (photos/line-art PNGs), as opposed to .ill-frame's
+   * hand-drawn inline SVGs. No box of its own — sits directly on whatever
+   * surface it's placed on (a colored card, the page background) instead of
+   * carrying a frame + fill that can visibly mismatch it. mix-blend-mode:
+   * multiply drops a flat white background out of the source PNG so it
+   * doesn't show as a box either, as long as the art is dark linework on a
+   * plain white/light ground — true alpha transparency is still better when
+   * the source has it (multiply is then just a no-op), but this covers
+   * stock illustration exports that ship without transparency.
+   */
+  .ill-photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

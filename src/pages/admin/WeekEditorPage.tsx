@@ -21,13 +21,16 @@ function useWeek(weekId: string | undefined) {
 
   async function refresh() {
     if (!weekId) return
-    setLoading(true)
+    // Deliberately not setLoading(true) here: saveWeek()/togglePublish()
+    // also call refresh(), and flipping loading back to true would
+    // unmount the whole editor back to a full-page spinner on every save.
     const { data } = await supabase.from('weeks').select('*').eq('id', weekId).single()
     setWeek(data as Week)
     setLoading(false)
   }
 
   useEffect(() => {
+    setLoading(true)
     void refresh()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [weekId])
@@ -78,7 +81,11 @@ export default function WeekEditorPage() {
 
   async function togglePublish() {
     if (!weekId || !week) return
-    await supabase.from('weeks').update({ status: week.status === 'published' ? 'draft' : 'published' }).eq('id', weekId)
+    const nowPublishing = week.status !== 'published'
+    await supabase
+      .from('weeks')
+      .update({ status: nowPublishing ? 'published' : 'draft', published_at: nowPublishing ? new Date().toISOString() : null })
+      .eq('id', weekId)
     await refresh()
   }
 
@@ -97,7 +104,7 @@ export default function WeekEditorPage() {
       <AppNav />
       <AdminNav />
       {week && (
-        <div className="border-b-2 border-stone bg-surface">
+        <div className="border-b-2 border-hairline bg-surface">
           <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
             <Breadcrumb items={[{ label: 'curriculum', to: '/admin/curriculum' }, { label: `week ${String(week.position).padStart(2, '0')}` }]} />
             <div className="flex items-center gap-3">
@@ -147,7 +154,7 @@ export default function WeekEditorPage() {
                   </div>
                   <div>
                     <Label htmlFor="summary">
-                      Summary <span className="normal-case text-muted">· markdown · shown on the public curriculum page</span>
+                      Summary <span className="normal-case text-faint">· markdown · shown on the public curriculum page</span>
                     </Label>
                     <TextAreaField id="summary" value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} rows={3} />
                   </div>
@@ -157,7 +164,7 @@ export default function WeekEditorPage() {
               <section className="mt-8">
                 <div className="flex items-center justify-between">
                   <p className="meta">Lessons · {lessons.items.length}</p>
-                  <p className="font-mono text-[11px] font-bold uppercase text-muted">drag to reorder</p>
+                  <p className="font-mono text-[11px] font-bold uppercase text-faint">drag to reorder</p>
                 </div>
                 <div className="mt-3 space-y-2">
                   {lessons.items.map((lesson, i) => (
@@ -189,7 +196,7 @@ export default function WeekEditorPage() {
                       void lessons.create({ title: newLessonTitle.trim(), slug: slugify(newLessonTitle), status: 'draft' })
                       setNewLessonTitle('')
                     }}
-                    className="flex gap-2 rounded-panel bg-panel p-3"
+                    className="flex gap-2 rounded-panel border-2 border-dashed border-disabled p-3"
                   >
                     <Field value={newLessonTitle} onChange={(e) => setNewLessonTitle(e.target.value)} placeholder="New lesson title…" className="flex-1" />
                     <Button type="submit" variant="primary">
@@ -210,8 +217,8 @@ export default function WeekEditorPage() {
                         onMoveUp={() => void assignments.moveUp(assignment.id)}
                         onMoveDown={() => void assignments.moveDown(assignment.id)}
                       />
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-signal-wash">
-                        <AssignmentIcon className="h-4 w-4 text-signal-ink" />
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border-2 border-ink bg-lilac/40">
+                        <AssignmentIcon className="h-4 w-4 text-ink" />
                       </span>
                       <Link
                         to={`/admin/curriculum/assignments/${assignment.id}`}
@@ -219,7 +226,7 @@ export default function WeekEditorPage() {
                       >
                         {assignment.title}
                       </Link>
-                      <span className="pill" style={{ background: 'var(--color-ink)', borderColor: 'var(--color-ink)', color: '#fff' }}>
+                      <span className="pill" style={{ background: 'var(--color-ink)', borderColor: 'var(--color-ink)', color: 'var(--color-lime)' }}>
                         {assignment.assignment_type}
                       </span>
                       <StatusToggle status={assignment.status} onChange={(next) => void assignments.update(assignment.id, { status: next })} />
@@ -252,7 +259,7 @@ export default function WeekEditorPage() {
                       })
                       setNewAssignment({ title: '', type: 'text' })
                     }}
-                    className="flex gap-2 rounded-panel bg-panel p-3"
+                    className="flex gap-2 rounded-panel border-2 border-dashed border-disabled p-3"
                   >
                     <Field
                       value={newAssignment.title}
@@ -279,12 +286,12 @@ export default function WeekEditorPage() {
 
             <aside className="space-y-6">
               <div className="rounded-panel border-2 border-ink bg-ink p-6">
-                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-signal-light">Publish state</p>
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-lime">Publish state</p>
                 <button
                   onClick={() => void togglePublish()}
                   className="mt-3 flex w-full items-center gap-3 text-left"
                 >
-                  <span className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-paper/40 transition-colors ${week.status === 'published' ? 'bg-signal' : 'bg-transparent'}`}>
+                  <span className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-paper/40 transition-colors ${week.status === 'published' ? 'bg-lime' : 'bg-transparent'}`}>
                     <span
                       className={`absolute top-0.5 h-4 w-4 rounded-full bg-paper transition-transform ${week.status === 'published' ? 'translate-x-[22px]' : 'translate-x-0.5'}`}
                     />
@@ -295,6 +302,11 @@ export default function WeekEditorPage() {
                   Unpublishing hides the week from the public curriculum page. Students who already unlocked it keep
                   access.
                 </p>
+                {week.published_at && (
+                  <p className="mt-3 font-mono text-[11px] text-paper/50">
+                    published {new Date(week.published_at).toLocaleDateString()}
+                  </p>
+                )}
               </div>
 
               <Callout tone="info" heading="editing a live week">

@@ -19,13 +19,16 @@ function useAssignment(assignmentId: string | undefined) {
 
   async function refresh() {
     if (!assignmentId) return
-    setLoading(true)
+    // Deliberately not setLoading(true) here: save() also calls refresh(),
+    // and flipping loading back to true would unmount the whole editor
+    // back to a full-page spinner on every save.
     const { data } = await supabase.from('assignments').select('*').eq('id', assignmentId).single()
     setAssignment(data as Assignment)
     setLoading(false)
   }
 
   useEffect(() => {
+    setLoading(true)
     void refresh()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assignmentId])
@@ -89,7 +92,7 @@ export default function AssignmentEditorPage() {
       <AppNav />
       <AdminNav />
       {assignment && (
-        <div className="border-b-2 border-stone bg-surface">
+        <div className="border-b-2 border-hairline bg-surface">
           <div className="mx-auto flex max-w-[1000px] flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
             <Breadcrumb items={[{ label: 'curriculum', to: '/admin/curriculum' }, { label: 'week', to: `/admin/curriculum/weeks/${assignment.week_id}` }, { label: 'assignment' }]} />
             <div className="flex items-center gap-3">
@@ -106,7 +109,7 @@ export default function AssignmentEditorPage() {
         {assignment && (
           <>
             <Card className="space-y-4">
-              <span className="pill" style={{ background: 'var(--color-ink)', borderColor: 'var(--color-ink)', color: '#fff' }}>
+              <span className="pill" style={{ background: 'var(--color-ink)', borderColor: 'var(--color-ink)', color: 'var(--color-lime)' }}>
                 {assignment.assignment_type}
               </span>
               <div>
@@ -168,7 +171,7 @@ export default function AssignmentEditorPage() {
                           allowed_hosts: e.target.value.split(',').map((h) => h.trim()).filter(Boolean),
                         })
                       }
-                      placeholder="docs.google.com"
+                      placeholder="github.com"
                     />
                   </div>
                   <Checkbox
@@ -211,7 +214,7 @@ export default function AssignmentEditorPage() {
                   ))}
                   <button
                     onClick={() => void addQuestion()}
-                    className="w-full rounded-panel bg-panel py-3 font-mono text-xs font-bold uppercase text-muted hover:border-ink hover:text-ink"
+                    className="w-full rounded-panel border-2 border-dashed border-disabled py-3 font-mono text-xs font-bold uppercase text-muted hover:border-ink hover:text-ink"
                   >
                     + add question
                   </button>

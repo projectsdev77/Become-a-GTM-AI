@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
+import { MESSAGES_READ_EVENT } from '@/hooks/useUnreadMessages'
 import type { Message } from '@/types/database'
 
 /** The 1:1 mentor/student thread — every message sharing `studentId` (no separate conversations table). */
@@ -13,7 +14,10 @@ export function useMessageThread(studentId: string | undefined) {
 
   const refresh = useCallback(async () => {
     if (!studentId) return
-    setLoading(true)
+    // Deliberately not setLoading(true) here: send() also calls refresh(),
+    // and flipping loading back to true on every sent message would
+    // unmount the whole thread back to a bare "loading…" state on every
+    // send, which reads as the page reloading.
     const { data, error } = await supabase
       .from('messages')
       .select('*')
@@ -29,8 +33,30 @@ export function useMessageThread(studentId: string | undefined) {
   }, [studentId])
 
   useEffect(() => {
+    setLoading(true)
     void refresh()
   }, [refresh])
+
+  // Marks the other party's messages read the moment this thread is
+  // viewed. Keyed on the loaded messages themselves (not just mount) so
+  // reopening/re-polling an already-open thread still catches anything
+  // that arrived since. useUnreadMessages (the AppNav badge) only
+  // re-queries on route change, so without the event below the badge
+  // would sit stale until the next navigation instead of clearing right
+  // away like a normal messaging app.
+  useEffect(() => {
+    if (!user) return
+    const unreadIds = messages.filter((m) => m.sender_id !== user.id && !m.read_at).map((m) => m.id)
+    if (unreadIds.length === 0) return
+    supabase
+      .from('messages')
+      .update({ read_at: new Date().toISOString() })
+      .in('id', unreadIds)
+      .then(
+        () => window.dispatchEvent(new Event(MESSAGES_READ_EVENT)),
+        () => {},
+      )
+  }, [messages, user])
 
   async function send(body: string) {
     if (!studentId || !user || !body.trim()) return

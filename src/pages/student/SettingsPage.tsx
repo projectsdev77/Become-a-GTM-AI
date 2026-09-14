@@ -10,11 +10,13 @@ import ProgressBar from '@/components/ui/ProgressBar'
 import Avatar from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/Button'
 import { Field, Label, TextAreaField, FieldHint } from '@/components/ui/Field'
+import PasswordRequirementsList from '@/components/ui/PasswordRequirementsList'
+import { validatePassword } from '@/lib/passwordPolicy'
 
 function ProfileForm() {
   const { user, profile, refreshProfile } = useAuth()
   const isStudent = profile?.role === 'student'
-  const [form, setForm] = useState({ full_name: '', avatar_url: '', background: '', weekly_hours_target: '' })
+  const [form, setForm] = useState({ full_name: '', background: '', weekly_hours_target: '' })
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -23,7 +25,6 @@ function ProfileForm() {
     if (profile) {
       setForm({
         full_name: profile.full_name ?? '',
-        avatar_url: profile.avatar_url ?? '',
         background: profile.background ?? '',
         weekly_hours_target: profile.weekly_hours_target != null ? String(profile.weekly_hours_target) : '',
       })
@@ -39,7 +40,6 @@ function ProfileForm() {
       .from('profiles')
       .update({
         full_name: form.full_name || null,
-        avatar_url: form.avatar_url || null,
         ...(isStudent
           ? {
               background: form.background || null,
@@ -60,16 +60,7 @@ function ProfileForm() {
   return (
     <Card className="space-y-4">
       <div className="flex items-center gap-4">
-        <Avatar name={form.full_name || profile?.full_name} url={form.avatar_url || profile?.avatar_url} size={56} />
-        <div className="flex-1">
-          <Label htmlFor="avatar_url">Avatar URL</Label>
-          <Field
-            id="avatar_url"
-            value={form.avatar_url}
-            onChange={(e) => setForm({ ...form, avatar_url: e.target.value })}
-            placeholder="https://…"
-          />
-        </div>
+        <Avatar name={form.full_name || profile?.full_name} size={56} />
       </div>
       <div>
         <Label>Email</Label>
@@ -90,6 +81,7 @@ function ProfileForm() {
               rows={3}
               placeholder="e.g. 5 years as a backend engineer, new to ML"
             />
+            <FieldHint>Shared with your mentor so they can tailor feedback to your experience.</FieldHint>
           </div>
           <div>
             <Label htmlFor="weekly_hours_target">Weekly hours target</Label>
@@ -101,6 +93,7 @@ function ProfileForm() {
               onChange={(e) => setForm({ ...form, weekly_hours_target: e.target.value })}
               className="w-28"
             />
+            <FieldHint>Tracked on your dashboard against time you log completing resources.</FieldHint>
           </div>
         </>
       )}
@@ -117,6 +110,7 @@ function ProfileForm() {
 
 function PasswordForm() {
   const { updatePassword } = useAuth()
+  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [saving, setSaving] = useState(false)
@@ -128,8 +122,9 @@ function PasswordForm() {
   async function handleSave() {
     setError(null)
     setSaved(false)
-    if (newPassword.length < 8) {
-      setError('Password must be at least 8 characters.')
+    const passwordError = validatePassword(newPassword)
+    if (passwordError) {
+      setError(passwordError)
       return
     }
     if (newPassword !== confirmPassword) {
@@ -137,13 +132,14 @@ function PasswordForm() {
       return
     }
     setSaving(true)
-    const { error } = await updatePassword(newPassword)
+    const { error } = await updatePassword(newPassword, currentPassword)
     setSaving(false)
     if (error) {
       setError(error)
       return
     }
     setSaved(true)
+    setCurrentPassword('')
     setNewPassword('')
     setConfirmPassword('')
   }
@@ -151,6 +147,16 @@ function PasswordForm() {
   return (
     <Card className="space-y-4">
       <p className="meta">Change password</p>
+      <div>
+        <Label htmlFor="current_password">Current password</Label>
+        <Field
+          id="current_password"
+          type="password"
+          autoComplete="current-password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+        />
+      </div>
       <div>
         <Label htmlFor="new_password">New password</Label>
         <Field
@@ -161,7 +167,7 @@ function PasswordForm() {
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
         />
-        <FieldHint>At least 8 characters.</FieldHint>
+        <PasswordRequirementsList password={newPassword} />
       </div>
       <div>
         <Label htmlFor="confirm_password">Confirm new password</Label>
@@ -178,7 +184,12 @@ function PasswordForm() {
       {error && <p className="text-sm font-bold text-fail-ink">{error}</p>}
       {saved && <Callout tone="pass">Password updated.</Callout>}
 
-      <Button type="button" variant="primary" onClick={() => void handleSave()} disabled={saving || !newPassword || !confirmPassword}>
+      <Button
+        type="button"
+        variant="primary"
+        onClick={() => void handleSave()}
+        disabled={saving || !currentPassword || !newPassword || !confirmPassword}
+      >
         {saving ? 'Updating…' : 'Update password'}
       </Button>
     </Card>
@@ -186,7 +197,7 @@ function PasswordForm() {
 }
 
 function DangerZone() {
-  const { signOut, deleteAccount } = useAuth()
+  const { deleteAccount } = useAuth()
   const navigate = useNavigate()
   const [confirming, setConfirming] = useState(false)
   const [confirmText, setConfirmText] = useState('')
@@ -206,72 +217,46 @@ function DangerZone() {
   }
 
   return (
-    <div className="rounded-panel bg-fail-wash p-6" style={{ border: '1px solid var(--color-fail-border)' }}>
-      <p className="meta text-fail-ink">Session</p>
-      <p className="mt-2 text-[14px] text-fail-ink">Signing out ends your session on this device.</p>
-      <Button
-        type="button"
-        variant="secondary"
-        onClick={() => void signOut()}
-        className="mt-4 text-fail-ink"
-        style={{ borderColor: 'var(--color-fail-border)' }}
-      >
-        Log out
-      </Button>
+    <div className="rounded-panel border-2 border-fail bg-fail-bg p-6">
+      <p className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-fail-ink">Delete account</p>
+      <p className="mt-2 text-[14px] text-fail-ink">
+        Permanently deletes your account and everything tied to it — submissions, messages, progress. This cannot be
+        undone.
+      </p>
 
-      <div className="mt-6 pt-6" style={{ borderTop: '1px solid var(--color-fail-border)' }}>
-        <p className="meta text-fail-ink">Delete account</p>
-        <p className="mt-2 text-[14px] text-fail-ink">
-          Permanently deletes your account and everything tied to it — submissions, messages, progress. This cannot
-          be undone.
-        </p>
-
-        {!confirming ? (
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => setConfirming(true)}
-            className="mt-4 text-fail-ink"
-            style={{ borderColor: 'var(--color-fail-border)' }}
-          >
-            Delete my account
-          </Button>
-        ) : (
-          <div className="mt-4 space-y-3">
-            <Label htmlFor="confirm_delete">Type DELETE to confirm</Label>
-            <Field
-              id="confirm_delete"
-              value={confirmText}
-              onChange={(e) => setConfirmText(e.target.value)}
-              style={{ borderColor: 'var(--color-fail-border)' }}
-            />
-            {error && <p className="text-sm font-bold text-fail-ink">{error}</p>}
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => void handleDelete()}
-                disabled={confirmText !== 'DELETE' || deleting}
-                className="text-white"
-                style={{ background: 'var(--color-fail-ink)', borderColor: 'var(--color-fail-ink)' }}
-              >
-                {deleting ? 'Deleting…' : 'Permanently delete'}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setConfirming(false)
-                  setConfirmText('')
-                  setError(null)
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
+      {!confirming ? (
+        <Button type="button" variant="secondary" onClick={() => setConfirming(true)} className="mt-4 border-fail text-fail-ink">
+          Delete my account
+        </Button>
+      ) : (
+        <div className="mt-4 space-y-3">
+          <Label htmlFor="confirm_delete">Type DELETE to confirm</Label>
+          <Field id="confirm_delete" value={confirmText} onChange={(e) => setConfirmText(e.target.value)} className="border-fail" />
+          {error && <p className="text-sm font-bold text-fail-ink">{error}</p>}
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => void handleDelete()}
+              disabled={confirmText !== 'DELETE' || deleting}
+              className="border-fail bg-fail text-white"
+            >
+              {deleting ? 'Deleting…' : 'Permanently delete'}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setConfirming(false)
+                setConfirmText('')
+                setError(null)
+              }}
+            >
+              Cancel
+            </Button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -291,8 +276,8 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-paper">
       <AppNav />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        <p className="eyebrow">Your account</p>
-        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.035em] text-ink">Profile & settings</h1>
+        <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ your account ]</p>
+        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Profile & settings</h1>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
           <div className="space-y-6">
@@ -301,6 +286,20 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-6">
+            {isStudent && data?.payment_status && (
+              <Card>
+                <p className="meta">Plan</p>
+                <p className="mt-2 font-display text-xl font-bold text-ink">
+                  {data.payment_status === 'paid' ? 'Full access' : 'Free week'}
+                </p>
+                <p className="mt-1.5 text-[13.5px] text-muted">
+                  {data.payment_status === 'paid'
+                    ? 'You have full access to all 12 weeks.'
+                    : 'Week 1 is free. Contact us to unlock the rest of the program.'}
+                </p>
+              </Card>
+            )}
+
             {overall && (
               <Card>
                 <p className="meta">Overall progress</p>

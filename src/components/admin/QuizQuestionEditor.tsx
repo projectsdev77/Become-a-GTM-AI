@@ -50,8 +50,8 @@ export default function QuizQuestionEditor({
           rows={2}
           className="flex-1"
         />
-        <button onClick={onDelete} className="text-[13px] font-semibold text-fail-ink hover:underline">
-          Delete
+        <button onClick={onDelete} className="font-mono text-[11px] font-bold uppercase text-fail-ink hover:underline">
+          del
         </button>
       </div>
 
@@ -59,12 +59,8 @@ export default function QuizQuestionEditor({
         {options.items.map((opt) => (
           <div key={opt.id} className="flex items-center gap-3">
             <span
-              className="relative inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full border-2"
-              style={
-                opt.is_correct
-                  ? { background: 'var(--color-pass-ink)', borderColor: 'var(--color-pass-ink)' }
-                  : { background: 'var(--color-paper)', borderColor: 'var(--color-stone-strong)' }
-              }
+              className="relative inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-ink"
+              style={opt.is_correct ? { background: 'var(--color-lime)' } : { background: 'var(--color-surface)' }}
               title="Mark as the correct answer"
             >
               <input
@@ -74,16 +70,16 @@ export default function QuizQuestionEditor({
                 onChange={() => void setCorrect(opt.id)}
                 className="absolute inset-0 h-full w-full cursor-pointer rounded-full opacity-0"
               />
-              {opt.is_correct && <span className="h-2.5 w-2.5 rounded-full bg-white" />}
+              {opt.is_correct && <span className="h-2.5 w-2.5 rounded-full bg-ink" />}
             </span>
             <Field value={opt.text} onChange={(e) => void options.update(opt.id, { text: e.target.value })} className="flex-1" />
-            <button onClick={() => void options.remove(opt.id)} className="text-[13px] font-semibold text-fail-ink hover:underline">
-              Remove
+            <button onClick={() => void options.remove(opt.id)} className="font-mono text-xs font-bold text-fail-ink hover:underline">
+              ✕
             </button>
           </div>
         ))}
-        <button onClick={() => void addOption()} className="text-[13px] font-semibold text-blue-500 hover:underline">
-          + Add option
+        <button onClick={() => void addOption()} className="font-mono text-[11px] font-bold uppercase text-blue-700 hover:underline">
+          + add option
         </button>
       </div>
     </div>

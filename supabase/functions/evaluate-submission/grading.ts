@@ -102,7 +102,7 @@ export function buildGradingPrompt(params: {
   content: string
   urlFetch?: UrlFetchResult
 }): { system: string; user: string } {
-  const system = `You are grading a student assignment for a self-paced AI-powered go-to-market bootcamp. Be constructive, specific, and honest — this feedback is shown directly to the student. Base your verdict on the rubric, not on how much effort the submission looks like it took.
+  const system = `You are grading a student assignment for a self-paced AI engineering bootcamp. Be constructive, specific, and honest — this feedback is shown directly to the student. Base your verdict on the rubric, not on how much effort the submission looks like it took.
 
 Assignment instructions:
 ${params.instructions}

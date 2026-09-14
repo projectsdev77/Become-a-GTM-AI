@@ -31,9 +31,9 @@ export default function ResetPasswordRequestPage() {
     <div className="min-h-screen bg-paper">
       <PublicNav />
       <main className="flex items-center justify-center px-4 py-16">
-        <div className="w-full max-w-[420px] rounded-panel border border-stone bg-paper p-8" style={{ boxShadow: 'var(--shadow-site)' }}>
-          <p className="eyebrow">Account recovery</p>
-          <h1 className="mt-2 font-display text-[32px] font-bold leading-none tracking-[-0.035em] text-ink">
+        <div className="w-full max-w-[420px] rounded-panel border-[3px] border-ink bg-surface p-8 shadow-site">
+          <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ account recovery ]</p>
+          <h1 className="mt-2 font-display text-[32px] font-bold leading-none tracking-[-0.03em] text-ink">
             Reset your password
           </h1>
 
@@ -52,14 +52,14 @@ export default function ResetPasswordRequestPage() {
                   {error}
                 </Callout>
               )}
-              <Button type="submit" variant="primary" shadow="app" disabled={submitting} className="w-full">
+              <Button type="submit" variant="site" disabled={submitting} className="w-full">
                 {submitting ? 'Sending…' : 'Send reset link'}
               </Button>
             </form>
           )}
 
           <p className="mt-6 text-center text-[14.5px] text-muted">
-            <Link to="/login" className="font-bold text-blue-500">
+            <Link to="/login" className="font-bold text-blue-700">
               Back to login
             </Link>
           </p>

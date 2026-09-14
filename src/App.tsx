@@ -18,6 +18,7 @@ import WeekEditorPage from '@/pages/admin/WeekEditorPage'
 import LessonEditorPage from '@/pages/admin/LessonEditorPage'
 import AssignmentEditorPage from '@/pages/admin/AssignmentEditorPage'
 import StudentsListPage from '@/pages/admin/StudentsListPage'
+import MentorsListPage from '@/pages/admin/MentorsListPage'
 import StudentAdminDetailPage from '@/pages/admin/StudentAdminDetailPage'
 import BrokenLinksPage from '@/pages/admin/BrokenLinksPage'
 import CertificateEditorPage from '@/pages/admin/CertificateEditorPage'
@@ -25,6 +26,7 @@ import CertificatePage from '@/pages/public/CertificatePage'
 import ResetPasswordRequestPage from '@/pages/public/ResetPasswordRequestPage'
 import ResetPasswordConfirmPage from '@/pages/public/ResetPasswordConfirmPage'
 import SettingsPage from '@/pages/student/SettingsPage'
+import MessagesPage from '@/pages/student/MessagesPage'
 import NotFoundPage from '@/pages/public/NotFoundPage'
 
 function App() {
@@ -47,6 +49,10 @@ function App() {
             <Route path="/weeks/:weekId/lessons/:lessonId" element={<LessonPage />} />
             <Route path="/weeks/:weekId/assignments/:assignmentId" element={<AssignmentPage />} />
 
+            <Route element={<RequireRole roles={['student']} />}>
+              <Route path="/messages" element={<MessagesPage />} />
+            </Route>
+
             <Route element={<RequireRole roles={['mentor']} />}>
               <Route path="/mentor" element={<MentorDashboardPage />} />
               <Route path="/mentor/students/:studentId" element={<StudentDetailPage />} />
@@ -60,6 +66,7 @@ function App() {
               <Route path="/admin/curriculum/lessons/:lessonId" element={<LessonEditorPage />} />
               <Route path="/admin/curriculum/assignments/:assignmentId" element={<AssignmentEditorPage />} />
               <Route path="/admin/students" element={<StudentsListPage />} />
+              <Route path="/admin/mentors" element={<MentorsListPage />} />
               <Route path="/admin/students/:studentId" element={<StudentAdminDetailPage />} />
               <Route path="/admin/broken-links" element={<BrokenLinksPage />} />
               <Route path="/admin/certificate" element={<CertificateEditorPage />} />

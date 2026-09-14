@@ -1,4 +1,5 @@
-import { Link, useParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import AppNav from '@/components/layout/AppNav'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import Card from '@/components/ui/Card'
@@ -15,38 +16,39 @@ const ASSIGNMENT_STATUS: Record<string, { label: string; variant: StatusVariant 
   pending: { label: 'awaiting feedback', variant: 'progress' },
 }
 
-function LessonRow({ weekId, lesson, isCurrent }: { weekId: string; lesson: LessonSummary; isCurrent: boolean }) {
+function LessonRow({ weekId, lesson }: { weekId: string; lesson: LessonSummary }) {
+  const percent =
+    lesson.requiredTotal > 0 ? Math.round((lesson.requiredChecked / lesson.requiredTotal) * 100) : 0
+
   return (
     <Link to={`/weeks/${weekId}/lessons/${lesson.id}`} className="block no-underline">
-      <Card active={isCurrent} className="flex items-center gap-4">
+      <Card className="flex items-center gap-4 hover:shadow-app">
         <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold ${
-            lesson.completed
-              ? 'bg-pass-wash text-pass-ink'
-              : isCurrent
-                ? 'border-2 border-signal text-signal-ink'
-                : 'border-2 border-stone-strong text-muted'
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border-2 font-mono text-xs font-bold ${
+            lesson.completed ? 'border-pass bg-pass-bg text-pass-ink' : 'border-ink bg-stone text-ink'
           }`}
         >
           {lesson.completed ? '✓' : lesson.position}
         </div>
         <div className="min-w-0 flex-1">
-          <p className={isCurrent || lesson.completed ? 'font-semibold text-ink' : 'text-ink'}>{lesson.title}</p>
+          <p className="font-bold text-ink">{lesson.title}</p>
           {lesson.requiredTotal > 0 ? (
             <div className="mt-2 flex items-center gap-3">
               <div className="max-w-[10rem] flex-1">
-                <ProgressBar percent={lesson.requiredTotal > 0 ? Math.round((lesson.requiredChecked / lesson.requiredTotal) * 100) : 0} />
+                <ProgressBar percent={percent} />
               </div>
-              <span className="font-mono text-[11px] font-semibold text-muted">
+              <span className="font-mono text-[11px] font-bold text-muted">
                 {lesson.requiredChecked}/{lesson.requiredTotal}
               </span>
             </div>
           ) : (
-            <p className="mt-1 text-[13px] text-muted">No resources — mark complete manually</p>
+            <p className="mt-1 text-[13px] text-faint">No resources — mark complete manually</p>
           )}
         </div>
         {lesson.estimated_minutes && (
-          <span className="shrink-0 font-mono text-[11px] text-muted">{lesson.estimated_minutes} min</span>
+          <span className="shrink-0 font-mono text-[11px] font-bold uppercase tracking-wide text-faint">
+            {lesson.estimated_minutes} min
+          </span>
         )}
       </Card>
     </Link>
@@ -57,14 +59,16 @@ function AssignmentRow({ weekId, assignment }: { weekId: string; assignment: Ass
   const status = assignment.latestStatus ? ASSIGNMENT_STATUS[assignment.latestStatus] : null
   return (
     <Link to={`/weeks/${weekId}/assignments/${assignment.id}`} className="block no-underline">
-      <Card className="flex items-center justify-between gap-4">
+      <Card className="flex items-center justify-between gap-4 hover:shadow-app">
         <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-signal-wash">
-            <AssignmentIcon className="h-4 w-4 text-signal-ink" />
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border-2 border-ink bg-lilac/40">
+            <AssignmentIcon className="h-4 w-4 text-ink" />
           </span>
           <div>
-            <p className="font-semibold text-ink">{assignment.title}</p>
-            <p className="font-mono text-[11px] text-muted uppercase tracking-wide">{assignment.assignment_type}</p>
+            <p className="font-bold text-ink">{assignment.title}</p>
+            <p className="font-mono text-[11px] font-bold uppercase tracking-wide text-faint">
+              {assignment.assignment_type}
+            </p>
           </div>
         </div>
         {status ? <StatusPill variant={status.variant}>{status.label}</StatusPill> : <StatusPill variant="locked">not started</StatusPill>}
@@ -75,11 +79,16 @@ function AssignmentRow({ weekId, assignment }: { weekId: string; assignment: Ass
 
 export default function WeekPage() {
   const { weekId } = useParams()
+  const { hash } = useLocation()
   const { week, lessons, assignments, loading, error } = useWeekDetail(weekId)
 
-  if (loading) return <FullPageSpinner />
+  useEffect(() => {
+    if (!hash || loading) return
+    const el = document.getElementById(hash.slice(1))
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [hash, loading])
 
-  const currentLessonId = lessons.find((l) => !l.completed)?.id
+  if (loading) return <FullPageSpinner />
 
   return (
     <div className="min-h-screen bg-paper">
@@ -90,25 +99,27 @@ export default function WeekPage() {
         {error && <p className="text-sm font-bold text-fail-ink">Couldn't load this week: {error}</p>}
 
         {week && (
-          <div className="grid gap-8 lg:grid-cols-[1.7fr_0.85fr]">
+          <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
             <div>
-              <p className="meta">Week {String(week.position).padStart(2, '0')}{week.estimated_hours ? ` · ${week.estimated_hours} hours` : ''}</p>
-              <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.035em] text-ink">{week.title}</h1>
-              {week.goal && <p className="mt-3 max-w-[58ch] text-[17px] leading-relaxed text-body">{week.goal}</p>}
+              <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">
+                [ week {week.position}{week.estimated_hours ? ` · ${week.estimated_hours} hrs` : ''} ]
+              </p>
+              <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">{week.title}</h1>
+              {week.goal && <p className="mt-3 max-w-2xl text-[17px] leading-relaxed text-muted">{week.goal}</p>}
 
               <section className="mt-9">
                 <p className="meta">Lessons</p>
                 <div className="mt-3 space-y-3">
                   {lessons.map((lesson) => (
-                    <LessonRow key={lesson.id} weekId={week.id} lesson={lesson} isCurrent={lesson.id === currentLessonId} />
+                    <LessonRow key={lesson.id} weekId={week.id} lesson={lesson} />
                   ))}
                   {lessons.length === 0 && <p className="text-sm text-muted">No lessons yet.</p>}
                 </div>
               </section>
 
               {assignments.length > 0 && (
-                <section className="mt-8 border-t border-stone pt-8">
-                  <p className="meta">Assignment</p>
+                <section id="assignments" className="mt-8 scroll-mt-24">
+                  <p className="meta">Assignments</p>
                   <div className="mt-3 space-y-3">
                     {assignments.map((assignment) => (
                       <AssignmentRow key={assignment.id} weekId={week.id} assignment={assignment} />
@@ -121,12 +132,12 @@ export default function WeekPage() {
             <aside className="space-y-6">
               <Card>
                 <p className="meta">Week {week.position} contents</p>
-                <ul className="mt-3 divide-y divide-stone">
+                <ul className="mt-3 divide-y divide-hairline">
                   {lessons.map((lesson) => (
                     <li key={lesson.id} className="flex items-center gap-3 py-2.5">
                       <span
-                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-bold ${
-                          lesson.completed ? 'bg-pass-wash text-pass-ink' : 'border-2 border-stone-strong text-muted'
+                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border-2 font-mono text-[10px] font-bold ${
+                          lesson.completed ? 'border-pass bg-pass-bg text-pass-ink' : 'border-ink text-ink'
                         }`}
                       >
                         {lesson.completed ? '✓' : lesson.position}
@@ -136,8 +147,8 @@ export default function WeekPage() {
                   ))}
                   {assignments.map((a) => (
                     <li key={a.id} className="flex items-center gap-3 py-2.5">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-signal-wash">
-                        <AssignmentIcon className="h-3 w-3 text-signal-ink" />
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border-2 border-ink bg-lilac/40">
+                        <AssignmentIcon className="h-3 w-3 text-ink" />
                       </span>
                       <span className="text-[14px] text-ink">{a.title}</span>
                     </li>

@@ -1,7 +1,6 @@
-# Become a GTM AI
+# Become an AI Engineer
 
-A self-paced, 12-week structured learning platform for marketing, sales, and growth
-professionals moving into AI-powered go-to-market work.
+A self-paced, 12-week structured learning platform for developers moving into AI engineering.
 See the product specification for full context on scope and decisions.
 
 ## Stack

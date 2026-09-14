@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
+import { functionErrorMessage } from '@/lib/functionsError'
 import type { Assignment, QuizConfig, Submission, TextConfig, UrlConfig } from '@/types/database'
 
 export interface QuizQuestionWithOptions {
@@ -24,7 +25,13 @@ export function useAssignmentDetail(assignmentId: string | undefined) {
 
   const refresh = useCallback(async () => {
     if (!assignmentId || !user) return
-    setLoading(true)
+    // Deliberately not setLoading(true) here: refresh() also runs after
+    // submitting, after an AI evaluation finishes (the polling effect
+    // below), and after flagging for review — flipping loading back to
+    // true on each of those would unmount the whole assignment page back
+    // to a full-page spinner every time, which reads as the page
+    // reloading. The mount/assignment-change effect below is the only
+    // place that should show that state.
     setError(null)
 
     try {
@@ -77,6 +84,7 @@ export function useAssignmentDetail(assignmentId: string | undefined) {
   }, [assignmentId, user])
 
   useEffect(() => {
+    setLoading(true)
     void refresh()
   }, [refresh])
 
@@ -84,6 +92,24 @@ export function useAssignmentDetail(assignmentId: string | undefined) {
   const secondsUntilNextAttempt = latest
     ? Math.max(0, Math.ceil((new Date(latest.submitted_at).getTime() + ONE_MINUTE_MS - Date.now()) / 1000))
     : 0
+
+  // Covers revisiting an assignment whose latest submission was left
+  // pending/processing from an earlier visit (tab closed or reloaded mid
+  // grading) — without this, only a fresh submission's own invoke call
+  // would ever trigger a poll, and a reload would just show the same
+  // stale "evaluating" state forever.
+  useEffect(() => {
+    if (!latest || (latest.evaluation_status !== 'pending' && latest.evaluation_status !== 'processing')) return
+    let cancelled = false
+    void (async () => {
+      await pollUntilGraded(latest.id)
+      if (!cancelled) await refresh()
+    })()
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latest?.id, latest?.evaluation_status])
 
   async function submitText(content: string) {
     if (!assignment || !user) return
@@ -106,8 +132,12 @@ export function useAssignmentDetail(assignmentId: string | undefined) {
         .select()
         .single()
       if (error) throw error
-      await invokeEvaluation(data.id)
+      // Show the new "Attempt N — evaluating" card immediately — don't
+      // wait for grading to finish first. invokeEvaluation runs in the
+      // background; the effect above picks up the pending row this
+      // refresh() just loaded and polls it to completion on its own.
       await refresh()
+      void invokeEvaluation(data.id)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Submission failed')
     } finally {
@@ -142,8 +172,8 @@ export function useAssignmentDetail(assignmentId: string | undefined) {
         if (answersError) throw answersError
       }
 
-      await invokeEvaluation(submission.id)
       await refresh()
+      void invokeEvaluation(submission.id)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Submission failed')
     } finally {
@@ -153,14 +183,55 @@ export function useAssignmentDetail(assignmentId: string | undefined) {
 
   async function invokeEvaluation(submissionId: string) {
     // Grading (quiz) and AI feedback (text/url) both happen server-side
-    // with the service role, per section 7 — the client only kicks it off.
-    const { error } = await supabase.functions.invoke('evaluate-submission', {
-      body: { submissionId },
-    })
-    // Don't fail the whole submit flow if the invoke itself errors (e.g. the
-    // function is still deploying) — the submission row already exists with
-    // evaluation_status='pending' and can be retried/reviewed later.
-    if (error) console.error('evaluate-submission invoke failed', error)
+    // with the service role, per section 7 — the client only kicks off the
+    // function call and never awaits its result on the submit path (the
+    // polling effect above is what actually picks up the graded row). A
+    // failure here — the function isn't deployed, secrets aren't set,
+    // Gemini rejected the key — is surfaced to `error` so it isn't just a
+    // silently-stuck "Evaluating" card with a console.error only the
+    // developer would ever see.
+    try {
+      const { data, error } = await supabase.functions.invoke('evaluate-submission', {
+        body: { submissionId },
+      })
+      if (error) {
+        console.error('evaluate-submission invoke failed', error)
+        setError(
+          `Couldn't reach the grading service (${await functionErrorMessage(error)}). Your submission was saved — a mentor will review it if grading doesn't complete.`,
+        )
+      } else if (data?.ok === false) {
+        // The function itself ran and grading failed internally (bad
+        // model name, Gemini rejected the request, ...) — it deliberately
+        // responds 200 in that case (the failure is recorded on the
+        // submission row, not a transport error), so `error` above is
+        // never set for this path. evaluation_status already flips to
+        // 'failed' and SubmissionResult shows its own friendly message
+        // once polling catches up; this just surfaces the real reason
+        // immediately instead of making the student wait for that poll.
+        console.error('evaluate-submission ran but grading failed', data.error)
+      }
+    } catch (e) {
+      console.error('evaluate-submission invoke threw', e)
+      setError("Couldn't reach the grading service. Your submission was saved — a mentor will review it if grading doesn't complete.")
+    }
+  }
+
+  // Polls the submission row until it leaves 'pending'/'processing', instead
+  // of trusting the single refresh() right after invokeEvaluation — that
+  // trusted the invoke's own HTTP round trip to reflect the true end state,
+  // which left the UI stuck showing "Evaluating…" forever whenever that one
+  // round trip errored, timed out, or raced ahead of the server's write.
+  async function pollUntilGraded(submissionId: string, timeoutMs = 90_000, intervalMs = 3_000) {
+    const deadline = Date.now() + timeoutMs
+    while (Date.now() < deadline) {
+      const { data } = await supabase
+        .from('submissions')
+        .select('evaluation_status')
+        .eq('id', submissionId)
+        .maybeSingle()
+      if (data && data.evaluation_status !== 'pending' && data.evaluation_status !== 'processing') return
+      await new Promise((resolve) => setTimeout(resolve, intervalMs))
+    }
   }
 
   async function flagForReview(reason: string) {
@@ -174,6 +245,9 @@ export function useAssignmentDetail(assignmentId: string | undefined) {
       setError(error.message)
       return
     }
+    // Fire-and-forget: same pattern as send-welcome-email/notify-message —
+    // a failed notification should never block the flag itself succeeding.
+    supabase.functions.invoke('notify-flagged-submission', { body: { submissionId: latest.id } }).catch(() => {})
     await refresh()
   }
 
