@@ -4,6 +4,7 @@ import StatusPill from '@/components/ui/StatusPill'
 import Callout from '@/components/ui/Callout'
 import { Button } from '@/components/ui/Button'
 import { TextAreaField } from '@/components/ui/Field'
+import Avatar from '@/components/ui/Avatar'
 import { CheckIcon, AlertIcon, MessageIcon } from '@/components/ui/icons'
 
 export default function QueueCard({
@@ -18,8 +19,7 @@ export default function QueueCard({
   const [saving, setSaving] = useState(false)
 
   const isFailed = item.evaluation_status === 'failed'
-  const cause = isFailed ? 'AI evaluation failed' : 'Student requested review'
-  const railColor = isFailed ? 'var(--color-fail)' : 'var(--color-warn)'
+  const cause = isFailed ? 'Grader failed' : 'Student flagged'
 
   async function handleResolve() {
     if (!onResolve || !feedback.trim()) return
@@ -30,101 +30,95 @@ export default function QueueCard({
   }
 
   return (
-    <div className="overflow-hidden rounded-panel border-2 border-ink bg-surface" style={{ borderLeftWidth: 8, borderLeftColor: railColor }}>
-      <div className="p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-blue-50 font-display text-base font-bold text-ink">
-              {item.studentName.charAt(0)}
-            </span>
-            <div>
-              <p className="font-display text-lg font-bold text-ink">{item.studentName}</p>
-              <p className="text-[13.5px] text-muted">
-                Week {item.weekPosition} · {item.assignmentTitle} · attempt {item.attempt_number}
-              </p>
-            </div>
-          </div>
-          <div className="text-right">
-            <StatusPill variant={isFailed ? 'fail' : 'warn'}>{cause}</StatusPill>
-            <p className="mt-1.5 font-mono text-[11px] text-faint">
-              {new Date(item.submitted_at).toLocaleDateString()}
+    <div className={`rounded-panel p-6 ${isFailed ? 'bg-card-light' : 'border border-line'}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Avatar name={item.studentName} size={40} />
+          <div>
+            <p className={`font-bold ${isFailed ? 'text-on-light' : 'text-text-bright'}`}>{item.studentName}</p>
+            <p className={`text-[13px] ${isFailed ? 'text-on-light-mute' : 'text-text-muted'}`}>
+              Week {item.weekPosition} · {item.assignmentTitle} · attempt {item.attempt_number}
             </p>
           </div>
         </div>
-
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {item.content && (
-            <div className="rounded-card border-2 border-hairline bg-paper p-4">
-              <p className="meta mb-1.5 text-faint">Submission</p>
-              <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-ink">{item.content}</p>
-            </div>
-          )}
-          {item.flag_reason && (
-            <Callout tone="warn" heading="why the student flagged this" icon={<AlertIcon className="h-3.5 w-3.5" />}>
-              {item.flag_reason}
-            </Callout>
-          )}
-          {item.ai_error && !item.flag_reason && (
-            <Callout tone="fail" heading="error" icon={<AlertIcon className="h-3.5 w-3.5" />}>
-              <span className="font-mono text-[13px]">{item.ai_error}</span>
-            </Callout>
-          )}
+        <div className="text-right">
+          <StatusPill variant={isFailed ? 'fail' : 'warn'}>{cause}</StatusPill>
+          <p className={`mt-1.5 font-mono text-[11px] ${isFailed ? 'text-on-light-meta' : 'text-text-muted'}`}>
+            {new Date(item.submitted_at).toLocaleDateString()}
+          </p>
         </div>
+      </div>
 
-        {item.ai_feedback && (
-          <Callout tone="info" heading="AI feedback" icon={<MessageIcon className="h-3.5 w-3.5" />} className="mt-3">
-            {item.ai_feedback}
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {item.content && (
+          <div className={`rounded-card p-4 ${isFailed ? 'bg-card-pressed' : 'border border-line'}`}>
+            <p className={`meta mb-1.5 ${isFailed ? 'text-on-light-meta' : ''}`}>Submission</p>
+            <p className={`whitespace-pre-wrap text-[14px] leading-relaxed ${isFailed ? 'text-on-light' : 'text-text-body'}`}>
+              {item.content}
+            </p>
+          </div>
+        )}
+        {item.flag_reason && (
+          <Callout tone="warn" heading="why the student flagged this" icon={<AlertIcon className="h-3.5 w-3.5" />}>
+            {item.flag_reason}
           </Callout>
         )}
-
-        {item.reviewed_at ? (
-          <div className="mt-5 border-t-2 border-hairline pt-4">
-            <p className="meta">
-              Resolved: {item.final_status === 'passed' ? 'passed' : 'needs work'}
-            </p>
-            {item.human_feedback && <p className="mt-1.5 text-[14.5px] text-ink">{item.human_feedback}</p>}
-          </div>
-        ) : (
-          onResolve && (
-            <div className="mt-5 space-y-3 border-t-2 border-hairline pt-4">
-              <div className="flex items-center gap-3">
-                <span className="meta">Verdict</span>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={status === 'passed' ? 'primary' : 'secondary'}
-                  onClick={() => setStatus('passed')}
-                >
-                  <CheckIcon className="h-3.5 w-3.5" /> Pass
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={status === 'needs_work' ? 'primary' : 'secondary'}
-                  onClick={() => setStatus('needs_work')}
-                  className={status === 'needs_work' ? '!bg-warn !border-warn' : ''}
-                >
-                  <AlertIcon className="h-3.5 w-3.5" /> Needs work
-                </Button>
-              </div>
-              <TextAreaField
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                placeholder="Feedback for the student…"
-                rows={2}
-              />
-              <div className="flex items-center justify-between gap-4">
-                <p className="font-mono text-[11px] font-bold uppercase tracking-wide text-faint">
-                  student is notified immediately on resolve
-                </p>
-                <Button type="button" variant="primary" onClick={() => void handleResolve()} disabled={saving || !feedback.trim()}>
-                  {saving ? 'Saving…' : 'Resolve'}
-                </Button>
-              </div>
-            </div>
-          )
+        {item.ai_error && !item.flag_reason && (
+          <Callout tone="fail" heading="error" icon={<AlertIcon className="h-3.5 w-3.5" />}>
+            <span className="font-mono text-[13px]">{item.ai_error}</span>
+          </Callout>
         )}
       </div>
+
+      {item.ai_feedback && (
+        <Callout tone="info" heading="AI feedback" icon={<MessageIcon className="h-3.5 w-3.5" />} className="mt-3">
+          {item.ai_feedback}
+        </Callout>
+      )}
+
+      {item.reviewed_at ? (
+        <div className={`mt-5 border-t pt-4 ${isFailed ? 'border-[rgba(34,31,27,.18)]' : 'border-line'}`}>
+          <p className={`meta ${isFailed ? 'text-on-light-meta' : ''}`}>
+            Resolved: {item.final_status === 'passed' ? 'passed' : 'needs work'}
+          </p>
+          {item.human_feedback && (
+            <p className={`mt-1.5 text-[14.5px] ${isFailed ? 'text-on-light' : 'text-text-bright'}`}>{item.human_feedback}</p>
+          )}
+        </div>
+      ) : (
+        onResolve && (
+          <div className={`mt-5 space-y-3 border-t pt-4 ${isFailed ? 'border-[rgba(34,31,27,.18)]' : 'border-line'}`}>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className={`meta ${isFailed ? 'text-on-light-meta' : ''}`}>Verdict</span>
+              <Button type="button" size="sm" variant={status === 'passed' ? 'primary' : 'secondary'} onClick={() => setStatus('passed')}>
+                <CheckIcon className="h-3.5 w-3.5" /> Pass
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={status === 'needs_work' ? 'primary' : 'secondary'}
+                onClick={() => setStatus('needs_work')}
+              >
+                <AlertIcon className="h-3.5 w-3.5" /> Needs work
+              </Button>
+            </div>
+            <TextAreaField
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              placeholder="Feedback for the student…"
+              rows={2}
+            />
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <p className={`font-mono text-[11px] font-bold uppercase tracking-wide ${isFailed ? 'text-on-light-meta' : 'text-text-muted'}`}>
+                student is notified immediately on resolve
+              </p>
+              <Button type="button" variant="primary" onClick={() => void handleResolve()} disabled={saving || !feedback.trim()}>
+                {saving ? 'Saving…' : 'Resolve'}
+              </Button>
+            </div>
+          </div>
+        )
+      )}
     </div>
   )
 }

@@ -55,7 +55,7 @@ export default function UrlForm({
       )}
       {config.require_public && <FieldHint>Make sure this link is publicly accessible.</FieldHint>}
       <Button type="submit" variant="primary" disabled={disabled || !validUrl} className="w-full">
-        Submit
+        Submit for grading
       </Button>
     </form>
   )

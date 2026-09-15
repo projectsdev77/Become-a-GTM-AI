@@ -68,16 +68,16 @@ export default function StudentsListPage() {
   if (loading) return <FullPageSpinner />
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ {students.length} total ]</p>
-            <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Students</h1>
+            <p className="meta text-primary">[ {students.length} total ]</p>
+            <h1 className="mt-2 font-display text-[clamp(24px,3.2vw,34px)] uppercase leading-[1.05] text-text">Students</h1>
           </div>
-          <Field value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search students…" className="w-64" />
+          <Field value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name or email…" className="w-64" />
         </div>
 
         <div className="mt-6">
@@ -93,8 +93,8 @@ export default function StudentsListPage() {
             <TBody>
               {filtered.map((s) => (
                 <TR key={s.id}>
-                  <TD className="font-bold text-ink">{s.full_name ?? 'Unnamed student'}</TD>
-                  <TD className="text-[13.5px] text-muted">{s.mentorName ?? 'No mentor assigned'}</TD>
+                  <TD className="font-semibold text-text">{s.full_name ?? 'Unnamed student'}</TD>
+                  <TD className="text-[13.5px] text-text-muted">{s.mentorName ?? 'No mentor assigned'}</TD>
                   <TD>
                     {s.payment_status === 'paid' ? (
                       <StatusPill variant="pass">paid</StatusPill>
@@ -103,7 +103,7 @@ export default function StudentsListPage() {
                     )}
                   </TD>
                   <TD className="text-right">
-                    <Link to={`/admin/students/${s.id}`} className="font-mono text-[11.5px] font-bold uppercase text-blue-700 no-underline hover:underline">
+                    <Link to={`/admin/students/${s.id}`} className="font-mono text-[11.5px] font-bold uppercase text-primary no-underline hover:underline">
                       view →
                     </Link>
                   </TD>
@@ -111,7 +111,7 @@ export default function StudentsListPage() {
               ))}
             </TBody>
           </Table>
-          {filtered.length === 0 && <p className="py-8 text-center font-mono text-xs font-bold uppercase text-muted">No students found.</p>}
+          {filtered.length === 0 && <p className="py-8 text-center font-mono text-xs font-bold uppercase text-text-muted">No students found.</p>}
         </div>
       </main>
     </div>

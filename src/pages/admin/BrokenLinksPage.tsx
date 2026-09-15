@@ -91,30 +91,30 @@ export default function BrokenLinksPage() {
   if (loading) return <FullPageSpinner />
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ {resources.length} flagged ]</p>
-            <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Broken links</h1>
+            <p className="meta text-primary">[ {resources.length} flagged ]</p>
+            <h1 className="mt-2 font-display text-[clamp(24px,3.2vw,34px)] uppercase leading-[1.05] text-text">Broken links</h1>
           </div>
           <div className="flex flex-col items-end gap-1.5">
             <Button type="button" variant="secondary" onClick={() => void runCheck()} disabled={checking}>
-              {checking ? 'Checking…' : 'Check links now'}
+              {checking ? 'Checking…' : 'Re-run check now'}
             </Button>
             {lastCheck && !checking && (
-              <p className="font-mono text-[11px] text-muted">
+              <p className="font-mono text-[11px] text-text-muted">
                 checked {lastCheck.checked} · {lastCheck.brokenCount} broken
               </p>
             )}
           </div>
         </div>
-        <p className="mt-2 text-[14.5px] text-muted">
+        <p className="mt-2 text-[14.5px] text-text-muted">
           Links that failed a check. Students never see this. Use{' '}
-          <span className="font-bold text-ink">mark fixed</span> once you've fixed a link, or{' '}
-          <span className="font-bold text-ink">always allow</span> if it keeps flagging a link you've confirmed
+          <span className="font-bold text-text">mark fixed</span> once you&apos;ve fixed a link, or{' '}
+          <span className="font-bold text-text">always allow</span> if it keeps flagging a link you&apos;ve confirmed
           works.
         </p>
         {checkError && (
@@ -137,32 +137,32 @@ export default function BrokenLinksPage() {
               </THead>
               <TBody>
                 {resources.map((r) => (
-                  <TR key={r.id} style={{ background: 'var(--color-warn-bg)' }}>
+                  <TR key={r.id}>
                     <TD>
-                      <p className="font-bold text-ink">{r.title}</p>
-                      <a href={r.url} target="_blank" rel="noreferrer" className="block truncate font-mono text-[12px] text-blue-700">
+                      <p className="font-semibold text-text">{r.title}</p>
+                      <a href={r.url} target="_blank" rel="noreferrer" className="block truncate font-mono text-[12px] text-primary">
                         {r.url}
                       </a>
                     </TD>
-                    <TD className="font-mono font-bold text-warn-ink">{r.last_status_code ?? '—'}</TD>
-                    <TD className="text-[13.5px] text-muted">
+                    <TD className="font-mono font-bold text-warn">{r.last_status_code ?? '—'}</TD>
+                    <TD className="text-[13.5px] text-text-muted">
                       Week {r.weekPosition} · {r.lessonTitle}
                     </TD>
-                    <TD className="font-mono text-[12px] text-faint">
+                    <TD className="font-mono text-[12px] text-text-muted">
                       {r.last_checked_at ? new Date(r.last_checked_at).toLocaleDateString() : 'never'}
                     </TD>
                     <TD>
-                      <div className="flex items-center justify-end gap-3">
-                        <Link to={`/admin/curriculum/lessons/${r.lesson_id}`} className="font-mono text-[11.5px] font-bold uppercase text-blue-700 no-underline hover:underline">
+                      <div className="flex flex-wrap items-center justify-end gap-3">
+                        <Link to={`/admin/curriculum/lessons/${r.lesson_id}`} className="font-mono text-[11.5px] font-bold uppercase text-primary no-underline hover:underline">
                           edit
                         </Link>
-                        <button onClick={() => void dismiss(r.id)} className="font-mono text-[11.5px] font-bold uppercase text-muted hover:text-ink">
+                        <button onClick={() => void dismiss(r.id)} className="font-mono text-[11.5px] font-bold uppercase text-text-muted hover:text-text">
                           mark fixed
                         </button>
                         <button
                           onClick={() => void alwaysAllow(r.id)}
                           title="I've checked this link myself and it works — stop flagging it, even if automated checks keep failing it"
-                          className="font-mono text-[11.5px] font-bold uppercase text-muted hover:text-ink"
+                          className="font-mono text-[11.5px] font-bold uppercase text-text-muted hover:text-text"
                         >
                           always allow
                         </button>

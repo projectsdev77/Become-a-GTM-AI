@@ -1,34 +1,64 @@
 import { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { useMessageThread } from '@/hooks/useMessageThread'
-import { Field } from '@/components/ui/Field'
+import { TextAreaField } from '@/components/ui/Field'
 import { Button } from '@/components/ui/Button'
 
+function dayLabel(iso: string): string {
+  const date = new Date(iso)
+  const today = new Date()
+  const yesterday = new Date()
+  yesterday.setDate(today.getDate() - 1)
+  const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString()
+  if (sameDay(date, today)) return 'Today'
+  if (sameDay(date, yesterday)) return 'Yesterday'
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+}
+
+function timeLabel(iso: string): string {
+  return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+}
+
 export default function MessageThread({ studentId }: { studentId: string }) {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const { messages, loading, sending, error, send } = useMessageThread(studentId)
   const [draft, setDraft] = useState('')
 
+  // No per-sender identity on `messages` (see types/database) — the thread is
+  // strictly 1:1, so a generic role label ("You" / the other party's role)
+  // is all we can show without a new join.
+  const otherLabel = profile?.role === 'mentor' ? 'Student' : 'Mentor'
+
+  let lastDay = ''
+
   return (
-    <div className="overflow-hidden rounded-panel border-2 border-ink bg-surface">
-      <div className="max-h-96 space-y-3 overflow-y-auto p-4">
-        {loading && <p className="font-mono text-xs font-bold uppercase text-muted">loading…</p>}
-        {error && <p className="text-sm font-bold text-fail-ink">{error}</p>}
+    <div className="flex flex-col overflow-hidden rounded-panel border border-line">
+      <div className="flex max-h-[420px] flex-col gap-3.5 overflow-y-auto p-5">
+        {loading && <p className="font-mono text-xs font-bold uppercase text-text-muted">loading…</p>}
+        {error && <p className="text-sm font-bold text-fail-text">{error}</p>}
         {!loading && messages.length === 0 && (
-          <p className="text-[14.5px] text-muted">No messages yet — say hello.</p>
+          <p className="text-[14.5px] text-text-muted">No messages yet — say hello.</p>
         )}
         {messages.map((m) => {
           const mine = m.sender_id === user?.id
+          const day = dayLabel(m.created_at)
+          const showDivider = day !== lastDay
+          lastDay = day
           return (
-            <div key={m.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
+            <div key={m.id} className="flex flex-col">
+              {showDivider && (
+                <p className="my-2 text-center font-mono text-[10.5px] uppercase tracking-[0.08em] text-text-muted">{day}</p>
+              )}
               <div
-                className={`max-w-[75%] rounded-card border-2 border-ink px-3.5 py-2.5 text-[14.5px] ${
-                  mine ? 'bg-ink text-paper' : 'bg-paper text-ink'
+                className={`flex max-w-[min(560px,86%)] flex-col gap-1.5 px-4 py-3 text-[14px] leading-relaxed ${
+                  mine
+                    ? 'self-end rounded-[20px_20px_6px_20px] bg-card-light text-on-light'
+                    : 'self-start rounded-[20px_20px_20px_6px] border border-line text-text-body'
                 }`}
               >
                 <p>{m.body}</p>
-                <p className={`mt-1 font-mono text-[10px] ${mine ? 'text-paper/50' : 'text-faint'}`}>
-                  {new Date(m.created_at).toLocaleString()}
+                <p className={`font-mono text-[10px] ${mine ? 'text-on-light-meta' : 'text-text-muted'}`}>
+                  {mine ? 'YOU' : otherLabel.toUpperCase()} · {timeLabel(m.created_at)}
                 </p>
               </div>
             </div>
@@ -42,9 +72,15 @@ export default function MessageThread({ studentId }: { studentId: string }) {
           void send(draft)
           setDraft('')
         }}
-        className="flex gap-2 border-t-2 border-ink p-3"
+        className="flex items-end gap-2.5 border-t border-line p-4"
       >
-        <Field value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Write a message…" className="flex-1" />
+        <TextAreaField
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder="Write a message…"
+          rows={2}
+          className="flex-1 resize-y"
+        />
         <Button type="submit" variant="primary" disabled={sending || !draft.trim()}>
           Send
         </Button>

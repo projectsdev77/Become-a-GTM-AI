@@ -44,7 +44,7 @@ export default function AssignmentPage() {
   const alreadyPassed = latest?.final_status === 'passed'
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
       {week && assignment && (
         <Breadcrumb
@@ -56,61 +56,65 @@ export default function AssignmentPage() {
         />
       )}
 
-      <main className="mx-auto max-w-[760px] px-4 py-10 sm:px-6">
-        {error && <p className="text-sm font-bold text-fail-ink">{error}</p>}
+      <main className="mx-auto max-w-[820px] px-6 py-9">
+        {error && <p className="text-sm font-bold text-fail-text">{error}</p>}
 
         {assignment && (
           <>
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="pill" style={{ background: 'var(--color-ink)', borderColor: 'var(--color-ink)', color: 'var(--color-lime)' }}>
-                {TYPE_LABEL[assignment.assignment_type] ?? assignment.assignment_type}
-              </span>
-              {assignment.assignment_type === 'text' && (
-                <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-muted">
-                  {textConfig(assignment).min_words}–{textConfig(assignment).max_words} words
+            <div className="rounded-shell border border-line p-9">
+              <div className="mb-4 flex flex-wrap items-center gap-3">
+                <span className="pill" style={{ background: 'var(--color-card-light)', color: 'var(--color-on-light)' }}>
+                  {TYPE_LABEL[assignment.assignment_type] ?? assignment.assignment_type}
                 </span>
-              )}
-              {assignment.assignment_type === 'url' && urlConfig(assignment).allowed_hosts?.length > 0 && (
-                <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-muted">
-                  accepted: {urlConfig(assignment).allowed_hosts.join(', ')}
-                </span>
-              )}
-              {assignment.assignment_type === 'quiz' && (
-                <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-muted">
-                  pass threshold {quizConfig(assignment).pass_threshold}% · attempt {submissions.length + 1}
-                </span>
-              )}
-            </div>
-
-            <h1 className="mt-3 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">{assignment.title}</h1>
-            <div className="prose prose-sm mt-4 max-w-none text-ink">
-              <ReactMarkdown>{assignment.instructions}</ReactMarkdown>
-            </div>
-
-            {!alreadyPassed && (
-              <div className="mt-8">
-                {rateLimited && (
-                  <Callout tone="warn" icon={<AlertIcon className="h-3.5 w-3.5" />} className="mb-4">
-                    You can submit again in {secondsUntilNextAttempt}s.
-                  </Callout>
-                )}
-
-                {assignment.assignment_type === 'quiz' && (
-                  <QuizForm questions={questions} disabled={formDisabled} onSubmit={submitQuiz} />
-                )}
                 {assignment.assignment_type === 'text' && (
-                  <TextForm config={textConfig(assignment)} disabled={formDisabled} onSubmit={submitText} />
+                  <span className="font-mono text-[11px] uppercase tracking-wide text-text-muted">
+                    {textConfig(assignment).min_words}–{textConfig(assignment).max_words} words
+                  </span>
                 )}
-                {assignment.assignment_type === 'url' && (
-                  <UrlForm config={urlConfig(assignment)} disabled={formDisabled} onSubmit={submitText} />
+                {assignment.assignment_type === 'url' && urlConfig(assignment).allowed_hosts?.length > 0 && (
+                  <span className="font-mono text-[11px] uppercase tracking-wide text-text-muted">
+                    accepted: {urlConfig(assignment).allowed_hosts.join(', ')}
+                  </span>
+                )}
+                {assignment.assignment_type === 'quiz' && (
+                  <span className="font-mono text-[11px] uppercase tracking-wide text-text-muted">
+                    pass threshold {quizConfig(assignment).pass_threshold}% · attempt {submissions.length + 1}
+                  </span>
                 )}
               </div>
-            )}
+
+              <h1 className="mb-4 font-display text-[clamp(22px,2.8vw,30px)] uppercase leading-[1.1] text-text">
+                {assignment.title}
+              </h1>
+              <div className="prose prose-invert prose-sm max-w-none prose-p:text-text-body prose-p:leading-[1.75] prose-a:text-primary">
+                <ReactMarkdown>{assignment.instructions}</ReactMarkdown>
+              </div>
+
+              {!alreadyPassed && (
+                <div className="mt-7">
+                  {rateLimited && (
+                    <Callout tone="warn" icon={<AlertIcon className="h-3.5 w-3.5" />} className="mb-4">
+                      You can submit again in {secondsUntilNextAttempt}s.
+                    </Callout>
+                  )}
+
+                  {assignment.assignment_type === 'quiz' && (
+                    <QuizForm questions={questions} disabled={formDisabled} onSubmit={submitQuiz} />
+                  )}
+                  {assignment.assignment_type === 'text' && (
+                    <TextForm config={textConfig(assignment)} disabled={formDisabled} onSubmit={submitText} />
+                  )}
+                  {assignment.assignment_type === 'url' && (
+                    <UrlForm config={urlConfig(assignment)} disabled={formDisabled} onSubmit={submitText} />
+                  )}
+                </div>
+              )}
+            </div>
 
             {submissions.length > 0 && (
-              <section className="mt-10">
-                <p className="meta">{submissions.length > 1 ? 'Attempts' : 'Your submission'}</p>
-                <div className="mt-3 space-y-4">
+              <section className="mt-8">
+                <p className="meta mb-3">{submissions.length > 1 ? 'Attempts' : 'Your submission'}</p>
+                <div className="space-y-4">
                   {submissions.map((s) => (
                     <SubmissionResult
                       key={s.id}

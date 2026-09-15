@@ -8,6 +8,8 @@ import { useMentorStudents } from '@/hooks/useMentorStudents'
 import { useExceptionQueue } from '@/hooks/useExceptionQueue'
 import { MESSAGES_READ_EVENT } from '@/hooks/useUnreadMessages'
 import { Table, THead, TBody, TR, TH, TD } from '@/components/ui/Table'
+import Avatar from '@/components/ui/Avatar'
+import { ChevronRightIcon } from '@/components/ui/icons'
 
 function timeAgo(iso: string | null): string {
   if (!iso) return 'never active'
@@ -56,63 +58,70 @@ export default function MentorDashboardPage() {
   if (loading) return <FullPageSpinner />
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
-      <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">
-              [ {students.length} assigned ]
-            </p>
-            <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Your students</h1>
-          </div>
-          <Link
-            to="/mentor/queue"
-            className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wide text-blue-700"
-          >
-            exception queue →
-            {openQueueItems.length > 0 && <span className="pill pill-warn">{openQueueItems.length} open</span>}
-          </Link>
+      <main className="mx-auto max-w-[1160px] px-4 py-10 sm:px-6">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-6">
+          <h1 className="font-display text-[clamp(24px,3.2vw,34px)] uppercase text-text">Your students</h1>
+          <nav className="flex flex-wrap gap-2.5">
+            <span className="rounded-pill bg-card-light px-[18px] py-2 text-[13px] font-bold text-on-light">
+              Your students
+            </span>
+            <Link
+              to="/mentor/queue"
+              className="flex items-center gap-2 rounded-pill border border-line px-[18px] py-2 text-[13px] font-medium text-text-body no-underline hover:border-line-strong"
+            >
+              Queue
+              {openQueueItems.length > 0 && <span className="pill pill-warn">{openQueueItems.length}</span>}
+            </Link>
+          </nav>
         </div>
 
-        {error && <p className="mt-4 text-sm font-bold text-fail-ink">{error}</p>}
+        {error && <p className="mt-4 text-sm font-bold text-fail-text">{error}</p>}
 
-        <div className="mt-6">
-          <Table>
-            <THead>
-              <TR>
-                <TH>Student</TH>
-                <TH>Last activity</TH>
-                <TH />
-              </TR>
-            </THead>
-            <TBody>
-              {students.map((student) => (
-                <TR key={student.id}>
-                  <TD className="font-bold text-ink">
-                    <span className="flex items-center gap-2">
-                      {student.full_name ?? 'Unnamed student'}
-                      {(unreadByStudent.get(student.id) ?? 0) > 0 && (
-                        <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-fail px-1 font-mono text-[10px] font-bold leading-none text-white">
-                          {unreadByStudent.get(student.id)}
-                        </span>
-                      )}
+        <Table>
+          <THead>
+            <TR>
+              <TH>Student</TH>
+              <TH>Last active</TH>
+              <TH>Messages</TH>
+              <TH />
+            </TR>
+          </THead>
+          <TBody>
+            {students.map((student) => (
+              <TR key={student.id}>
+                <TD>
+                  <span className="flex items-center gap-3">
+                    <Avatar name={student.full_name} size={32} />
+                    <span className="font-semibold text-text-bright">{student.full_name ?? 'Unnamed student'}</span>
+                  </span>
+                </TD>
+                <TD className="font-mono text-[12px]">{timeAgo(student.last_active_at)}</TD>
+                <TD>
+                  {(unreadByStudent.get(student.id) ?? 0) > 0 ? (
+                    <span className="inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-primary px-2 font-mono text-[11px] font-bold leading-none text-white">
+                      {unreadByStudent.get(student.id)}
                     </span>
-                  </TD>
-                  <TD className="font-mono text-[12px] text-muted">{timeAgo(student.last_active_at)}</TD>
-                  <TD className="text-right">
-                    <Link to={`/mentor/students/${student.id}`} className="font-mono text-[11.5px] font-bold uppercase text-blue-700 no-underline hover:underline">
-                      view →
-                    </Link>
-                  </TD>
-                </TR>
-              ))}
-            </TBody>
-          </Table>
-          {students.length === 0 && (
-            <p className="py-8 text-center font-mono text-xs font-bold uppercase text-muted">No students assigned yet.</p>
-          )}
-        </div>
+                  ) : (
+                    <span className="font-mono text-[11px] text-text-muted">—</span>
+                  )}
+                </TD>
+                <TD className="text-right">
+                  <Link
+                    to={`/mentor/students/${student.id}`}
+                    className="inline-flex items-center gap-1 font-mono text-[11.5px] font-bold uppercase text-primary no-underline hover:underline"
+                  >
+                    view <ChevronRightIcon className="h-3.5 w-3.5" />
+                  </Link>
+                </TD>
+              </TR>
+            ))}
+          </TBody>
+        </Table>
+        {students.length === 0 && (
+          <p className="py-8 text-center font-mono text-xs font-bold uppercase text-text-muted">No students assigned yet.</p>
+        )}
       </main>
     </div>
   )

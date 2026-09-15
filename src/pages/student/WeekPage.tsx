@@ -2,78 +2,74 @@ import { useEffect } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import AppNav from '@/components/layout/AppNav'
 import Breadcrumb from '@/components/ui/Breadcrumb'
-import Card from '@/components/ui/Card'
-import Callout from '@/components/ui/Callout'
-import ProgressBar from '@/components/ui/ProgressBar'
-import StatusPill, { type StatusVariant } from '@/components/ui/StatusPill'
-import { AssignmentIcon, LockIcon } from '@/components/ui/icons'
+import { LinkButton } from '@/components/ui/Button'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { useWeekDetail, type AssignmentSummary, type LessonSummary } from '@/hooks/useWeekDetail'
 
-const ASSIGNMENT_STATUS: Record<string, { label: string; variant: StatusVariant }> = {
-  passed: { label: 'passed', variant: 'pass' },
-  needs_work: { label: 'needs work', variant: 'warn' },
-  pending: { label: 'awaiting feedback', variant: 'progress' },
+const ASSIGNMENT_STATUS: Record<string, string> = {
+  passed: 'PASSED',
+  needs_work: 'NEEDS WORK',
+  pending: 'AWAITING FEEDBACK',
 }
 
-function LessonRow({ weekId, lesson }: { weekId: string; lesson: LessonSummary }) {
-  const percent =
-    lesson.requiredTotal > 0 ? Math.round((lesson.requiredChecked / lesson.requiredTotal) * 100) : 0
+function LessonRow({ weekId, lesson, isCurrent }: { weekId: string; lesson: LessonSummary; isCurrent: boolean }) {
+  const duration = lesson.estimated_minutes
+    ? `${lesson.estimated_minutes} MIN`
+    : lesson.requiredTotal > 0
+      ? `${lesson.requiredChecked}/${lesson.requiredTotal}`
+      : ''
+
+  const badge = lesson.completed ? (
+    <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-pass-deep text-xs text-white">
+      ✓
+    </span>
+  ) : isCurrent ? (
+    <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-ground-ink text-xs text-white">
+      ↗
+    </span>
+  ) : (
+    <span className="h-[26px] w-[26px] shrink-0 rounded-full border border-line-strong" />
+  )
+
+  const rowCls = lesson.completed
+    ? 'bg-card-light text-on-light'
+    : isCurrent
+      ? 'bg-primary text-white'
+      : 'border border-line text-text-body'
+  const metaCls = lesson.completed ? 'text-on-light-meta' : isCurrent ? 'text-primary-soft' : 'text-text-muted'
+  const titleCls = lesson.completed || isCurrent ? '' : 'text-text-body'
 
   return (
     <Link to={`/weeks/${weekId}/lessons/${lesson.id}`} className="block no-underline">
-      <Card className="flex items-center gap-4 hover:shadow-app">
-        <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border-2 font-mono text-xs font-bold ${
-            lesson.completed ? 'border-pass bg-pass-bg text-pass-ink' : 'border-ink bg-stone text-ink'
-          }`}
-        >
-          {lesson.completed ? '✓' : lesson.position}
+      <div className={`flex items-center justify-between gap-3.5 rounded-card px-4.5 py-3.5 ${rowCls}`}>
+        <div className="flex min-w-0 items-center gap-3.5">
+          {badge}
+          <div className="min-w-0">
+            <p className={`font-mono text-[10.5px] ${metaCls}`}>LESSON {String(lesson.position).padStart(2, '0')}</p>
+            <p className={`truncate font-bold text-[14px] ${titleCls}`}>{lesson.title}</p>
+          </div>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="font-bold text-ink">{lesson.title}</p>
-          {lesson.requiredTotal > 0 ? (
-            <div className="mt-2 flex items-center gap-3">
-              <div className="max-w-[10rem] flex-1">
-                <ProgressBar percent={percent} />
-              </div>
-              <span className="font-mono text-[11px] font-bold text-muted">
-                {lesson.requiredChecked}/{lesson.requiredTotal}
-              </span>
-            </div>
-          ) : (
-            <p className="mt-1 text-[13px] text-faint">No resources — mark complete manually</p>
-          )}
-        </div>
-        {lesson.estimated_minutes && (
-          <span className="shrink-0 font-mono text-[11px] font-bold uppercase tracking-wide text-faint">
-            {lesson.estimated_minutes} min
-          </span>
-        )}
-      </Card>
+        {duration && <span className={`shrink-0 whitespace-nowrap font-mono text-[10.5px] ${metaCls}`}>{duration}</span>}
+      </div>
     </Link>
   )
 }
 
-function AssignmentRow({ weekId, assignment }: { weekId: string; assignment: AssignmentSummary }) {
-  const status = assignment.latestStatus ? ASSIGNMENT_STATUS[assignment.latestStatus] : null
+function AssignmentSidebarCard({ weekId, assignment }: { weekId: string; assignment: AssignmentSummary }) {
+  const status = assignment.latestStatus ? ASSIGNMENT_STATUS[assignment.latestStatus] : 'NOT SUBMITTED'
   return (
-    <Link to={`/weeks/${weekId}/assignments/${assignment.id}`} className="block no-underline">
-      <Card className="flex items-center justify-between gap-4 hover:shadow-app">
-        <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border-2 border-ink bg-lilac/40">
-            <AssignmentIcon className="h-4 w-4 text-ink" />
-          </span>
-          <div>
-            <p className="font-bold text-ink">{assignment.title}</p>
-            <p className="font-mono text-[11px] font-bold uppercase tracking-wide text-faint">
-              {assignment.assignment_type}
-            </p>
-          </div>
-        </div>
-        {status ? <StatusPill variant={status.variant}>{status.label}</StatusPill> : <StatusPill variant="locked">not started</StatusPill>}
-      </Card>
-    </Link>
+    <div className="rounded-panel border border-[rgba(238,72,35,.5)] p-6.5">
+      <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.08em] text-text-muted">This week's assignment</p>
+      <p className="mb-3 font-display text-xl uppercase leading-[1.15] text-text">{assignment.title}</p>
+      <p className="mb-5 text-[13px] leading-[1.6] text-text-body">Graded by AI on submit. Escalate to your mentor any time.</p>
+      <div className="mb-5.5 space-y-2 font-mono text-[11px] text-text-muted">
+        <div>STATUS · {status}</div>
+        <div>FORMAT · {assignment.assignment_type.toUpperCase()}</div>
+      </div>
+      <LinkButton to={`/weeks/${weekId}/assignments/${assignment.id}`} variant="primary" className="w-full">
+        Open assignment
+      </LinkButton>
+    </div>
   )
 }
 
@@ -90,76 +86,72 @@ export default function WeekPage() {
 
   if (loading) return <FullPageSpinner />
 
+  const currentLessonId = lessons.find((l) => !l.completed)?.id
+  const doneLessons = lessons.filter((l) => l.completed).length
+  const weekPercent = lessons.length > 0 ? Math.round((doneLessons / lessons.length) * 100) : 0
+  const [primaryAssignment, ...extraAssignments] = assignments
+
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
       {week && <Breadcrumb items={[{ label: 'dashboard', to: '/dashboard' }, { label: `week ${week.position}` }]} />}
 
-      <main className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
-        {error && <p className="text-sm font-bold text-fail-ink">Couldn't load this week: {error}</p>}
+      <main className="mx-auto max-w-[1160px] px-6 py-9">
+        {error && <p className="text-sm font-bold text-fail-text">Couldn't load this week: {error}</p>}
 
         {week && (
-          <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-            <div>
-              <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">
-                [ week {week.position}{week.estimated_hours ? ` · ${week.estimated_hours} hrs` : ''} ]
-              </p>
-              <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">{week.title}</h1>
-              {week.goal && <p className="mt-3 max-w-2xl text-[17px] leading-relaxed text-muted">{week.goal}</p>}
-
-              <section className="mt-9">
-                <p className="meta">Lessons</p>
-                <div className="mt-3 space-y-3">
-                  {lessons.map((lesson) => (
-                    <LessonRow key={lesson.id} weekId={week.id} lesson={lesson} />
-                  ))}
-                  {lessons.length === 0 && <p className="text-sm text-muted">No lessons yet.</p>}
+          <div className="flex flex-wrap gap-6">
+            <div className="min-w-0 flex-[2_1_460px] space-y-5">
+              <div className="rounded-shell border border-line p-9">
+                <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.08em] text-text-muted">
+                  Week {String(week.position).padStart(2, '0')}
+                  {weekPercent >= 100 ? ' · complete' : ' · in progress'}
+                </p>
+                <h1 className="mb-4.5 font-display text-[clamp(26px,3.4vw,38px)] uppercase leading-[1.05] text-text">
+                  {week.title}
+                </h1>
+                {week.goal && <p className="mb-6 max-w-[56ch] text-[15px] leading-[1.75] text-text-body">{week.goal}</p>}
+                <div className="flex items-center gap-3.5">
+                  <div className="h-[6px] max-w-[260px] flex-1 overflow-hidden rounded-pill bg-line">
+                    <div className="h-full rounded-pill bg-primary" style={{ width: `${weekPercent}%` }} />
+                  </div>
+                  <span className="whitespace-nowrap font-mono text-[11px] text-text-muted">
+                    {doneLessons} of {lessons.length} lessons
+                  </span>
                 </div>
-              </section>
+              </div>
 
-              {assignments.length > 0 && (
-                <section id="assignments" className="mt-8 scroll-mt-24">
-                  <p className="meta">Assignments</p>
-                  <div className="mt-3 space-y-3">
-                    {assignments.map((assignment) => (
-                      <AssignmentRow key={assignment.id} weekId={week.id} assignment={assignment} />
+              <div className="rounded-shell border border-line p-8">
+                <h2 className="mb-5 text-lg font-bold text-text-bright">Lessons</h2>
+                <div className="space-y-2.5">
+                  {lessons.map((lesson) => (
+                    <LessonRow key={lesson.id} weekId={week.id} lesson={lesson} isCurrent={lesson.id === currentLessonId} />
+                  ))}
+                  {lessons.length === 0 && <p className="text-sm text-text-muted">No lessons yet.</p>}
+                </div>
+              </div>
+
+              {extraAssignments.length > 0 && (
+                <div className="rounded-shell border border-line p-8">
+                  <h2 className="mb-5 text-lg font-bold text-text-bright">More assignments</h2>
+                  <div className="space-y-2.5">
+                    {extraAssignments.map((a) => (
+                      <Link
+                        key={a.id}
+                        to={`/weeks/${week.id}/assignments/${a.id}`}
+                        className="flex items-center justify-between gap-3 rounded-card border border-line px-4.5 py-3.5 text-text-body no-underline"
+                      >
+                        <span className="font-bold text-text">{a.title}</span>
+                        <span className="font-mono text-[10.5px] uppercase text-text-muted">{a.assignment_type}</span>
+                      </Link>
                     ))}
                   </div>
-                </section>
+                </div>
               )}
             </div>
 
-            <aside className="space-y-6">
-              <Card>
-                <p className="meta">Week {week.position} contents</p>
-                <ul className="mt-3 divide-y divide-hairline">
-                  {lessons.map((lesson) => (
-                    <li key={lesson.id} className="flex items-center gap-3 py-2.5">
-                      <span
-                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border-2 font-mono text-[10px] font-bold ${
-                          lesson.completed ? 'border-pass bg-pass-bg text-pass-ink' : 'border-ink text-ink'
-                        }`}
-                      >
-                        {lesson.completed ? '✓' : lesson.position}
-                      </span>
-                      <span className="text-[14px] text-ink">{lesson.title}</span>
-                    </li>
-                  ))}
-                  {assignments.map((a) => (
-                    <li key={a.id} className="flex items-center gap-3 py-2.5">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border-2 border-ink bg-lilac/40">
-                        <AssignmentIcon className="h-3 w-3 text-ink" />
-                      </span>
-                      <span className="text-[14px] text-ink">{a.title}</span>
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-
-              <Callout tone="info" heading="how unlocking works" icon={<LockIcon className="h-3.5 w-3.5" />}>
-                Check off every required resource in every lesson, then pass the week's assignment. The next week opens
-                automatically.
-              </Callout>
+            <aside className="min-w-[250px] flex-[1_1_260px]">
+              <div className="sticky top-5">{primaryAssignment && <AssignmentSidebarCard weekId={week.id} assignment={primaryAssignment} />}</div>
             </aside>
           </div>
         )}

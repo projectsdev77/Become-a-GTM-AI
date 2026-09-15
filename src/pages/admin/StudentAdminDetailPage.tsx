@@ -5,7 +5,6 @@ import { useAuth } from '@/context/AuthContext'
 import AppNav from '@/components/layout/AppNav'
 import AdminNav from '@/components/layout/AdminNav'
 import Breadcrumb from '@/components/ui/Breadcrumb'
-import Card from '@/components/ui/Card'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { Button } from '@/components/ui/Button'
 import { Field, Label, SelectField } from '@/components/ui/Field'
@@ -139,41 +138,44 @@ export default function StudentAdminDetailPage() {
   const lockedWeeks = (data?.weeks ?? []).filter((w) => !w.unlocked)
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
       <AdminNav />
       <Breadcrumb items={[{ label: 'students', to: '/admin/students' }, { label: 'student' }]} />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        {error && <p className="text-sm font-bold text-fail-ink">{error}</p>}
+        {error && <p className="text-sm font-bold text-fail-text">{error}</p>}
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-5 lg:grid-cols-2">
           {overall && (
-            <Card>
+            <div className="rounded-panel border border-line p-6">
               <div className="flex items-center justify-between">
                 <span className="meta">Overall progress</span>
-                <span className="font-display text-2xl font-bold text-ink">{overallPercent}%</span>
+                <span className="font-display text-2xl text-text">{overallPercent}%</span>
               </div>
               <div className="mt-3">
-                <ProgressBar percent={overallPercent} tone="ink" />
+                <ProgressBar percent={overallPercent} />
               </div>
-            </Card>
+            </div>
           )}
 
-          <Card>
-            <Label htmlFor="mentor">Assigned mentor</Label>
-            <SelectField id="mentor" value={mentorId ?? ''} disabled={reassigning} onChange={(e) => void reassignMentor(e.target.value)}>
-              <option value="" disabled>
-                Select a mentor…
-              </option>
-              {mentors.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.full_name ?? m.id}
+          <div className="rounded-panel border border-line p-6">
+            <span className="meta">Assigned mentor</span>
+            <div className="mt-3">
+              <Label htmlFor="mentor">Reassign</Label>
+              <SelectField id="mentor" value={mentorId ?? ''} disabled={reassigning} onChange={(e) => void reassignMentor(e.target.value)}>
+                <option value="" disabled>
+                  Select a mentor…
                 </option>
-              ))}
-            </SelectField>
-          </Card>
+                {mentors.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.full_name ?? m.id}
+                  </option>
+                ))}
+              </SelectField>
+            </div>
+          </div>
 
-          <Card>
+          <div className="rounded-panel border border-line p-6">
             <div className="flex items-center justify-between">
               <span className="meta">Payment</span>
               {data?.payment_status === 'paid' ? (
@@ -182,8 +184,8 @@ export default function StudentAdminDetailPage() {
                 <StatusPill variant="locked">unpaid</StatusPill>
               )}
             </div>
-            <p className="mt-2 text-[13.5px] text-muted">
-              Week 1 is free for everyone; the rest of the program requires payment. Stripe isn't wired up yet —
+            <p className="mt-2 text-[13.5px] text-text-muted">
+              Week 1 is free for everyone; the rest of the program requires payment. Stripe isn&apos;t wired up yet —
               mark paid manually once payment is confirmed some other way.
             </p>
             <div className="mt-4 space-y-3">
@@ -192,8 +194,8 @@ export default function StudentAdminDetailPage() {
                 onChange={(e) => setPaymentNote(e.target.value)}
                 placeholder="Note (e.g. paid via bank transfer, ref #1234)…"
               />
-              {paymentError && <p className="text-sm font-bold text-fail-ink">{paymentError}</p>}
-              <div className="flex gap-3">
+              {paymentError && <p className="text-sm font-bold text-fail-text">{paymentError}</p>}
+              <div className="flex flex-wrap gap-3">
                 <Button
                   type="button"
                   variant="primary"
@@ -212,12 +214,12 @@ export default function StudentAdminDetailPage() {
                 </Button>
               </div>
             </div>
-          </Card>
+          </div>
         </div>
 
-        <Card className="mt-6">
+        <div className="mt-5 rounded-panel border border-line p-6">
           <p className="meta">Manually unlock a week</p>
-          <p className="mt-1.5 text-[13.5px] text-muted">Requires a reason — this is logged and visible in the audit trail.</p>
+          <p className="mt-1.5 text-[13.5px] text-text-muted">Requires a reason — this is logged and visible in the audit trail.</p>
           <div className="mt-4 space-y-3">
             <SelectField value={unlockWeekId} onChange={(e) => setUnlockWeekId(e.target.value)}>
               <option value="">Select a locked week…</option>
@@ -228,12 +230,12 @@ export default function StudentAdminDetailPage() {
               ))}
             </SelectField>
             <Field value={unlockReason} onChange={(e) => setUnlockReason(e.target.value)} placeholder="Reason (required)…" />
-            {unlockError && <p className="text-sm font-bold text-fail-ink">{unlockError}</p>}
+            {unlockError && <p className="text-sm font-bold text-fail-text">{unlockError}</p>}
             <Button type="button" variant="primary" onClick={() => void manualUnlock()} disabled={unlocking || !unlockWeekId || !unlockReason.trim()}>
               {unlocking ? 'Unlocking…' : 'Unlock'}
             </Button>
           </div>
-        </Card>
+        </div>
       </main>
     </div>
   )

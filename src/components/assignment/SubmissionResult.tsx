@@ -3,9 +3,10 @@ import ReactMarkdown from 'react-markdown'
 import type { Submission } from '@/types/database'
 import StatusPill from '@/components/ui/StatusPill'
 import Callout from '@/components/ui/Callout'
+import Card from '@/components/ui/Card'
 import { Button, LinkButton } from '@/components/ui/Button'
 import { TextAreaField } from '@/components/ui/Field'
-import { MessageIcon } from '@/components/ui/icons'
+import { MessageIcon, CheckIcon } from '@/components/ui/icons'
 
 export default function SubmissionResult({
   submission,
@@ -29,7 +30,7 @@ export default function SubmissionResult({
     submission.evaluation_status === 'complete'
 
   return (
-    <div className="card">
+    <Card>
       <div className="flex items-center justify-between">
         <span className="meta">Attempt {submission.attempt_number}</span>
         {submission.final_status === 'passed' && <StatusPill variant="pass">passed</StatusPill>}
@@ -38,9 +39,9 @@ export default function SubmissionResult({
       </div>
 
       {submission.content && (
-        <div className="mt-4 rounded-card border-2 border-hairline bg-paper p-4">
-          <p className="meta mb-1.5 text-faint">Submission</p>
-          <p className="whitespace-pre-wrap text-[14.5px] leading-relaxed text-ink">{submission.content}</p>
+        <div className="mt-4 rounded-card border border-line-strong/30 bg-ground-deep p-4">
+          <p className="meta mb-1.5 text-on-light-meta">Submission</p>
+          <p className="whitespace-pre-wrap text-[14.5px] leading-relaxed text-text-body">{submission.content}</p>
         </div>
       )}
 
@@ -65,31 +66,42 @@ export default function SubmissionResult({
       )}
 
       {submission.ai_feedback && (
-        <Callout tone="info" heading="Feedback" icon={<MessageIcon className="h-3.5 w-3.5" />} className="mt-4">
-          <div className="prose prose-sm max-w-none">
+        <Callout
+          tone={submission.final_status === 'passed' ? 'pass' : submission.final_status === 'needs_work' ? 'warn' : 'info'}
+          heading={
+            submission.final_status === 'passed'
+              ? 'AI feedback — strong pass'
+              : submission.final_status === 'needs_work'
+                ? 'AI feedback — needs work'
+                : 'Feedback'
+          }
+          icon={submission.final_status === 'passed' ? <CheckIcon className="h-3.5 w-3.5" /> : <MessageIcon className="h-3.5 w-3.5" />}
+          className="mt-4"
+        >
+          <div className="prose prose-invert prose-sm max-w-none prose-p:text-current prose-code:font-mono prose-code:rounded-[5px] prose-code:bg-[#3A362F] prose-code:px-1.5 prose-code:py-0.5 prose-code:text-text-bright prose-code:before:content-none prose-code:after:content-none">
             <ReactMarkdown>{submission.ai_feedback}</ReactMarkdown>
           </div>
         </Callout>
       )}
 
       {submission.human_feedback && (
-        <div className="mt-4 rounded-card border-2 border-ink bg-surface p-4">
+        <div className="mt-4 rounded-card border border-line p-4">
           <p className="meta mb-1.5">Mentor feedback</p>
-          <p className="text-[14.5px] leading-relaxed text-ink">{submission.human_feedback}</p>
+          <p className="text-[14.5px] leading-relaxed text-text-body">{submission.human_feedback}</p>
         </div>
       )}
 
       {submission.flagged_for_review_at && !submission.reviewed_at && (
-        <p className="mt-4 text-[13.5px] text-muted">
+        <p className="mt-4 text-[13.5px] text-text-muted">
           You asked for a second look on {new Date(submission.flagged_for_review_at).toLocaleDateString()}. A mentor
           will follow up here.
         </p>
       )}
 
       {submission.final_status === 'passed' && isLatest && (
-        <div className="mt-5 flex items-center justify-between gap-4 rounded-card border-2 border-pass bg-pass-bg px-4 py-3">
-          <p className="font-mono text-[11px] font-bold uppercase tracking-wide text-pass-ink">
-            ✓ Nice work — the next week is ready.
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-card bg-pass-wash px-4 py-3">
+          <p className="font-mono text-[11px] uppercase tracking-wide text-pass-deep">
+            Nice work — the next week is ready.
           </p>
           {continueHref && (
             <LinkButton to={continueHref} variant="primary" size="sm" className="shrink-0">
@@ -99,13 +111,13 @@ export default function SubmissionResult({
         </div>
       )}
       {submission.final_status === 'needs_work' && isLatest && (
-        <p className="mt-5 font-mono text-[11px] font-bold uppercase tracking-wide text-warn-ink">
+        <p className="mt-5 font-mono text-[11px] uppercase tracking-wide text-warn">
           Give it another attempt when you're ready — retries don't cost you anything.
         </p>
       )}
 
       {canFlag && (
-        <div className="mt-5 border-t-2 border-hairline pt-4">
+        <div className="mt-5 border-t border-line-strong/30 pt-4">
           {showFlagForm ? (
             <div className="space-y-2">
               <TextAreaField
@@ -132,12 +144,14 @@ export default function SubmissionResult({
               </div>
             </div>
           ) : (
-            <button onClick={() => setShowFlagForm(true)} className="font-bold text-blue-700 underline decoration-2 underline-offset-2">
-              Ask a mentor for a second look →
-            </button>
+            <div className="flex justify-center">
+              <Button type="button" variant="secondary" onClick={() => setShowFlagForm(true)}>
+                Escalate to mentor
+              </Button>
+            </div>
           )}
         </div>
       )}
-    </div>
+    </Card>
   )
 }

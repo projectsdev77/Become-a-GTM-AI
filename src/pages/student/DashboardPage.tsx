@@ -8,9 +8,10 @@ import AppNav from '@/components/layout/AppNav'
 import ProgressBar from '@/components/ui/ProgressBar'
 import StatusPill from '@/components/ui/StatusPill'
 import Callout from '@/components/ui/Callout'
+import Card from '@/components/ui/Card'
 import { LinkButton } from '@/components/ui/Button'
 import { StarIcon, LockIcon } from '@/components/ui/icons'
-import completeIll from '@/assets/illustrations/complete.jpg'
+import IllustrationSlot from '@/components/ui/IllustrationSlot'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 
 function formatHours(hours: number) {
@@ -23,16 +24,16 @@ function WeeklyHoursCard() {
 
   if (data.target_hours == null) {
     return (
-      <div className="card">
+      <Card>
         <p className="meta">This week</p>
-        <p className="mt-2 text-[14px] leading-relaxed text-muted">
+        <p className="mt-2 text-[14px] leading-relaxed text-on-light-mute">
           Set a weekly hours target in{' '}
-          <Link to="/settings" className="font-bold text-blue-700">
+          <Link to="/settings" className="font-bold text-primary">
             Settings
           </Link>{' '}
           to track how much time you're putting in each week.
         </p>
-      </div>
+      </Card>
     )
   }
 
@@ -43,23 +44,23 @@ function WeeklyHoursCard() {
   const goalReached = loggedHours >= targetHours
 
   return (
-    <div className="card">
+    <Card>
       <p className="meta">This week</p>
-      <p className="mt-2 font-display text-3xl font-bold text-ink">
+      <p className="mt-2 font-display text-3xl font-bold text-on-light">
         {formatHours(loggedHours)}
-        <span className="text-lg text-muted"> / {formatHours(targetHours)} hrs</span>
+        <span className="text-lg text-on-light-mute"> / {formatHours(targetHours)} hrs</span>
       </p>
       <div className="mt-3">
-        <ProgressBar percent={percent} tone={goalReached ? 'lime' : 'ink'} />
+        <ProgressBar percent={percent} />
       </div>
       {goalReached ? (
         <Callout tone="pass" className="mt-4">
-          🎉 You hit your weekly goal — nice work.
+          You hit your weekly goal — nice work.
         </Callout>
       ) : (
-        <p className="mt-3 text-[13.5px] text-muted">{formatHours(remaining)} hrs left to reach your target.</p>
+        <p className="mt-3 text-[13.5px] text-on-light-mute">{formatHours(remaining)} hrs left to reach your target.</p>
       )}
-    </div>
+    </Card>
   )
 }
 
@@ -74,49 +75,32 @@ function WeekRow({
   paymentStatus?: PaymentStatus
   isCurrent: boolean
 }) {
-  const totalUnits = week.lessons_total + week.assignments_total
-  const doneUnits = week.lessons_completed + week.assignments_done
-  const percent = totalUnits > 0 ? Math.round((doneUnits / totalUnits) * 100) : 0
-  const complete = isWeekComplete(week) && totalUnits > 0
+  const complete = isWeekComplete(week) && week.lessons_total + week.assignments_total > 0
   const paymentLocked = isPaymentLocked(allWeeks, week, paymentStatus)
 
   const content = (
-    <div className={`card flex items-center gap-4 ${!week.unlocked ? 'card-locked' : ''} ${isCurrent ? 'card-active' : ''}`}>
-      <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border-2 font-mono text-sm font-bold ${
-          complete
-            ? 'border-pass bg-pass-bg text-pass-ink'
-            : week.unlocked
-              ? 'border-ink bg-lime text-ink'
-              : 'border-disabled bg-stone text-faint'
-        }`}
-      >
-        {complete ? '✓' : week.unlocked ? week.position : <LockIcon className="h-4 w-4" />}
+    <Card active={isCurrent} locked={!week.unlocked} className="flex items-center justify-between gap-3">
+      <div className="min-w-0">
+        <p className="meta mb-1">Week {String(week.position).padStart(2, '0')}</p>
+        <p className="truncate font-bold">{week.title}</p>
       </div>
-      <div className="min-w-0 flex-1">
-        <p className={`font-display text-lg font-bold ${week.unlocked ? 'text-ink' : 'text-faint'}`}>
-          Week {week.position}: {week.title}
-        </p>
-        {week.unlocked ? (
-          <>
-            {week.goal && <p className="mt-0.5 truncate text-[14.5px] text-muted">{week.goal}</p>}
-            <div className="mt-2.5 flex max-w-xs items-center gap-3">
-              <ProgressBar percent={percent} />
-              <span className="shrink-0 font-mono text-[11px] font-bold text-muted">{doneUnits}/{totalUnits || 0}</span>
-            </div>
-          </>
-        ) : paymentLocked ? (
-          <p className="mt-0.5 text-[14.5px] text-faint">Locked — payment required to continue</p>
-        ) : (
-          <p className="mt-0.5 text-[14.5px] text-faint">Locked — finish the previous week first</p>
-        )}
-      </div>
-      <span className="shrink-0">
-        {complete && <StatusPill variant="pass">complete</StatusPill>}
-        {!complete && week.unlocked && <StatusPill variant="progress">in progress</StatusPill>}
-        {!week.unlocked && <StatusPill variant="locked">{paymentLocked ? 'payment required' : 'locked'}</StatusPill>}
-      </span>
-    </div>
+      {complete && (
+        <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-pass-deep text-xs text-white">
+          ✓
+        </span>
+      )}
+      {!complete && isCurrent && (
+        <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-ground-ink text-xs text-white">
+          ↗
+        </span>
+      )}
+      {!week.unlocked && (
+        <span className="shrink-0 text-[13px] text-text-muted" aria-label={paymentLocked ? 'payment required' : 'locked'}>
+          🔒
+        </span>
+      )}
+      {!complete && !isCurrent && week.unlocked && <StatusPill variant="progress">in progress</StatusPill>}
+    </Card>
   )
 
   if (!week.unlocked) return content
@@ -148,111 +132,121 @@ export default function DashboardPage() {
       ? Math.round((overall.resources_completed / overall.resources_total) * 100)
       : 0
   const active = currentWeek(weeks)
+  const activeTotalUnits = active ? active.lessons_total + active.assignments_total : 0
+  const activeDoneUnits = active ? active.lessons_completed + active.assignments_done : 0
+  const activePercent = activeTotalUnits > 0 ? Math.round((activeDoneUnits / activeTotalUnits) * 100) : 0
   const lessonsTotal = weeks.reduce((sum, w) => sum + w.lessons_total, 0)
   const lessonsCompleted = weeks.reduce((sum, w) => sum + w.lessons_completed, 0)
   const submissionsCount = weeks.reduce((sum, w) => sum + w.assignments_done, 0)
+  const paymentLockActive = Boolean(
+    data?.payment_status && data.payment_status !== 'paid' && weeks.some((w) => isPaymentLocked(weeks, w, data.payment_status)),
+  )
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
-      <main className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
-        <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">
-          [ week {active?.position ?? '—'} of 12 · {overallPercent}% complete ]
-        </p>
-        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">
-          Welcome back{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}
-        </h1>
-
-        {error && (
-          <p className="mt-4 text-sm font-bold text-fail-ink">Couldn't load your progress: {error}</p>
-        )}
+      <main className="mx-auto max-w-[1160px] px-6 py-9">
+        {error && <p className="text-sm font-bold text-fail-text">Couldn't load your progress: {error}</p>}
         {!error && data?.enrolled === false && (
-          <p className="mt-4 text-sm text-muted">You're not enrolled yet — this shouldn't happen; contact support.</p>
+          <p className="text-sm text-text-muted">You're not enrolled yet — this shouldn't happen; contact support.</p>
         )}
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_340px]">
-          <div>
-            {active && (
-              <div className="flex flex-col gap-4 rounded-panel border-2 border-ink bg-ink p-6 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-lime">
-                    Continue where you left off
-                  </p>
-                  <p className="mt-1.5 font-display text-xl font-bold text-paper">
-                    Week {active.position}: {active.title}
-                  </p>
+        {active && (
+          <div className="flex flex-wrap items-end justify-between gap-6 pb-9">
+            <div>
+              <p className="mb-2.5 font-mono text-[11px] uppercase tracking-[0.08em] text-text-muted">
+                Continue where you left off
+              </p>
+              <h1 className="mb-4.5 font-display text-[clamp(26px,3.6vw,40px)] uppercase leading-[1.05] text-text">
+                Week {String(active.position).padStart(2, '0')} — {active.title}
+              </h1>
+              <div className="flex items-center gap-3">
+                <div className="h-[6px] w-[200px] max-w-[50vw] overflow-hidden rounded-pill bg-line">
+                  <div className="h-full rounded-pill bg-primary" style={{ width: `${activePercent}%` }} />
                 </div>
-                <LinkButton to={`/weeks/${active.week_id}`} variant="primary" className="shrink-0">
-                  Continue
-                </LinkButton>
+                <span className="font-mono text-[11px] text-text-muted">{activePercent}%</span>
               </div>
-            )}
-
-            {data?.payment_status && data.payment_status !== 'paid' && weeks.some((w) => isPaymentLocked(weeks, w, data.payment_status)) && (
-              <Callout tone="warn" heading="Free week complete" className="mt-8">
-                You've finished the free week — the rest of the program requires payment to unlock. Contact us to
-                complete your enrollment.
-              </Callout>
-            )}
-
-            <p className="mt-8 font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">Twelve weeks</p>
-            <div className="mt-3 space-y-3">
-              {weeks.map((week) => (
-                <WeekRow
-                  key={week.week_id}
-                  week={week}
-                  allWeeks={weeks}
-                  paymentStatus={data?.payment_status}
-                  isCurrent={week.week_id === active?.week_id}
-                />
-              ))}
             </div>
+            <LinkButton to={`/weeks/${active.week_id}`} variant="site" className="shrink-0">
+              Continue
+            </LinkButton>
           </div>
+        )}
 
-          <div className="space-y-6">
-            {certificateCode && (
-              <div className="rounded-panel border-2 border-ink bg-lime p-6">
-                <p className="flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-[0.08em] text-ink">
-                  <StarIcon className="h-3.5 w-3.5" /> track complete
+        <div className="rounded-shell border border-line p-8">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-6">
+            <h2 className="text-xl font-bold text-text-bright">Your 12 weeks</h2>
+            {paymentLockActive && (
+              <div className="flex max-w-[520px] items-start gap-3 rounded-card border border-[rgba(238,72,35,.5)] px-4.5 py-3.5">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs text-white">
+                  !
+                </span>
+                <p className="text-[12.5px] leading-[1.55] text-text-body">
+                  Week 1 is free — weeks 2–12 unlock with payment. <em className="text-text-muted">[copy pending]</em>{' '}
+                  <a href="#" className="font-bold text-primary">
+                    Contact us to unlock →
+                  </a>
                 </p>
-                <div className="ill-frame mt-4 aspect-[43/24]">
-                  <img src={completeIll} alt="" className="ill-photo" />
-                </div>
-                <p className="mt-4 font-display text-xl font-bold text-ink">You completed the track!</p>
-                <p className="mt-1 text-[14.5px] text-ink/70">Your certificate is ready to share.</p>
-                <LinkButton to={`/certificates/${certificateCode}`} variant="site" className="mt-4 w-full">
-                  View certificate
-                </LinkButton>
-              </div>
-            )}
-
-            <WeeklyHoursCard />
-
-            {overall && (
-              <div className="card">
-                <p className="meta">Overall progress</p>
-                <p className="mt-2 font-display text-5xl font-bold text-ink">
-                  {overallPercent}
-                  <span className="text-2xl">%</span>
-                </p>
-                <div className="mt-3">
-                  <ProgressBar percent={overallPercent} tone="ink" />
-                </div>
-                <dl className="mt-5 space-y-2 border-t-2 border-hairline pt-4 text-[13.5px]">
-                  <div className="flex justify-between">
-                    <dt className="meta">Lessons done</dt>
-                    <dd className="font-bold text-ink">
-                      {lessonsCompleted}/{lessonsTotal}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="meta">Submissions</dt>
-                    <dd className="font-bold text-ink">{submissionsCount}</dd>
-                  </div>
-                </dl>
               </div>
             )}
           </div>
+
+          <div className="grid gap-3.5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px,1fr))' }}>
+            {weeks.map((week) => (
+              <WeekRow
+                key={week.week_id}
+                week={week}
+                allWeeks={weeks}
+                paymentStatus={data?.payment_status}
+                isCurrent={week.week_id === active?.week_id}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {certificateCode && (
+            <div className="rounded-panel border border-line p-6 sm:col-span-2 lg:col-span-1">
+              <p className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-[0.08em] text-text-muted">
+                <StarIcon className="h-3.5 w-3.5" /> track complete
+              </p>
+              <div className="mt-4">
+                <IllustrationSlot ratio="43/24" />
+              </div>
+              <p className="mt-4 font-display text-xl uppercase text-text">You completed the track!</p>
+              <p className="mt-1 text-[14.5px] text-text-muted">Your certificate is ready to share.</p>
+              <LinkButton to={`/certificates/${certificateCode}`} variant="site" className="mt-4 w-full">
+                View certificate
+              </LinkButton>
+            </div>
+          )}
+
+          <WeeklyHoursCard />
+
+          {overall && (
+            <Card>
+              <p className="meta">Overall progress</p>
+              <p className="mt-2 font-display text-5xl font-bold text-on-light">
+                {overallPercent}
+                <span className="text-2xl">%</span>
+              </p>
+              <div className="mt-3">
+                <ProgressBar percent={overallPercent} />
+              </div>
+              <dl className="mt-5 space-y-2 border-t border-line-strong/40 pt-4 text-[13.5px]">
+                <div className="flex justify-between">
+                  <dt className="meta">Lessons done</dt>
+                  <dd className="font-bold text-on-light">
+                    {lessonsCompleted}/{lessonsTotal}
+                  </dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="meta">Submissions</dt>
+                  <dd className="font-bold text-on-light">{submissionsCount}</dd>
+                </div>
+              </dl>
+            </Card>
+          )}
         </div>
       </main>
     </div>

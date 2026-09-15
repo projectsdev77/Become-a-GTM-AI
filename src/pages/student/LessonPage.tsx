@@ -2,12 +2,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import AppNav from '@/components/layout/AppNav'
 import Breadcrumb from '@/components/ui/Breadcrumb'
-import Card from '@/components/ui/Card'
-import Callout from '@/components/ui/Callout'
 import StatusPill from '@/components/ui/StatusPill'
 import { Checkbox } from '@/components/ui/Checkbox'
-import { Button } from '@/components/ui/Button'
-import { AssignmentIcon, LockIcon } from '@/components/ui/icons'
+import { Button, LinkButton } from '@/components/ui/Button'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { useLessonDetail, type ResourceWithProgress } from '@/hooks/useLessonDetail'
 import { useWeekDetail } from '@/hooks/useWeekDetail'
@@ -30,35 +27,36 @@ function ResourceRow({
   onToggle: (checked: boolean) => void
 }) {
   return (
-    <li className={`rounded-card border-2 p-4 ${resource.is_required ? 'border-ink bg-surface' : 'border-dashed border-disabled bg-transparent'}`}>
-      <div className="flex items-start gap-3">
-        <Checkbox checked={resource.checked} onChange={onToggle} className="mt-0.5" />
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+    <li>
+      <Checkbox
+        checked={resource.checked}
+        onChange={onToggle}
+        className="w-full items-start gap-3"
+        label={
+          <span className="min-w-0 flex-1">
             <a
               href={resource.url}
               target="_blank"
               rel="noreferrer"
-              className={`font-bold no-underline hover:underline ${resource.checked ? 'text-faint line-through' : 'text-ink'}`}
+              onClick={(e) => e.stopPropagation()}
+              className={`text-[13.5px] font-bold leading-[1.45] no-underline hover:underline ${
+                resource.checked ? 'text-text-muted line-through' : 'text-text-body'
+              }`}
             >
               {resource.title}
             </a>
-            <a href={resource.url} target="_blank" rel="noreferrer" className="font-mono text-[11px] font-bold uppercase text-blue-700">
-              open ↗
-            </a>
-          </div>
-          <div className="mt-1.5 flex flex-wrap items-center gap-2">
-            <span className="rounded-full border-2 border-ink px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink">
-              {RESOURCE_TYPE_LABEL[resource.resource_type] ?? resource.resource_type}
+            <span className="mt-1 flex flex-wrap items-center gap-2">
+              <span className="font-mono text-[10px] uppercase tracking-wide text-text-muted">
+                {RESOURCE_TYPE_LABEL[resource.resource_type] ?? resource.resource_type}
+              </span>
+              {resource.estimated_minutes && (
+                <span className="font-mono text-[10px] text-text-muted">· {resource.estimated_minutes} min</span>
+              )}
+              {!resource.is_required && <span className="font-mono text-[10px] uppercase text-text-muted">· optional</span>}
             </span>
-            {resource.source_name && <span className="font-mono text-[11px] text-faint">{resource.source_name}</span>}
-            {resource.estimated_minutes && <span className="font-mono text-[11px] text-faint">{resource.estimated_minutes} min</span>}
-            {!resource.is_required && (
-              <span className="font-mono text-[11px] font-bold uppercase text-faint">Optional</span>
-            )}
-          </div>
-        </div>
-      </div>
+          </span>
+        }
+      />
     </li>
   )
 }
@@ -76,9 +74,10 @@ export default function LessonPage() {
   const doneCount = requiredResources.filter((r) => r.checked).length
   const currentIndex = lessons.findIndex((l) => l.id === lessonId)
   const nextLesson = currentIndex >= 0 ? lessons[currentIndex + 1] : undefined
+  const firstAssignment = assignments[0]
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
       {week && lesson && (
         <Breadcrumb
@@ -90,72 +89,43 @@ export default function LessonPage() {
         />
       )}
 
-      <main className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
-        {error && <p className="text-sm font-bold text-fail-ink">{error}</p>}
+      <main className="mx-auto max-w-[1160px] px-6 py-9">
+        {error && <p className="text-sm font-bold text-fail-text">{error}</p>}
 
         {lesson && (
-          <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-            <div>
+          <div className="flex flex-wrap gap-6">
+            <div className="min-w-0 flex-[2_1_460px] rounded-shell border border-line p-9">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">
-                    [ week {week?.position} · lesson {lesson.position}
-                    {lesson.estimated_minutes ? ` · ${lesson.estimated_minutes} min` : ''} ]
+                  <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.08em] text-text-muted">
+                    Week {week?.position} · Lesson {lesson.position}
+                    {lesson.estimated_minutes ? ` · ${lesson.estimated_minutes} min` : ''}
                   </p>
-                  <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">{lesson.title}</h1>
+                  <h1 className="font-display text-[clamp(24px,3vw,34px)] uppercase leading-[1.08] text-text">
+                    {lesson.title}
+                  </h1>
                 </div>
                 {completedAt && <StatusPill variant="pass">complete</StatusPill>}
               </div>
 
               {lesson.body && (
-                <div className="prose prose-sm mt-6 max-w-none text-ink">
+                <div className="prose prose-invert prose-sm mt-5 max-w-none prose-headings:font-body prose-headings:text-text-bright prose-p:text-text-body prose-p:leading-[1.75] prose-strong:text-text-bright prose-a:text-primary prose-li:text-text-body prose-code:font-mono prose-code:text-[color:var(--color-code-string)] prose-code:before:content-none prose-code:after:content-none prose-pre:rounded-field prose-pre:border prose-pre:border-line prose-pre:bg-ground-deep prose-pre:font-mono prose-pre:text-[12.5px] prose-pre:leading-[1.75] prose-pre:text-[color:var(--color-code-body)]">
                   <ReactMarkdown>{lesson.body}</ReactMarkdown>
                 </div>
               )}
 
-              {resources.length > 0 ? (
-                <>
-                  <div className="mt-9 flex items-center justify-between">
-                    <p className="meta">Resources · check each one off</p>
-                    <p className="font-mono text-xs font-bold text-muted">
-                      {doneCount}/{requiredResources.length} done
-                    </p>
-                  </div>
-                  <ul className="mt-3 space-y-3">
-                    {resources.map((resource) => (
-                      <ResourceRow
-                        key={resource.id}
-                        resource={resource}
-                        onToggle={(checked) => void toggleResource(resource.id, checked)}
-                      />
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <Card className="mt-8 text-center">
-                  <p className="text-[14.5px] text-muted">This lesson has no external resources.</p>
-                  {!completedAt && (
-                    <Button type="button" variant="primary" onClick={() => void markCompleteManually()} className="mt-4">
-                      Mark as complete
-                    </Button>
-                  )}
-                </Card>
-              )}
+              <p className="mt-6 text-[15px] leading-[1.75] text-text-body">
+                Mark each resource in the sidebar as you work through it, then start the assignment.
+              </p>
 
               {resources.length > 0 && (
-                <div
-                  className={`mt-8 flex flex-col gap-4 rounded-panel border-2 border-ink p-6 sm:flex-row sm:items-center sm:justify-between ${
-                    completedAt ? 'bg-lime' : 'bg-stone'
-                  }`}
-                >
+                <div className="mt-8 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-ink/60">
+                    <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-text-muted">
                       {completedAt ? 'Next up' : `${doneCount}/${requiredResources.length} required checked`}
                     </p>
-                    <p className="mt-1 font-display text-xl font-bold text-ink">
-                      {completedAt
-                        ? (nextLesson?.title ?? 'Nice work')
-                        : 'Check off the required resources to continue'}
+                    <p className="mt-1 font-bold text-text-bright">
+                      {completedAt ? (nextLesson?.title ?? 'Nice work') : 'Check off the required resources to continue'}
                     </p>
                   </div>
                   <Button
@@ -169,54 +139,45 @@ export default function LessonPage() {
                         navigate(`/weeks/${weekId}#assignments`)
                       }
                     }}
-                    className="shrink-0 text-ink"
+                    className="shrink-0"
                   >
-                    {nextLesson ? 'Continue →' : 'Go to assignments →'}
+                    {nextLesson ? 'Continue' : 'Go to assignments'}
                   </Button>
                 </div>
               )}
             </div>
 
-            <aside className="space-y-6">
-              {week && (
-                <Card>
-                  <p className="meta">Week {week.position} contents</p>
-                  <ul className="mt-3 divide-y divide-hairline">
-                    {lessons.map((l) => (
-                      <li key={l.id}>
-                        <Link
-                          to={`/weeks/${weekId}/lessons/${l.id}`}
-                          className={`flex items-center gap-3 py-2.5 no-underline ${l.id === lessonId ? 'font-bold text-ink' : 'text-ink'}`}
-                        >
-                          <span
-                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border-2 font-mono text-[10px] font-bold ${
-                              l.completed ? 'border-pass bg-pass-bg text-pass-ink' : 'border-ink text-ink'
-                            }`}
-                          >
-                            {l.completed ? '✓' : l.position}
-                          </span>
-                          <span className="text-[14px]">{l.title}</span>
-                        </Link>
-                      </li>
-                    ))}
-                    {assignments.map((a) => (
-                      <li key={a.id}>
-                        <Link to={`/weeks/${weekId}/assignments/${a.id}`} className="flex items-center gap-3 py-2.5 text-ink no-underline">
-                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border-2 border-ink bg-lilac/40">
-                            <AssignmentIcon className="h-3 w-3 text-ink" />
-                          </span>
-                          <span className="text-[14px]">{a.title}</span>
-                        </Link>
-                      </li>
+            <aside className="min-w-[240px] flex-[1_1_250px]">
+              <div className="sticky top-5 rounded-panel border border-line p-6">
+                <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.08em] text-text-muted">Resources</p>
+
+                {resources.length > 0 ? (
+                  <ul className="flex flex-col gap-3.5">
+                    {resources.map((resource) => (
+                      <ResourceRow
+                        key={resource.id}
+                        resource={resource}
+                        onToggle={(checked) => void toggleResource(resource.id, checked)}
+                      />
                     ))}
                   </ul>
-                </Card>
-              )}
+                ) : (
+                  <div className="text-center">
+                    <p className="text-[13.5px] text-text-muted">No external resources for this lesson.</p>
+                    {!completedAt && (
+                      <Button type="button" variant="secondary" size="sm" onClick={() => void markCompleteManually()} className="mt-3 w-full">
+                        Mark as complete
+                      </Button>
+                    )}
+                  </div>
+                )}
 
-              <Callout tone="info" heading="how unlocking works" icon={<LockIcon className="h-3.5 w-3.5" />}>
-                Check off every required resource in every lesson, then pass the week's assignment. Week{' '}
-                {(week?.position ?? 0) + 1} opens automatically.
-              </Callout>
+                {firstAssignment && (
+                  <LinkButton to={`/weeks/${weekId}/assignments/${firstAssignment.id}`} variant="primary" className="mt-6 w-full">
+                    Start assignment
+                  </LinkButton>
+                )}
+              </div>
             </aside>
           </div>
         )}

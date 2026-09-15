@@ -4,7 +4,6 @@ import { supabase } from '@/lib/supabase'
 import AppNav from '@/components/layout/AppNav'
 import AdminNav from '@/components/layout/AdminNav'
 import Breadcrumb from '@/components/ui/Breadcrumb'
-import Card from '@/components/ui/Card'
 import ReorderButtons from '@/components/admin/ReorderButtons'
 import { Button } from '@/components/ui/Button'
 import { Field, Label, TextAreaField, FieldError } from '@/components/ui/Field'
@@ -39,7 +38,7 @@ function ResourceRow({
   useEffect(() => setUrl(resource.url), [resource.url])
 
   return (
-    <div className="card">
+    <div className={`rounded-field border p-3.5 ${resource.is_broken ? 'border-fail-border' : 'border-line'}`}>
       <div className="flex flex-wrap items-center gap-3">
         <ReorderButtons canMoveUp={canMoveUp} canMoveDown={canMoveDown} onMoveUp={onMoveUp} onMoveDown={onMoveDown} />
         <span
@@ -49,7 +48,7 @@ function ResourceRow({
         <select
           value={resource.resource_type}
           onChange={(e) => onUpdate({ resource_type: e.target.value as ResourceType })}
-          className="rounded-full border-2 border-ink bg-surface px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-ink"
+          className="rounded-pill border border-line-strong bg-ground-deep px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-text-body"
         >
           {RESOURCE_TYPES.map((t) => (
             <option key={t} value={t}>
@@ -75,13 +74,14 @@ function ResourceRow({
         <Checkbox
           checked={resource.is_required}
           onChange={(checked) => onUpdate({ is_required: checked })}
-          label={<span className="font-mono text-[11px] font-bold uppercase text-muted">required</span>}
+          label={<span className="font-mono text-[11px] font-bold uppercase text-text-muted">required</span>}
         />
+        {resource.is_broken && <span className="font-mono text-[10.5px] font-bold uppercase text-fail-text">broken</span>}
         <button
           onClick={() => {
             if (confirm(`Delete "${resource.title}"?`)) onDelete()
           }}
-          className="font-mono text-[11px] font-bold uppercase text-fail-ink hover:underline"
+          className="font-mono text-[11px] font-bold uppercase text-fail-text hover:underline"
         >
           del
         </button>
@@ -154,16 +154,16 @@ export default function LessonEditorPage() {
   if (loading) return <FullPageSpinner />
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
       <AdminNav />
       {lesson && (
-        <div className="border-b-2 border-hairline bg-surface">
-          <div className="mx-auto flex max-w-[1000px] flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
+        <div className="border-b border-line">
+          <div className="mx-auto flex max-w-[1160px] flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
             <Breadcrumb items={[{ label: 'curriculum', to: '/admin/curriculum' }, { label: 'week', to: `/admin/curriculum/weeks/${lesson.week_id}` }, { label: 'lesson' }]} />
             <div className="flex items-center gap-3">
-              {justSaved && <span className="font-mono text-[11px] font-bold uppercase text-pass-ink">saved</span>}
-              <Button type="button" variant="primary" size="sm" onClick={() => void saveLesson()} disabled={saving}>
+              {justSaved && <span className="font-mono text-[11px] font-bold uppercase text-pass-deep">saved</span>}
+              <Button type="button" variant="site" size="sm" onClick={() => void saveLesson()} disabled={saving}>
                 {saving ? 'Saving…' : 'Save changes'}
               </Button>
             </div>
@@ -171,27 +171,25 @@ export default function LessonEditorPage() {
         </div>
       )}
 
-      <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
+      <main className="mx-auto max-w-[1160px] px-4 py-10 sm:px-6">
         {lesson && (
-          <>
-            <Card className="space-y-4">
-              <div>
-                <Label htmlFor="title">Title</Label>
-                <Field id="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-              </div>
-              <div>
-                <Label htmlFor="body">
-                  Framing (markdown) <span className="normal-case text-faint">· keep it short, the substance is in the resources</span>
-                </Label>
-                <TextAreaField
-                  id="body"
-                  value={form.body}
-                  onChange={(e) => setForm({ ...form, body: e.target.value })}
-                  rows={8}
-                  className="font-mono text-[13px]"
-                />
-              </div>
-              <div>
+          <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+            <div className="rounded-panel border border-line p-7">
+              <Label htmlFor="title">Title</Label>
+              <Field id="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="mb-5" />
+
+              <Label htmlFor="body">
+                Body <span className="normal-case text-text-muted">· markdown · keep it short, the substance is in the resources</span>
+              </Label>
+              <TextAreaField
+                id="body"
+                value={form.body}
+                onChange={(e) => setForm({ ...form, body: e.target.value })}
+                rows={10}
+                className="font-mono text-[13px]"
+              />
+
+              <div className="mt-5">
                 <Label htmlFor="minutes">Estimated minutes</Label>
                 <Field
                   id="minutes"
@@ -201,11 +199,13 @@ export default function LessonEditorPage() {
                   className="w-28"
                 />
               </div>
-            </Card>
+            </div>
 
-            <section className="mt-8">
-              <p className="meta">Resources · {resources.items.length}</p>
-              <div className="mt-3 space-y-2">
+            <aside className="rounded-panel border border-line p-6">
+              <div className="flex items-center justify-between">
+                <p className="meta">Resources · {resources.items.length}</p>
+              </div>
+              <div className="mt-3 space-y-2.5">
                 {resources.items.map((resource, i) => (
                   <ResourceRow
                     key={resource.id}
@@ -235,9 +235,9 @@ export default function LessonEditorPage() {
                     })
                     setNewResource({ title: '', url: '', resource_type: 'article' })
                   }}
-                  className="rounded-panel border-2 border-dashed border-disabled p-3"
+                  className="rounded-field border border-dashed border-line-strong p-3"
                 >
-                  <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto_auto]">
+                  <div className="space-y-2">
                     <Field
                       value={newResource.title}
                       onChange={(e) => setNewResource({ ...newResource, title: e.target.value })}
@@ -253,7 +253,7 @@ export default function LessonEditorPage() {
                     <select
                       value={newResource.resource_type}
                       onChange={(e) => setNewResource({ ...newResource, resource_type: e.target.value as ResourceType })}
-                      className="field w-auto"
+                      className="field"
                     >
                       {RESOURCE_TYPES.map((t) => (
                         <option key={t} value={t}>
@@ -261,16 +261,16 @@ export default function LessonEditorPage() {
                         </option>
                       ))}
                     </select>
-                    <Button type="submit" variant="primary">
-                      Add
+                    <Button type="submit" variant="primary" glyph="+" className="w-full">
+                      Add resource
                     </Button>
                   </div>
                   {newResourceError && <FieldError>{newResourceError}</FieldError>}
                   {resources.error && <FieldError>{resources.error}</FieldError>}
                 </form>
               </div>
-            </section>
-          </>
+            </aside>
+          </div>
         )}
       </main>
     </div>

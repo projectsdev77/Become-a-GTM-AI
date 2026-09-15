@@ -3,10 +3,11 @@ import { Link, useParams } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import AppNav from '@/components/layout/AppNav'
 import Breadcrumb from '@/components/ui/Breadcrumb'
-import Card from '@/components/ui/Card'
+import Avatar from '@/components/ui/Avatar'
 import ProgressBar from '@/components/ui/ProgressBar'
 import StatusPill, { type StatusVariant } from '@/components/ui/StatusPill'
 import MessageThread from '@/components/messages/MessageThread'
+import { ChevronRightIcon } from '@/components/ui/icons'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { useProgressOverview } from '@/hooks/useProgressOverview'
 import { useWeeklyHours } from '@/hooks/useWeeklyHours'
@@ -105,85 +106,94 @@ export default function StudentDetailPage() {
       : 0
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
       <Breadcrumb
         items={[{ label: 'your students', to: '/mentor' }, { label: studentProfile?.full_name?.toLowerCase() ?? 'student' }]}
       />
-      <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        {error && <p className="text-sm font-bold text-fail-ink">{error}</p>}
+      <main className="mx-auto max-w-[1160px] px-4 py-10 sm:px-6">
+        {error && <p className="mb-4 text-sm font-bold text-fail-text">{error}</p>}
 
-        {studentProfile && (studentProfile.background || studentProfile.weekly_hours_target != null) && (
-          <Card className="mb-6">
-            <p className="meta">About this student</p>
-            {studentProfile.background && (
-              <p className="mt-2 text-[14.5px] leading-relaxed text-ink">{studentProfile.background}</p>
-            )}
-            {studentProfile.weekly_hours_target != null && (
-              <p className="mt-3 font-mono text-[11px] font-bold uppercase tracking-wide text-muted">
-                Aiming for {studentProfile.weekly_hours_target} hrs/week
-                {weeklyHours && ` · ${(weeklyHours.logged_minutes / 60).toFixed(1)} logged this week`}
-              </p>
-            )}
-          </Card>
-        )}
-
-        {overall && (
-          <Card>
-            <div className="flex items-center justify-between">
-              <span className="meta">Overall progress</span>
-              <span className="font-display text-2xl font-bold text-ink">{overallPercent}%</span>
-            </div>
-            <div className="mt-3">
-              <ProgressBar percent={overallPercent} tone="ink" />
-            </div>
-          </Card>
-        )}
-
-        {data?.weeks && (
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
-            {data.weeks.map((w) => (
-              <div
-                key={w.week_id}
-                className={`rounded-card border-2 p-3 text-center ${w.unlocked ? 'border-ink bg-surface' : 'border-disabled bg-stone'}`}
-              >
-                <p className="font-mono text-[10px] font-bold uppercase tracking-wide text-faint">Week {w.position}</p>
-                <p className="mt-1 text-[13px] font-bold text-ink">
-                  {w.unlocked ? `${w.lessons_completed}/${w.lessons_total}` : 'Locked'}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <section className="mt-9">
-          <p className="meta">Recent submissions</p>
-          <div className="mt-3 space-y-3">
-            {submissionsLoading && <p className="font-mono text-xs font-bold uppercase text-muted">loading…</p>}
-            {!submissionsLoading && submissions.length === 0 && (
-              <p className="text-[14.5px] text-muted">No submissions yet.</p>
-            )}
-            {submissions.map((s) => (
-              <Card key={s.id} className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap gap-5">
+          <div className="min-w-0 flex-[2_1_440px]">
+            <div className="mb-4 rounded-panel border border-line p-7">
+              <div className="mb-6 flex flex-wrap items-center gap-4">
+                <Avatar name={studentProfile?.full_name} size={52} />
                 <div>
-                  <p className="font-bold text-ink">{s.assignmentTitle}</p>
-                  <p className="font-mono text-[11px] text-faint">
-                    {new Date(s.submitted_at).toLocaleDateString()} · attempt {s.attempt_number}
+                  <p className="font-display text-[22px] uppercase leading-tight text-text">
+                    {studentProfile?.full_name ?? 'Student'}
+                  </p>
+                  {studentProfile?.background && (
+                    <p className="mt-1 max-w-md text-[13.5px] text-text-muted">{studentProfile.background}</p>
+                  )}
+                </div>
+              </div>
+
+              <ProgressBar percent={overallPercent} className="mb-4" />
+
+              <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
+                <div className="rounded-card bg-card-light px-[18px] py-4">
+                  <p className="font-display text-2xl text-on-light">{overallPercent}%</p>
+                  <p className="mt-1 font-mono text-[10.5px] text-on-light-meta">PROGRESS</p>
+                </div>
+                <div className="rounded-card border border-line px-[18px] py-4">
+                  <p className="font-display text-2xl text-text">{submissions.length}</p>
+                  <p className="mt-1 font-mono text-[10.5px] text-text-muted">SUBMISSIONS</p>
+                </div>
+                <div className="rounded-card border border-line px-[18px] py-4">
+                  <p className="font-display text-2xl text-text">
+                    {studentProfile?.weekly_hours_target != null ? `${studentProfile.weekly_hours_target}h` : '—'}
+                  </p>
+                  <p className="mt-1 font-mono text-[10.5px] text-text-muted">
+                    WEEKLY TARGET
+                    {weeklyHours && ` · ${(weeklyHours.logged_minutes / 60).toFixed(1)}H LOGGED`}
                   </p>
                 </div>
-                <StatusPill variant={STATUS_VARIANT[s.final_status]}>{STATUS_LABEL[s.final_status]}</StatusPill>
-              </Card>
-            ))}
+              </div>
+            </div>
+
+            <div className="rounded-panel border border-line p-7">
+              <p className="mb-4 text-base font-bold text-text-bright">Recent submissions</p>
+              <div className="flex flex-col gap-2.5">
+                {submissionsLoading && <p className="font-mono text-xs font-bold uppercase text-text-muted">loading…</p>}
+                {!submissionsLoading && submissions.length === 0 && (
+                  <p className="text-[14.5px] text-text-muted">No submissions yet.</p>
+                )}
+                {submissions.map((s, i) => (
+                  <div
+                    key={s.id}
+                    className={`flex flex-wrap items-center justify-between gap-3.5 rounded-card px-[18px] py-[15px] ${
+                      i === 0 ? 'bg-card-light' : 'border border-line'
+                    }`}
+                  >
+                    <div>
+                      <p className={`font-mono text-[10.5px] ${i === 0 ? 'text-on-light-meta' : 'text-text-muted'}`}>
+                        {new Date(s.submitted_at).toLocaleDateString()} · attempt {s.attempt_number}
+                      </p>
+                      <p className={`text-sm font-bold ${i === 0 ? 'text-on-light' : 'text-text-bright'}`}>
+                        {s.assignmentTitle}
+                      </p>
+                    </div>
+                    <StatusPill variant={STATUS_VARIANT[s.final_status]}>{STATUS_LABEL[s.final_status]}</StatusPill>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </section>
 
-        <section className="mt-9">
-          <p className="meta">Messages</p>
-          <div className="mt-3">{studentId && <MessageThread studentId={studentId} />}</div>
-        </section>
+          <div className="min-w-[260px] flex-[1_1_280px]">
+            <div className="rounded-panel border border-line p-6">
+              <p className="mb-4 font-mono text-xs uppercase tracking-[0.08em] text-text-muted">Thread</p>
+              {studentId && <MessageThread studentId={studentId} />}
+            </div>
+          </div>
+        </div>
 
-        <Link to="/mentor" className="mt-8 inline-block font-mono text-xs font-bold uppercase tracking-wide text-blue-700">
-          ← back to your students
+        <Link
+          to="/mentor"
+          className="mt-8 inline-flex items-center gap-1 font-mono text-xs font-bold uppercase tracking-wide text-primary"
+        >
+          <ChevronRightIcon className="h-3.5 w-3.5 rotate-180" /> back to your students
         </Link>
       </main>
     </div>

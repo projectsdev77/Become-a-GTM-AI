@@ -7,6 +7,7 @@ import { Field, Label } from '@/components/ui/Field'
 import { Button } from '@/components/ui/Button'
 import Callout from '@/components/ui/Callout'
 import StatusPill from '@/components/ui/StatusPill'
+import Avatar from '@/components/ui/Avatar'
 import { AlertIcon } from '@/components/ui/icons'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { functionErrorMessage } from '@/lib/functionsError'
@@ -99,31 +100,37 @@ function AddMentorForm({ onAdded }: { onAdded: () => void }) {
   if (!open) {
     return (
       <Button type="button" variant="primary" onClick={() => setOpen(true)}>
-        + Add mentor
+        Invite mentor
       </Button>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card w-full max-w-md space-y-4">
-      <p className="meta">Invite a new mentor</p>
-      <div>
-        <Label htmlFor="mentor_full_name">Full name</Label>
-        <Field id="mentor_full_name" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
-      </div>
-      <div>
-        <Label htmlFor="mentor_email">Email</Label>
-        <Field id="mentor_email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+    <form onSubmit={handleSubmit} className="rounded-panel border border-line p-6">
+      <p className="meta mb-3.5">Invite by email</p>
+      <div className="flex flex-wrap gap-3">
+        <div className="min-w-[220px] flex-1">
+          <Label htmlFor="mentor_full_name">Full name</Label>
+          <Field id="mentor_full_name" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
+        </div>
+        <div className="min-w-[220px] flex-1">
+          <Label htmlFor="mentor_email">Email</Label>
+          <Field id="mentor_email" type="email" required placeholder="mentor@company.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+        </div>
       </div>
 
       {error && (
-        <Callout tone="fail" heading="couldn't send invite" icon={<AlertIcon className="h-3.5 w-3.5" />}>
+        <Callout tone="fail" heading="Couldn't send invite" icon={<AlertIcon className="h-3.5 w-3.5" />} className="mt-4">
           {error}
         </Callout>
       )}
-      {sent && <Callout tone="pass">Invite sent — they'll set their own password from the email link.</Callout>}
+      {sent && (
+        <Callout tone="pass" className="mt-4">
+          Invite sent — they&apos;ll set their own password from the email link.
+        </Callout>
+      )}
 
-      <div className="flex gap-3">
+      <div className="mt-4 flex gap-3">
         <Button type="submit" variant="primary" disabled={submitting}>
           {submitting ? 'Sending…' : 'Send invite'}
         </Button>
@@ -141,14 +148,14 @@ export default function MentorsListPage() {
   if (loading) return <FullPageSpinner />
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ {mentors.length} total ]</p>
-            <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Mentors</h1>
+            <p className="meta text-primary">[ {mentors.length} total ]</p>
+            <h1 className="mt-2 font-display text-[clamp(24px,3.2vw,34px)] uppercase leading-[1.05] text-text">Mentors</h1>
           </div>
           <AddMentorForm onAdded={refresh} />
         </div>
@@ -165,21 +172,26 @@ export default function MentorsListPage() {
             <TBody>
               {mentors.map((m) => (
                 <TR key={m.id}>
-                  <TD className="font-bold text-ink">{m.full_name ?? 'Unnamed mentor'}</TD>
+                  <TD>
+                    <div className="flex items-center gap-3">
+                      <Avatar name={m.full_name} size={32} />
+                      <span className="font-semibold text-text">{m.full_name ?? 'Unnamed mentor'}</span>
+                    </div>
+                  </TD>
                   <TD>
                     {m.pending ? (
-                      <StatusPill variant="warn">pending invite</StatusPill>
+                      <span className="pill pill-pending">pending invite</span>
                     ) : (
                       <StatusPill variant="pass">active</StatusPill>
                     )}
                   </TD>
-                  <TD className="text-[13.5px] text-muted">{m.activeStudentCount}</TD>
+                  <TD className="text-[13.5px] text-text-muted">{m.activeStudentCount}</TD>
                 </TR>
               ))}
             </TBody>
           </Table>
           {mentors.length === 0 && (
-            <p className="py-8 text-center font-mono text-xs font-bold uppercase text-muted">No mentors yet.</p>
+            <p className="py-8 text-center font-mono text-xs font-bold uppercase text-text-muted">No mentors yet.</p>
           )}
         </div>
       </main>

@@ -3,7 +3,7 @@ import AppNav from '@/components/layout/AppNav'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { useExceptionQueue } from '@/hooks/useExceptionQueue'
 import QueueCard from '@/components/queue/QueueCard'
-import emptyQueueIll from '@/assets/illustrations/mentor-emptyqueue.jpg'
+import IllustrationSlot from '@/components/ui/IllustrationSlot'
 
 // Mentor-only (see App.tsx): admins no longer evaluate submissions, so
 // there is no admin route into this page and no mentor-reassignment
@@ -17,59 +17,58 @@ export default function ExceptionQueuePage() {
   const list = tab === 'open' ? open : resolved
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
-      <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">
-              [ worklist · oldest first ]
-            </p>
-            <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Exception queue</h1>
-            <p className="mt-1 text-[15px] text-muted">
-              Submissions where AI evaluation failed, or a student asked for a second look.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setTab('open')}
-              className={`rounded-full border-2 border-ink px-4 py-2 font-mono text-xs font-bold uppercase tracking-wide ${
-                tab === 'open' ? 'bg-ink text-paper' : 'bg-surface text-ink'
-              }`}
-            >
-              Needs attention ({open.length})
-            </button>
-            <button
-              onClick={() => setTab('resolved')}
-              className={`rounded-full border-2 border-ink px-4 py-2 font-mono text-xs font-bold uppercase tracking-wide ${
-                tab === 'resolved' ? 'bg-ink text-paper' : 'bg-surface text-ink'
-              }`}
-            >
-              Resolved ({resolved.length})
-            </button>
-          </div>
+      <main className="mx-auto max-w-[1160px] px-4 py-10 sm:px-6">
+        <div className="flex flex-wrap items-end justify-between gap-5 border-b border-line pb-6">
+          <h1 className="font-display text-[clamp(24px,3.2vw,34px)] uppercase text-text">Exception queue</h1>
+          <p className="max-w-[380px] text-[13.5px] text-text-muted">
+            Grading failures and student-flagged reviews land here. Clear them in order.
+          </p>
         </div>
 
-        {error && <p className="mt-4 text-sm font-bold text-fail-ink">{error}</p>}
+        <div className="mt-6 flex gap-2.5">
+          <button
+            type="button"
+            onClick={() => setTab('open')}
+            className={`rounded-pill px-[18px] py-2 text-[13px] font-bold ${
+              tab === 'open' ? 'bg-card-light text-on-light' : 'border border-line text-text-body hover:border-line-strong'
+            }`}
+          >
+            Needs attention ({open.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab('resolved')}
+            className={`rounded-pill px-[18px] py-2 text-[13px] font-bold ${
+              tab === 'resolved' ? 'bg-card-light text-on-light' : 'border border-line text-text-body hover:border-line-strong'
+            }`}
+          >
+            Resolved ({resolved.length})
+          </button>
+        </div>
 
-        <div className="mt-6 space-y-4">
-          {list.map((item) => (
-            <QueueCard
-              key={item.id}
-              item={item}
-              onResolve={tab === 'open' ? (status, feedback) => resolve(item.id, status, feedback) : undefined}
-            />
-          ))}
-          {list.length === 0 && (
-            <div className="rounded-panel border-2 border-dashed border-disabled p-10 text-center">
-              <div className="ill-frame mx-auto aspect-[527/504] w-[220px]">
-                <img src={emptyQueueIll} alt="" className="ill-photo" />
-              </div>
-              <p className="mt-4 font-mono text-xs font-bold uppercase tracking-wide text-muted">
-                {tab === 'open' ? 'end of queue' : 'nothing resolved yet'}
+        {error && <p className="mt-4 text-sm font-bold text-fail-text">{error}</p>}
+
+        <div className="mt-6 rounded-panel border border-line p-6">
+          {list.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {list.map((item) => (
+                <QueueCard
+                  key={item.id}
+                  item={item}
+                  onResolve={tab === 'open' ? (status, feedback) => resolve(item.id, status, feedback) : undefined}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="py-10 text-center">
+              <IllustrationSlot ratio="1/1" className="mx-auto w-[180px] rounded-panel" />
+              <p className="mt-6 font-display text-xl uppercase text-text">
+                {tab === 'open' ? "Queue's clear" : 'Nothing resolved yet'}
               </p>
-              <p className="mt-1 text-[14.5px] text-muted">
-                {tab === 'open' ? 'Nothing else needs attention right now.' : 'Resolved items will show up here.'}
+              <p className="mt-2 text-sm text-text-muted">
+                {tab === 'open' ? 'Nothing needs a human right now.' : 'Resolved items will show up here.'}
               </p>
             </div>
           )}

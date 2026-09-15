@@ -6,7 +6,6 @@ import AdminNav from '@/components/layout/AdminNav'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import StatusToggle from '@/components/admin/StatusToggle'
 import ReorderButtons from '@/components/admin/ReorderButtons'
-import Card from '@/components/ui/Card'
 import Callout from '@/components/ui/Callout'
 import { Button } from '@/components/ui/Button'
 import { Field, Label, TextAreaField } from '@/components/ui/Field'
@@ -100,16 +99,16 @@ export default function WeekEditorPage() {
   if (loading) return <FullPageSpinner />
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
       <AdminNav />
       {week && (
-        <div className="border-b-2 border-hairline bg-surface">
-          <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
+        <div className="border-b border-line">
+          <div className="mx-auto flex max-w-[1160px] flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
             <Breadcrumb items={[{ label: 'curriculum', to: '/admin/curriculum' }, { label: `week ${String(week.position).padStart(2, '0')}` }]} />
             <div className="flex items-center gap-3">
-              {justSaved && <span className="font-mono text-[11px] font-bold uppercase text-pass-ink">saved</span>}
-              <Button type="button" variant="primary" size="sm" onClick={() => void saveWeek()} disabled={saving}>
+              {justSaved && <span className="font-mono text-[11px] font-bold uppercase text-pass-deep">saved</span>}
+              <Button type="button" variant="site" size="sm" onClick={() => void saveWeek()} disabled={saving}>
                 {saving ? 'Saving…' : 'Save changes'}
               </Button>
             </div>
@@ -117,29 +116,42 @@ export default function WeekEditorPage() {
         </div>
       )}
 
-      <main className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
+      <main className="mx-auto max-w-[1160px] px-4 py-10 sm:px-6">
         {week && (
-          <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+          <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
             <div>
-              <Card>
+              <div className="rounded-panel border border-line p-7">
                 <div className="flex items-center justify-between">
                   <p className="meta">Week details</p>
                   <StatusToggle status={week.status} onChange={() => void togglePublish()} />
                 </div>
                 <div className="mt-4 space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-[100px_1fr]">
+                    <div>
+                      <Label htmlFor="position">Number</Label>
+                      <Field id="position" value={String(week.position).padStart(2, '0')} disabled className="font-mono" />
+                    </div>
+                    <div>
+                      <Label htmlFor="title">Title</Label>
+                      <Field id="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+                    </div>
+                  </div>
                   <div>
-                    <Label htmlFor="title">Title</Label>
-                    <Field id="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+                    <Label htmlFor="goal">Week goal</Label>
+                    <TextAreaField
+                      id="goal"
+                      value={form.goal}
+                      onChange={(e) => setForm({ ...form, goal: e.target.value })}
+                      rows={3}
+                      placeholder="What the student should be able to do"
+                    />
                   </div>
                   <div className="grid gap-4 sm:grid-cols-[1fr_140px]">
                     <div>
-                      <Label htmlFor="goal">Goal</Label>
-                      <Field
-                        id="goal"
-                        value={form.goal}
-                        onChange={(e) => setForm({ ...form, goal: e.target.value })}
-                        placeholder="What the student should be able to do"
-                      />
+                      <Label htmlFor="summary">
+                        Summary <span className="normal-case text-text-muted">· markdown · shown on the public curriculum page</span>
+                      </Label>
+                      <TextAreaField id="summary" value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} rows={3} />
                     </div>
                     <div>
                       <Label htmlFor="hours">Est. hours</Label>
@@ -152,38 +164,32 @@ export default function WeekEditorPage() {
                       />
                     </div>
                   </div>
-                  <div>
-                    <Label htmlFor="summary">
-                      Summary <span className="normal-case text-faint">· markdown · shown on the public curriculum page</span>
-                    </Label>
-                    <TextAreaField id="summary" value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} rows={3} />
-                  </div>
                 </div>
-              </Card>
+              </div>
 
-              <section className="mt-8">
+              <section className="mt-6 rounded-panel border border-line p-7">
                 <div className="flex items-center justify-between">
-                  <p className="meta">Lessons · {lessons.items.length}</p>
-                  <p className="font-mono text-[11px] font-bold uppercase text-faint">drag to reorder</p>
+                  <p className="meta">Lessons · drag to reorder</p>
+                  <p className="font-mono text-[11px] font-bold uppercase text-text-muted">{lessons.items.length} total</p>
                 </div>
                 <div className="mt-3 space-y-2">
                   {lessons.items.map((lesson, i) => (
-                    <div key={lesson.id} className="card flex items-center gap-3">
+                    <div key={lesson.id} className="flex items-center gap-3 rounded-field border border-line p-3.5">
                       <ReorderButtons
                         canMoveUp={i > 0}
                         canMoveDown={i < lessons.items.length - 1}
                         onMoveUp={() => void lessons.moveUp(lesson.id)}
                         onMoveDown={() => void lessons.moveDown(lesson.id)}
                       />
-                      <Link to={`/admin/curriculum/lessons/${lesson.id}`} className="min-w-0 flex-1 font-bold text-ink no-underline hover:text-blue-700">
-                        {String(lesson.position).padStart(2, '0')}. {lesson.title}
+                      <Link to={`/admin/curriculum/lessons/${lesson.id}`} className="min-w-0 flex-1 font-semibold text-text no-underline hover:text-primary">
+                        {String(lesson.position).padStart(2, '0')} · {lesson.title}
                       </Link>
                       <StatusToggle status={lesson.status} onChange={(next) => void lessons.update(lesson.id, { status: next })} />
                       <button
                         onClick={() => {
                           if (confirm(`Delete "${lesson.title}"?`)) void lessons.remove(lesson.id)
                         }}
-                        className="font-mono text-[11px] font-bold uppercase text-fail-ink hover:underline"
+                        className="font-mono text-[11px] font-bold uppercase text-fail-text hover:underline"
                       >
                         del
                       </button>
@@ -196,45 +202,43 @@ export default function WeekEditorPage() {
                       void lessons.create({ title: newLessonTitle.trim(), slug: slugify(newLessonTitle), status: 'draft' })
                       setNewLessonTitle('')
                     }}
-                    className="flex gap-2 rounded-panel border-2 border-dashed border-disabled p-3"
+                    className="flex gap-2 rounded-field border border-dashed border-line-strong p-3"
                   >
                     <Field value={newLessonTitle} onChange={(e) => setNewLessonTitle(e.target.value)} placeholder="New lesson title…" className="flex-1" />
-                    <Button type="submit" variant="primary">
+                    <Button type="submit" variant="primary" glyph="+">
                       Add lesson
                     </Button>
                   </form>
                 </div>
               </section>
 
-              <section className="mt-8">
+              <section className="mt-6 rounded-panel border border-line p-7">
                 <p className="meta">Assignments · {assignments.items.length}</p>
                 <div className="mt-3 space-y-2">
                   {assignments.items.map((assignment, i) => (
-                    <div key={assignment.id} className="card flex items-center gap-3">
+                    <div key={assignment.id} className="flex items-center gap-3 rounded-field border border-line p-3.5">
                       <ReorderButtons
                         canMoveUp={i > 0}
                         canMoveDown={i < assignments.items.length - 1}
                         onMoveUp={() => void assignments.moveUp(assignment.id)}
                         onMoveDown={() => void assignments.moveDown(assignment.id)}
                       />
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border-2 border-ink bg-lilac/40">
-                        <AssignmentIcon className="h-4 w-4 text-ink" />
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border border-line-strong">
+                        <AssignmentIcon className="h-4 w-4 text-text-muted" />
                       </span>
                       <Link
                         to={`/admin/curriculum/assignments/${assignment.id}`}
-                        className="min-w-0 flex-1 font-bold text-ink no-underline hover:text-blue-700"
+                        className="min-w-0 flex-1 font-semibold text-text no-underline hover:text-primary"
                       >
                         {assignment.title}
                       </Link>
-                      <span className="pill" style={{ background: 'var(--color-ink)', borderColor: 'var(--color-ink)', color: 'var(--color-lime)' }}>
-                        {assignment.assignment_type}
-                      </span>
+                      <span className="pill pill-pending">{assignment.assignment_type}</span>
                       <StatusToggle status={assignment.status} onChange={(next) => void assignments.update(assignment.id, { status: next })} />
                       <button
                         onClick={() => {
                           if (confirm(`Delete "${assignment.title}"?`)) void assignments.remove(assignment.id)
                         }}
-                        className="font-mono text-[11px] font-bold uppercase text-fail-ink hover:underline"
+                        className="font-mono text-[11px] font-bold uppercase text-fail-text hover:underline"
                       >
                         del
                       </button>
@@ -259,13 +263,13 @@ export default function WeekEditorPage() {
                       })
                       setNewAssignment({ title: '', type: 'text' })
                     }}
-                    className="flex gap-2 rounded-panel border-2 border-dashed border-disabled p-3"
+                    className="flex flex-wrap gap-2 rounded-field border border-dashed border-line-strong p-3"
                   >
                     <Field
                       value={newAssignment.title}
                       onChange={(e) => setNewAssignment({ ...newAssignment, title: e.target.value })}
                       placeholder="New assignment title…"
-                      className="flex-1"
+                      className="min-w-[160px] flex-1"
                     />
                     <select
                       value={newAssignment.type}
@@ -276,7 +280,7 @@ export default function WeekEditorPage() {
                       <option value="url">URL</option>
                       <option value="quiz">Quiz</option>
                     </select>
-                    <Button type="submit" variant="primary">
+                    <Button type="submit" variant="primary" glyph="+">
                       Add
                     </Button>
                   </form>
@@ -284,33 +288,23 @@ export default function WeekEditorPage() {
               </section>
             </div>
 
-            <aside className="space-y-6">
-              <div className="rounded-panel border-2 border-ink bg-ink p-6">
-                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-lime">Publish state</p>
-                <button
-                  onClick={() => void togglePublish()}
-                  className="mt-3 flex w-full items-center gap-3 text-left"
-                >
-                  <span className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-paper/40 transition-colors ${week.status === 'published' ? 'bg-lime' : 'bg-transparent'}`}>
-                    <span
-                      className={`absolute top-0.5 h-4 w-4 rounded-full bg-paper transition-transform ${week.status === 'published' ? 'translate-x-[22px]' : 'translate-x-0.5'}`}
-                    />
-                  </span>
-                  <span className="font-bold text-paper">Visible to students</span>
-                </button>
-                <p className="mt-4 text-[13.5px] text-paper/70">
+            <aside className="space-y-5">
+              <div className="rounded-panel border border-line p-6">
+                <p className="meta mb-3">Visibility</p>
+                <StatusToggle status={week.status} onChange={() => void togglePublish()} />
+                <p className="mt-4 text-[13.5px] text-text-muted">
                   Unpublishing hides the week from the public curriculum page. Students who already unlocked it keep
                   access.
                 </p>
                 {week.published_at && (
-                  <p className="mt-3 font-mono text-[11px] text-paper/50">
+                  <p className="mt-3 font-mono text-[11px] text-text-muted">
                     published {new Date(week.published_at).toLocaleDateString()}
                   </p>
                 )}
               </div>
 
               <Callout tone="info" heading="editing a live week">
-                Changes appear for students immediately on save. Resource checkboxes they've already ticked are
+                Changes appear for students immediately on save. Resource checkboxes they&apos;ve already ticked are
                 preserved.
               </Callout>
             </aside>
