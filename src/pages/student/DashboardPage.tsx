@@ -10,7 +10,7 @@ import StatusPill from '@/components/ui/StatusPill'
 import Callout from '@/components/ui/Callout'
 import Card from '@/components/ui/Card'
 import { LinkButton } from '@/components/ui/Button'
-import { StarIcon, LockIcon } from '@/components/ui/icons'
+import { StarIcon } from '@/components/ui/icons'
 import IllustrationSlot from '@/components/ui/IllustrationSlot'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 
