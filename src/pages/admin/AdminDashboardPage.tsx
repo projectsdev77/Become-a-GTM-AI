@@ -37,25 +37,29 @@ function useAdminStats() {
   return stats
 }
 
-function StatusCard({
+function StatTile({
   label,
   value,
   to,
-  dot,
+  warn,
 }: {
   label: string
-  value: number
+  value: string
   to: string
-  dot: 'pass' | 'warn' | 'fail'
+  warn?: boolean
 }) {
-  const dotColor = dot === 'pass' ? 'bg-pass' : dot === 'warn' ? 'bg-warn' : 'bg-fail'
   return (
-    <Link to={to} className="card block no-underline hover:shadow-app">
-      <p className="font-display text-[44px] font-bold leading-none text-ink">{value}</p>
-      <div className="mt-3.5 flex items-center gap-2">
-        <span className={`h-2 w-2 shrink-0 rounded-full ${dotColor}`} />
-        <span className="meta">{label}</span>
-      </div>
+    <Link
+      to={to}
+      className={`block rounded-panel p-5 no-underline ${warn ? 'border border-fail-border' : 'card'}`}
+      style={warn ? { background: 'rgba(196,85,60,.12)' } : undefined}
+    >
+      <p className={`font-display text-[34px] leading-none ${warn ? 'text-fail-text' : 'text-on-light'}`}>{value}</p>
+      <p
+        className={`meta mt-2 ${warn ? 'text-fail-text' : 'text-on-light-meta'}`}
+      >
+        {label}
+      </p>
     </Link>
   )
 }
@@ -64,48 +68,33 @@ export default function AdminDashboardPage() {
   const stats = useAdminStats()
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <AppNav />
       <AdminNav />
-      <main className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
-        <p className="font-mono text-xs font-bold uppercase tracking-[0.1em] text-muted">[ system overview ]</p>
-        <h1 className="mt-2 font-display text-[38px] font-bold tracking-[-0.03em] text-ink">Admin overview</h1>
+      <main className="mx-auto max-w-[1160px] px-4 py-10 sm:px-6">
+        <p className="meta text-primary">[ system overview ]</p>
+        <h1 className="mt-2 font-display text-[clamp(24px,3.2vw,34px)] uppercase leading-[1.05] text-text">
+          Admin overview
+        </h1>
 
         {stats && (
-          <>
-            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Link
-                to="/admin/students"
-                className="flex min-h-[150px] flex-col justify-between rounded-card bg-ink p-7 no-underline hover:shadow-hero"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-mono text-xs font-bold uppercase tracking-[0.08em] text-paper/70">
-                    Students enrolled
-                  </span>
-                  <span className="shrink-0 rounded-full bg-lime px-2.5 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-ink">
-                    Active
-                  </span>
-                </div>
-                <p className="font-display text-[64px] font-bold leading-none text-paper">{stats.students}</p>
-              </Link>
-
-              <Link to="/admin/mentors" className="card flex min-h-[150px] flex-col justify-between no-underline hover:shadow-app">
-                <span className="meta">Mentors</span>
-                <p className="font-display text-[56px] font-bold leading-none text-ink">{stats.mentors}</p>
-              </Link>
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <StatusCard label="Published weeks" value={stats.weeksPublished} to="/admin/curriculum" dot="pass" />
-              <StatusCard label="Draft weeks" value={stats.weeksDraft} to="/admin/curriculum" dot="warn" />
-              <StatusCard
+          <div className="mt-7 rounded-shell border border-line p-6">
+            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+              <StatTile label="Active students" value={String(stats.students)} to="/admin/students" />
+              <StatTile label="Mentors" value={String(stats.mentors)} to="/admin/mentors" />
+              <StatTile
+                label="Published / draft weeks"
+                value={`${stats.weeksPublished} / ${stats.weeksDraft}`}
+                to="/admin/curriculum"
+              />
+              <StatTile
                 label="Broken links"
-                value={stats.brokenLinks}
+                value={String(stats.brokenLinks)}
                 to="/admin/broken-links"
-                dot={stats.brokenLinks > 0 ? 'fail' : 'pass'}
+                warn={stats.brokenLinks > 0}
               />
             </div>
-          </>
+          </div>
         )}
       </main>
     </div>

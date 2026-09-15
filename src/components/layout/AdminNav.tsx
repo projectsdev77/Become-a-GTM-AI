@@ -1,26 +1,28 @@
 import { NavLink } from 'react-router-dom'
 
 const TABS = [
-  { to: '/admin', label: 'overview', end: true },
-  { to: '/admin/curriculum', label: 'curriculum' },
-  { to: '/admin/students', label: 'students' },
-  { to: '/admin/mentors', label: 'mentors' },
-  { to: '/admin/broken-links', label: 'broken links' },
-  { to: '/admin/certificate', label: 'certificate' },
+  { to: '/admin', label: 'Overview', end: true },
+  { to: '/admin/curriculum', label: 'Curriculum' },
+  { to: '/admin/students', label: 'Students' },
+  { to: '/admin/mentors', label: 'Mentors' },
+  { to: '/admin/broken-links', label: 'Broken links' },
+  { to: '/admin/certificate', label: 'Certificate' },
 ] as const
 
 export default function AdminNav() {
   return (
-    <div style={{ background: 'var(--color-ink-soft)' }}>
-      <nav className="mx-auto flex max-w-[1280px] gap-1 overflow-x-auto px-4 sm:px-6">
+    <div className="border-b border-line bg-ground-deep">
+      <nav className="mx-auto flex max-w-[1160px] gap-1 overflow-x-auto px-6">
         {TABS.map((tab) => (
           <NavLink
             key={tab.to}
             to={tab.to}
             end={'end' in tab ? tab.end : false}
             className={({ isActive }) =>
-              `whitespace-nowrap px-4 py-3 font-mono text-xs font-bold lowercase tracking-[0.04em] no-underline ${
-                isActive ? 'bg-lime text-ink' : 'text-paper/70 hover:text-paper'
+              `whitespace-nowrap border-b-2 px-4 py-3 font-body text-[13px] no-underline ${
+                isActive
+                  ? 'border-primary font-semibold text-text'
+                  : 'border-transparent font-medium text-text-muted hover:text-text'
               }`
             }
           >

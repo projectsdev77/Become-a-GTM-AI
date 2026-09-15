@@ -3,26 +3,47 @@ import { LinkButton } from '@/components/ui/Button'
 
 export default function NotFoundPage() {
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <PublicNav />
-      <main className="mx-auto max-w-[880px] px-4 py-20 text-center sm:px-6">
-        <div className="mx-auto max-w-xl overflow-hidden rounded-panel border-[3px] border-ink shadow-site" style={{ background: '#0B0C10' }}>
-          <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">
-            <span className="h-2.5 w-2.5 rounded-full bg-lime" />
-            <span className="font-mono text-xs text-white/50">~/track</span>
-          </div>
-          <div className="space-y-2 p-6 text-left font-mono text-[13px] leading-relaxed text-white/90">
-            <p className="text-lime">$ cd weeks/that-page-doesnt-exist</p>
-            <p className="text-fail">bash: cd: no such file or directory</p>
-            <p className="font-display text-[64px] font-bold leading-none text-white sm:text-[72px]">404</p>
-          </div>
+      {/* The site-wide `prefers-reduced-motion` rule in index.css caps every
+          animation-duration to 0.01ms, so this blink is disabled for free
+          under that media query — no separate override needed here. */}
+      <style>{`
+        @keyframes notfound-cursor-blink {
+          0%, 49% { opacity: 1; }
+          50%, 100% { opacity: 0; }
+        }
+        .notfound-cursor { animation: notfound-cursor-blink 1s step-end infinite; }
+      `}</style>
+      <main className="mx-auto max-w-[720px] px-4 py-20 text-center sm:px-6">
+        <h1
+          className="font-display uppercase leading-[.92] text-text"
+          style={{ fontSize: 'clamp(40px, 9vw, 104px)' }}
+        >
+          4<span className="text-primary">0</span>4
+        </h1>
+
+        <div className="mb-7 overflow-x-auto rounded-field border border-line bg-ground-deep p-5 text-left font-mono text-[13px] leading-[1.8] text-[color:var(--color-code-body)]">
+          <p>
+            <span className="text-primary">$</span> cd /this/page
+          </p>
+          <p className="text-fail-text">bash: cd: /this/page: No such file or directory</p>
+          <p>
+            <span className="text-primary">$</span> cd /dashboard <span className="text-text-muted"># try this instead</span>
+          </p>
+          <p>
+            <span className="text-primary">$</span> <span className="notfound-cursor text-text">▍</span>
+          </p>
         </div>
-        <p className="mx-auto mt-8 max-w-md text-[17px] leading-relaxed text-muted">
-          This page doesn't exist, or moved somewhere we haven't linked. Nothing you did broke anything.
-        </p>
-        <LinkButton to="/" variant="secondary" className="mt-8">
-          Go home
-        </LinkButton>
+
+        <div className="flex flex-wrap justify-center gap-3">
+          <LinkButton to="/dashboard" variant="site">
+            Back to dashboard
+          </LinkButton>
+          <LinkButton to="/curriculum" variant="secondary">
+            Browse curriculum
+          </LinkButton>
+        </div>
       </main>
     </div>
   )

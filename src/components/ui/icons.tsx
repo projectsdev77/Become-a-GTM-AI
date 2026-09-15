@@ -91,7 +91,6 @@ export function ChevronRightIcon(props: IconProps) {
   )
 }
 
-/** The wordmark monogram: "AI" in ink on a lime rounded chip. Minimum 26px. Never recolour. */
 export function GoogleIcon({ size = 18 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 18 18" aria-hidden="true">
@@ -103,13 +102,21 @@ export function GoogleIcon({ size = 18 }: { size?: number }) {
   )
 }
 
-export function Monogram({ size = 26, className = '' }: { size?: number; className?: string }) {
+/** The wordmark monogram: "G" on a card-pressed chip. Minimum 28px. Never recolour. */
+export function Monogram({ size = 28, className = '' }: { size?: number; className?: string }) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center rounded-[10px] border-2 border-ink bg-lime font-display font-bold text-ink ${className}`}
-      style={{ width: size, height: size, fontSize: size * 0.42, lineHeight: 1 }}
+      className={`inline-flex shrink-0 items-center justify-center rounded-logo font-display font-bold ${className}`}
+      style={{
+        width: size,
+        height: size,
+        fontSize: size * 0.42,
+        lineHeight: 1,
+        background: 'var(--color-card-pressed)',
+        color: 'var(--color-on-light)',
+      }}
     >
-      AI
+      G
     </span>
   )
 }

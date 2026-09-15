@@ -14,8 +14,14 @@ export default function Avatar({
 }) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center rounded-full border-2 border-ink bg-blue-50 font-display font-bold text-ink ${className}`}
-      style={{ width: size, height: size, fontSize: size * 0.4 }}
+      className={`inline-flex shrink-0 items-center justify-center rounded-full font-display font-bold ${className}`}
+      style={{
+        width: size,
+        height: size,
+        fontSize: size * 0.4,
+        background: 'var(--color-card-light)',
+        color: 'var(--color-on-light)',
+      }}
     >
       {initial(name)}
     </span>

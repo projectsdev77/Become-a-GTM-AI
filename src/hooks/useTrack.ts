@@ -33,9 +33,9 @@ export function useTrack() {
 
   async function createDefaultTrack() {
     const { error } = await supabase.from('tracks').insert({
-      title: 'Become an AI Engineer',
-      slug: 'become-an-ai-engineer',
-      description: 'A self-paced, 12-week path into AI engineering.',
+      title: 'GTM Engineer Bootcamp',
+      slug: 'gtm-engineer-bootcamp',
+      description: 'A self-paced, 12-week path into GTM engineering.',
       status: 'draft',
     })
     if (error) {

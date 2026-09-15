@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
         to: email,
         subject: "You've got a week waiting for you",
         html: `<p>Hi ${student.full_name ?? 'there'},</p>
-<p>It's been a little while since you were last in Become an AI Engineer. Your progress is saved — pick up right where you left off whenever you're ready.</p>
+<p>It's been a little while since you were last in GTM Engineer Bootcamp. Your progress is saved — pick up right where you left off whenever you're ready.</p>
 <p><a href="${SITE_URL}/dashboard">Continue learning</a></p>`,
       })
       await supabase.from('email_log').insert({ user_id: student.id, email_type: 'reengagement' })

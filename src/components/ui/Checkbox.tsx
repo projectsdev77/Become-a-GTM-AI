@@ -15,8 +15,12 @@ export function Checkbox({ checked, onChange, disabled, label, className = '' }:
       className={`inline-flex min-h-11 items-center gap-3 ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${className}`}
     >
       <span
-        className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border-2 border-ink"
-        style={checked ? { background: 'var(--color-lime)' } : { background: 'var(--color-surface)' }}
+        className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border"
+        style={
+          checked
+            ? { background: 'var(--color-primary)', borderColor: 'var(--color-primary)' }
+            : { background: 'var(--color-ground-deep)', borderColor: 'var(--color-line-strong)' }
+        }
       >
         <input
           type="checkbox"
@@ -25,7 +29,7 @@ export function Checkbox({ checked, onChange, disabled, label, className = '' }:
           onChange={(e) => onChange?.(e.target.checked)}
           className="absolute inset-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
         />
-        {checked && <CheckIcon className="h-4 w-4 text-ink" />}
+        {checked && <CheckIcon className="h-4 w-4 text-white" />}
       </span>
       {label != null && <span>{label}</span>}
     </label>
@@ -46,7 +50,7 @@ export function Radio({ checked, onChange, disabled, name, label, className = ''
     <label
       className={`inline-flex min-h-11 items-center gap-3 ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${className}`}
     >
-      <span className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-surface">
+      <span className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-line-strong bg-ground-deep">
         <input
           type="radio"
           name={name}
@@ -55,7 +59,7 @@ export function Radio({ checked, onChange, disabled, name, label, className = ''
           onChange={() => onChange?.()}
           className="absolute inset-0 h-full w-full cursor-pointer rounded-full opacity-0 disabled:cursor-not-allowed"
         />
-        {checked && <span className="h-3 w-3 rounded-full bg-ink" />}
+        {checked && <span className="h-3 w-3 rounded-full bg-primary" />}
       </span>
       {label != null && <span>{label}</span>}
     </label>

@@ -52,9 +52,9 @@ Deno.serve(async (req) => {
   try {
     await sendEmail({
       to: email,
-      subject: 'Welcome to Become an AI Engineer',
+      subject: 'Welcome to GTM Engineer Bootcamp',
       html: `<p>Hi ${profile?.full_name ?? 'there'},</p>
-<p>Welcome to Become an AI Engineer. Week 1 is already unlocked and waiting for you.</p>
+<p>Welcome to GTM Engineer Bootcamp. Week 1 is already unlocked and waiting for you.</p>
 <p><a href="${SITE_URL}/dashboard">Go to your dashboard</a></p>`,
     })
   } catch (e) {

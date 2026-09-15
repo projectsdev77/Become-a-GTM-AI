@@ -1,91 +1,110 @@
-/* Become an AI Engineer — design tokens
+/* ============================================================
+   GTM Engineer Bootcamp — design tokens, rev 1.0 (full rebrand)
    Tailwind v4. Nothing in the codebase should reference a color that is
-   not defined here. Handoff rev 1.0 · Sep 6 2026 */
+   not defined here.
+
+   The core visual rule: big containers are hairline outlines on the
+   ground (no fill). Small containers inside them are filled — light
+   (done/listed), orange (active, max one per view), or an outline
+   (locked/upcoming). Never stack a filled card inside a filled panel.
+   No shadows anywhere — hierarchy comes from borders and fills only.
+   ============================================================ */
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* self-hosted fonts — see "Before you start" in the handoff README */
-@import "@fontsource/space-grotesk/700.css";
-@import "@fontsource/archivo/400.css";
-@import "@fontsource/archivo/500.css";
-@import "@fontsource/archivo/600.css";
-@import "@fontsource/archivo/700.css";
+/* self-hosted fonts */
+@import "@fontsource/archivo-black/400.css";
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
+@import "@fontsource/poppins/700.css";
+@import "@fontsource/poppins/800.css";
+@import "@fontsource/jetbrains-mono/400.css";
 @import "@fontsource/jetbrains-mono/500.css";
 @import "@fontsource/jetbrains-mono/700.css";
 
 @theme {
-  /* ---- ground + ink ---- */
-  --color-paper:     #FBF8EE; /* page background */
-  --color-stone:     #E7E5DE; /* alt band, disabled, table head */
-  --color-surface:   #FFFFFF; /* cards */
-  --color-ink:       #14141E; /* text + every border */
-  --color-ink-soft:  #1B1B26; /* nested dark surfaces (admin tab strip) */
-  --color-muted:     #5C5A52; /* secondary text */
-  --color-faint:     #8A887E; /* placeholder text */
-  --color-hairline:  #DDDBD2; /* 1px table rules */
-  --color-disabled:  #B8B6AD; /* locked borders */
+  /* ---- Ground & surfaces (warm charcoal, low-glare) ---- */
+  --color-ground:        #34312C;
+  --color-ground-deep:   #2A2724;
+  --color-ground-ink:    #221F1B;
 
-  /* ---- lime: primary action. one per view ---- */
-  --color-lime:      #D8FA4B;
+  /* ---- Lines ---- */
+  --color-line:          #4D4841;
+  --color-line-strong:   #6F6A61;
 
-  /* ---- blue: links, focus, info. NEVER a button fill ---- */
-  --color-blue-50:   #EAF0FF;
-  --color-blue-200:  #C9D8FF;
-  --color-blue-500:  #2F6BFF; /* background / focus ring only */
-  --color-blue-700:  #1B44B8; /* blue TEXT on paper (7.4:1) */
+  /* ---- Type ---- */
+  --color-text:          #CFCBC4;
+  --color-text-bright:   #E8E4DC;
+  --color-text-body:     #BFBAB0;
+  --color-text-muted:    #A8A59E;
 
-  /* ---- status: tinted bg + same-hue border + dark ink ---- */
-  --color-pass:      #2FBF71;
-  --color-pass-bg:   #E8F8EF;
-  --color-pass-ink:  #14432A;
-  --color-warn:      #FF6B2C;
-  --color-warn-bg:   #FFF1E9;
-  --color-warn-ink:  #8A3A10;
-  --color-fail:      #D6263C;
-  --color-fail-bg:   #FDE8EB;
-  --color-fail-ink:  #8A1220;
+  /* ---- Accent ---- */
+  --color-primary:       #EE4823;
+  --color-primary-hover: #FF6A45;
+  --color-primary-soft:  #FFD9CC;
+  --color-primary-tint:  #FFE3D9;
 
-  /* ---- accents: category codes only, never decoration ---- */
-  --color-blush:     #FFE0D2;
-  --color-lilac:     #B79CF7;
+  /* ---- Light cards (the contrast carriers) ---- */
+  --color-card-light:    #D9D5CD;
+  --color-card-pressed:  #CFCBC4;
+  --color-on-light:      #221F1B;
+  --color-on-light-mute: #5B584F;
+  --color-on-light-meta: #6E6A61;
 
-  /* ---- type ---- */
-  --font-display: "Space Grotesk", sans-serif;
-  --font-sans:    "Archivo", system-ui, sans-serif;
-  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+  /* ---- Status ---- */
+  --color-pass:          #3E9A64;
+  --color-pass-deep:     #2E7D4F;
+  --color-pass-border:   #3F6B4F;
+  --color-pass-wash:     rgba(46,125,79,.12);
+  --color-warn:          #F2B33D;
+  --color-warn-border:   #B98A3C;
+  --color-warn-text:     #E2C288;
+  --color-fail:          #C4553C;
+  --color-fail-border:   #B4543C;
+  --color-fail-text:     #E1A292;
+  --color-code-string:   #7FC79B;
+  --color-code-body:     #C6C1B7;
 
-  /* ---- shape ---- */
-  --radius-field: 10px;
-  --radius-card:  14px;
-  --radius-panel: 16px;
-  --radius-shell: 22px;
+  /* ---- Type families (self-hosted via @fontsource) ---- */
+  --font-display: 'Archivo Black', sans-serif;
+  --font-body:    'Poppins', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
 
-  /* ---- elevation: hard offset only. never blur ---- */
-  --shadow-app:  4px 4px 0 var(--color-ink);
-  --shadow-site: 5px 5px 0 var(--color-ink);
-  --shadow-hero: 5px 5px 0 var(--color-lime);
+  /* ---- Radius ---- */
+  --radius-field:  14px;
+  --radius-card:   16px;
+  --radius-chip:   18px;
+  --radius-panel:  24px;
+  --radius-shell:  32px;
+  --radius-pill:   999px;
+  --radius-logo:   8px;
+
+  /* ---- Elevation: NONE. Do not add box-shadow anywhere. ---- */
 }
 
 @layer base {
+  :root { color-scheme: dark; }
+
   body {
-    background: var(--color-paper);
-    color: var(--color-ink);
-    font-family: var(--font-sans);
-    text-wrap: pretty;
+    background: var(--color-ground);
+    color: var(--color-text-body);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
   }
 
-  a {
-    color: var(--color-blue-700);
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 3px;
-  }
-  a:hover { color: var(--color-blue-500); }
+  a { color: var(--color-primary); text-decoration: none; }
+  a:hover { color: var(--color-primary-hover); }
+
+  ::selection { background: var(--color-primary); color: #fff; }
 
   :focus-visible {
-    outline: 3px solid var(--color-blue-500);
+    outline: 3px solid var(--color-primary);
     outline-offset: 2px;
   }
+
+  h1, h2, h3 { text-wrap: balance; }
 
   /* inputs never below 16px — iOS zooms the viewport below that */
   input, textarea, select { font-size: 16px; }
@@ -93,124 +112,142 @@
 
 @layer components {
   /* Reference implementations. Match these or match the comps —
-     do not invent a third treatment. */
+     do not invent a third treatment. All buttons: white-space nowrap,
+     badge flex-shrink:0 — labels never wrap, badges never crush. */
 
   .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    min-height: 44px; padding: 14px 24px;
-    border: 2px solid var(--color-ink);
-    border-radius: var(--radius-field);
-    font-weight: 700; font-size: 15px;
-    white-space: nowrap;
-    text-decoration: none;
-    transition: transform 120ms ease-out, box-shadow 120ms ease-out,
-                filter 120ms ease-out;
+    display: inline-flex; align-items: center; justify-content: space-between; gap: 8px;
+    flex: none; white-space: nowrap;
+    min-height: 44px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-body); font-weight: 700; font-size: 14px;
+    text-decoration: none; cursor: pointer;
+    transition: background-color 150ms ease-out, border-color 150ms ease-out, filter 150ms ease-out;
   }
-  .btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--color-ink); }
-  .btn:hover  { filter: brightness(0.95); }
+  .btn-badge {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: var(--radius-pill);
+    font-size: 12px; flex-shrink: 0;
+  }
 
-  /* in-app primary */
-  .btn-primary { background: var(--color-lime); box-shadow: var(--shadow-app); }
-  /* marketing primary — ink fill, lime shadow */
-  .btn-site    { background: var(--color-ink); color: var(--color-paper);
-                 border-width: 3px; box-shadow: var(--shadow-hero); }
-  .btn-secondary { background: var(--color-paper); }
-  .btn-ghost   { background: var(--color-blue-50); color: var(--color-blue-700);
-                 border-color: var(--color-blue-200); }
+  /* in-app + marketing primary: orange pill, dark circular arrow badge */
+  .btn-primary {
+    background: var(--color-primary); color: #fff;
+    padding: 9px 9px 9px 22px; min-height: 48px;
+  }
+  .btn-primary:hover { background: var(--color-primary-hover); }
+  .btn-primary .btn-badge { width: 30px; height: 30px; background: var(--color-ground-ink); color: #fff; }
+
+  /* light / inverse primary — hero CTA, Continue, Share */
+  .btn-site {
+    background: var(--color-card-pressed); color: var(--color-on-light);
+    padding: 7px 7px 7px 20px;
+  }
+  .btn-site:hover { filter: brightness(0.96); }
+  .btn-site .btn-badge { background: var(--color-ground-ink); color: var(--color-card-pressed); }
+
+  /* outlined secondary */
+  .btn-secondary {
+    background: transparent; color: var(--color-text);
+    border: 1px solid var(--color-line-strong);
+    padding: 10px 20px; justify-content: center;
+  }
+  .btn-secondary:hover { border-color: var(--color-text-muted); }
+  .btn-secondary.danger { border-color: var(--color-fail-border); color: var(--color-fail-text); }
+
+  /* text-only ghost — nav items, tertiary actions */
+  .btn-ghost {
+    background: transparent; color: var(--color-text-muted);
+    font-weight: 600; padding: 0; min-height: 0; justify-content: flex-start;
+  }
+  .btn-ghost:hover { color: var(--color-text); }
+
   .btn:disabled, .btn[aria-disabled="true"] {
-    background: var(--color-stone); color: var(--color-faint);
-    border-color: var(--color-disabled); box-shadow: none;
-    transform: none; cursor: not-allowed;
+    opacity: 0.45; pointer-events: none;
   }
 
   .pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 10px; border-radius: 999px; border: 2px solid;
-    font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
-    letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: var(--radius-pill);
+    font-family: var(--font-body); font-size: 11px; font-weight: 700;
+    white-space: nowrap;
   }
-  .pill-pass     { background: var(--color-pass-bg); border-color: var(--color-pass); color: var(--color-pass-ink); }
-  .pill-warn     { background: var(--color-warn-bg); border-color: var(--color-warn); color: var(--color-warn-ink); }
-  .pill-fail     { background: var(--color-fail-bg); border-color: var(--color-fail); color: var(--color-fail-ink); }
-  .pill-locked   { background: var(--color-stone);   border-color: var(--color-disabled); color: var(--color-muted); }
-  .pill-progress { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-lime); }
+  .pill-pass     { background: var(--color-pass-deep); color: #fff; }
+  .pill-warn     { background: var(--color-warn); color: var(--color-on-light); }
+  .pill-fail     { background: var(--color-fail); color: #fff; }
+  .pill-active   { background: #fff; color: var(--color-on-light); }
+  .pill-locked   { background: transparent; color: var(--color-text-muted); font-family: var(--font-mono); font-size: 10.5px; padding: 3px 0; }
+  .pill-pending  { background: transparent; border: 1px solid var(--color-line-strong); color: var(--color-text-muted); }
+
+  /* on a light card, tint the outlined variants down for contrast */
+  .pill-warn-outline { background: transparent; border: 1px solid var(--color-warn-border); color: var(--color-warn-text); }
+  .pill-fail-outline { background: transparent; border: 1px solid var(--color-fail-border); color: var(--color-fail-text); }
 
   .card {
-    background: var(--color-surface);
-    border: 2px solid var(--color-ink);
+    background: var(--color-card-light);
     border-radius: var(--radius-card);
-    padding: 22px;
+    padding: 15px 18px;
+    color: var(--color-on-light);
   }
+  .card-active {
+    background: var(--color-primary);
+    color: #fff;
+  }
+  .card-active .meta { color: var(--color-primary-soft); }
+  .card-active p:not(.meta) { color: var(--color-primary-tint); }
   .card-locked {
-    background: #F1F0EA; border-color: var(--color-disabled);
-    color: var(--color-muted);
+    background: transparent; border: 1px solid var(--color-line);
+    color: var(--color-text-body);
   }
-  /* at most ONE of these per viewport */
-  .card-active { box-shadow: var(--shadow-app); }
 
   .field {
     width: 100%; padding: 13px 16px; font-size: 16px;
-    background: var(--color-surface);
-    border: 2px solid var(--color-ink);
+    background: var(--color-ground-deep); color: var(--color-text-bright);
+    border: 1px solid var(--color-line);
     border-radius: var(--radius-field);
-  }
-  .field::placeholder { color: var(--color-faint); }
-  .field:focus {
-    border-color: var(--color-blue-500);
-    box-shadow: 0 0 0 3px var(--color-blue-200);
     outline: none;
+    transition: border-color 150ms ease-out;
   }
-  .field-error { border-color: var(--color-warn); }
+  .field::placeholder { color: var(--color-text-muted); }
+  .field:focus { border-color: var(--color-primary); }
+  .field-error { border-color: var(--color-fail-border); }
 
   .label {
-    font-family: var(--font-mono); font-size: 11px; font-weight: 700;
-    letter-spacing: 0.06em; text-transform: uppercase;
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-muted);
   }
   .meta {
-    font-family: var(--font-mono); font-size: 11px; font-weight: 700;
-    letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted);
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-muted);
   }
 
-  .callout { border: 2px solid; border-radius: var(--radius-card); padding: 18px 20px; }
-  .callout-info { background: var(--color-blue-50); border-color: var(--color-blue-500); color: #26264A; }
-  .callout-pass { background: var(--color-pass-bg); border-color: var(--color-pass); color: var(--color-pass-ink); }
-  .callout-warn { background: var(--color-warn-bg); border-color: var(--color-warn); color: var(--color-warn-ink); }
-  .callout-fail { background: var(--color-fail-bg); border-color: var(--color-fail); color: var(--color-fail-ink); }
+  .callout {
+    border-radius: var(--radius-panel);
+    padding: 18px 20px;
+  }
+  .callout-info {
+    border: 1px solid rgba(238,72,35,.5); background: transparent; color: var(--color-text-body);
+  }
+  .callout-pass {
+    border: 1px solid var(--color-pass-border); background: var(--color-pass-wash); color: var(--color-text-body);
+    border-radius: 20px; padding: 22px 24px;
+  }
+  .callout-warn {
+    border: 1px solid var(--color-warn-border); background: rgba(242,179,61,.1); color: var(--color-text-body);
+  }
+  .callout-fail {
+    border: 1px solid var(--color-fail-border); background: rgba(196,85,60,.12); color: var(--color-text-body);
+  }
 
-  /* line-art illustration frame */
-  .ill-frame {
-    background: var(--color-paper);
-    border: 2px solid var(--color-ink);
-    border-radius: var(--radius-card);
-    overflow: hidden;
-  }
-  .ill-frame > svg, .ill-frame > img {
-    width: 100%; height: 100%; object-fit: contain;
-  }
-  .ill-frame svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
-  .ill-frame svg * { vector-effect: non-scaling-stroke; }
+  .progress-track { height: 6px; border-radius: var(--radius-pill); background: var(--color-line); overflow: hidden; }
+  .progress-fill   { height: 100%; border-radius: var(--radius-pill); background: var(--color-primary); transition: width 200ms ease-out; }
 
-  /*
-   * Raster illustrations (photos/line-art PNGs), as opposed to .ill-frame's
-   * hand-drawn inline SVGs. No box of its own — sits directly on whatever
-   * surface it's placed on (a colored card, the page background) instead of
-   * carrying a frame + fill that can visibly mismatch it. mix-blend-mode:
-   * multiply drops a flat white background out of the source PNG so it
-   * doesn't show as a box either, as long as the art is dark linework on a
-   * plain white/light ground — true alpha transparency is still better when
-   * the source has it (multiply is then just a no-op), but this covers
-   * stock illustration exports that ship without transparency.
-   */
-  .ill-photo {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    mix-blend-mode: multiply;
-  }
+  /* illustration frame */
+  .ill-frame { border-radius: var(--radius-card); overflow: hidden; background: var(--color-ground-deep); }
+  .ill-frame > img { display: block; width: 100%; height: 100%; object-fit: cover; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
-  .btn:active { transform: none; }
+  .progress-fill { transition: none !important; }
 }

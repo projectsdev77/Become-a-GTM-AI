@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import PublicNav from '@/components/layout/PublicNav'
 import CertificateCard from '@/components/certificate/CertificateCard'
 import Callout from '@/components/ui/Callout'
+import { AnchorButton, Button } from '@/components/ui/Button'
 import { AlertIcon, CheckIcon } from '@/components/ui/icons'
 
 interface CertificateSnapshot {
@@ -37,13 +38,28 @@ export default function CertificatePage() {
     })()
   }, [code])
 
+  async function handleShare() {
+    const url = window.location.href
+    try {
+      if (navigator.share) {
+        await navigator.share({ url, title: 'GTM Engineer Bootcamp certificate' })
+        return
+      }
+    } catch {
+      // user cancelled or share unsupported — fall through to clipboard
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch {
+      // clipboard unavailable — nothing more we can do without new plumbing
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="min-h-screen bg-ground">
       <PublicNav />
-      <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-        {loading && (
-          <p className="text-center font-mono text-xs font-bold uppercase tracking-wide text-muted">loading…</p>
-        )}
+      <main className="mx-auto max-w-[820px] px-4 py-16 sm:px-6">
+        {loading && <p className="text-center font-mono text-xs font-bold uppercase tracking-wide text-text-muted">loading…</p>}
 
         {!loading && (
           <p className="mb-6 flex justify-center">
@@ -67,10 +83,20 @@ export default function CertificatePage() {
 
         {!loading && snapshot && (
           <>
-            <CertificateCard fields={snapshot} />
-            <p className="mt-6 text-center font-mono text-[11px] uppercase tracking-[0.06em] text-faint">
-              issued {issuedAt && new Date(issuedAt).toLocaleDateString()} · anyone with this code can verify it
-            </p>
+            <CertificateCard
+              fields={snapshot}
+              issuedAt={issuedAt ? new Date(issuedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : null}
+              code={code}
+            />
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+              <Button type="button" variant="site" onClick={() => void handleShare()}>
+                Share
+              </Button>
+              <AnchorButton href="#" variant="secondary" onClick={(e) => { e.preventDefault(); window.print() }}>
+                Download PDF
+              </AnchorButton>
+              <p className="pl-2 font-mono text-[11px] text-text-muted">Plain-text rendering, no rich formatting</p>
+            </div>
           </>
         )}
       </main>

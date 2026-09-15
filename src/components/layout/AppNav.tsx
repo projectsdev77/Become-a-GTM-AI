@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useUnreadMessages } from '@/hooks/useUnreadMessages'
 import { Monogram } from '@/components/ui/icons'
@@ -7,10 +7,16 @@ import Avatar from '@/components/ui/Avatar'
 function UnreadBadge({ count }: { count: number }) {
   if (count === 0) return null
   return (
-    <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-fail px-1 font-mono text-[10px] font-bold leading-none text-white">
+    <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 font-mono text-[10px] font-bold leading-none text-white">
       {count > 9 ? '9+' : count}
     </span>
   )
+}
+
+function navLinkClass({ isActive }: { isActive: boolean }) {
+  return `flex items-center gap-1.5 font-body text-[13px] no-underline ${
+    isActive ? 'font-semibold text-text' : 'font-medium text-text-muted hover:text-text'
+  }`
 }
 
 export default function AppNav() {
@@ -30,59 +36,43 @@ export default function AppNav() {
   }
 
   return (
-    <header className="border-b-2 border-ink bg-ink text-paper">
-      <nav className="mx-auto flex max-w-[1280px] items-center justify-between gap-4 px-4 py-3.5 sm:px-6">
-        <Link to="/dashboard" className="flex items-center gap-3 no-underline">
-          <Monogram size={32} />
-          <span className="hidden font-mono text-[13px] font-bold uppercase tracking-[0.08em] text-paper sm:inline">
-            Become an AI Engineer
+    <header className="border-b border-line">
+      <nav className="mx-auto flex max-w-[1160px] items-center justify-between gap-4 px-6 py-3.5">
+        <Link to="/dashboard" className="flex items-center gap-[9px] no-underline">
+          <Monogram size={28} />
+          <span className="hidden font-display text-[12px] uppercase leading-none tracking-[0.02em] text-text sm:inline">
+            GTM Engineer Bootcamp
           </span>
           {profile?.role === 'mentor' && (
-            <span
-              className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-paper"
-              style={{ background: '#3B3B4C' }}
-            >
-              Mentor
-            </span>
+            <span className="pill pill-pending">Mentor</span>
           )}
           {profile?.role === 'admin' && (
-            <span
-              className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-paper"
-              style={{ background: '#3B3B4C' }}
-            >
-              Admin
-            </span>
+            <span className="pill pill-pending">Admin</span>
           )}
         </Link>
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-6">
           {profile?.role === 'student' && (
-            <Link to="/messages" className="flex items-center gap-1.5 font-mono text-xs text-paper no-underline hover:text-lime">
-              messages
+            <NavLink to="/messages" className={navLinkClass}>
+              Messages
               <UnreadBadge count={unreadMessages} />
-            </Link>
+            </NavLink>
           )}
           {profile?.role === 'mentor' && (
-            <Link to="/mentor" className="flex items-center gap-1.5 font-mono text-xs text-paper no-underline hover:text-lime">
-              your students
+            <NavLink to="/mentor" className={navLinkClass}>
+              Your students
               <UnreadBadge count={unreadMessages} />
-            </Link>
+            </NavLink>
           )}
           {profile?.role === 'admin' && (
-            <Link to="/admin" className="font-mono text-xs text-paper no-underline hover:text-lime">
-              admin
-            </Link>
+            <NavLink to="/admin" className={navLinkClass}>
+              Admin
+            </NavLink>
           )}
-          <Link to="/settings" className="flex items-center gap-2 no-underline hover:text-lime">
-            <Avatar name={profile?.full_name} size={26} />
-            <span className="hidden font-mono text-xs text-paper/80 sm:inline">
-              {profile?.full_name?.toLowerCase() ?? 'settings'}
-            </span>
+          <Link to="/settings" className="flex items-center gap-2 no-underline">
+            <Avatar name={profile?.full_name} size={32} />
           </Link>
-          <button
-            onClick={() => void handleLogout()}
-            className="rounded-field border-2 border-paper/40 px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-wide text-paper hover:border-paper"
-          >
-            log out
+          <button onClick={() => void handleLogout()} className="btn btn-ghost">
+            Log out
           </button>
         </div>
       </nav>

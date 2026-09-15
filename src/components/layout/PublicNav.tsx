@@ -1,32 +1,33 @@
 import { Link } from 'react-router-dom'
 import { Monogram } from '@/components/ui/icons'
+import { LinkButton } from '@/components/ui/Button'
 
 export default function PublicNav() {
   return (
-    <header className="border-b-[3px] border-ink bg-paper">
-      <nav className="mx-auto flex max-w-[1280px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-3 no-underline">
-          <Monogram size={46} />
-          <span className="font-mono text-[14px] font-bold uppercase leading-tight tracking-[0.06em] text-ink">
-            Become an
-            <br />
-            AI Engineer
+    <header className="border-b border-line">
+      <nav className="mx-auto flex max-w-[1160px] items-center justify-between gap-4 px-6 py-4">
+        <Link to="/" className="flex items-center gap-[9px] no-underline">
+          <Monogram size={28} />
+          <span className="font-display text-[13px] uppercase leading-none tracking-[0.02em] text-text">
+            GTM Engineer Bootcamp
           </span>
         </Link>
         <div className="flex items-center gap-6">
-          <Link to="/curriculum" className="hidden font-mono text-xs lowercase text-ink no-underline hover:text-blue-700 sm:inline">
-            curriculum
-          </Link>
-          <Link to="/login" className="font-mono text-xs lowercase text-ink no-underline hover:text-blue-700">
-            log in
+          <Link to="/" className="hidden font-body text-[13px] font-medium text-text-muted no-underline hover:text-text sm:inline">
+            Home
           </Link>
           <Link
-            to="/signup"
-            className="btn btn-primary text-ink"
-            style={{ minHeight: 40, padding: '10px 20px', fontSize: 13.5 }}
+            to="/curriculum"
+            className="hidden font-body text-[13px] font-medium text-text-muted no-underline hover:text-text sm:inline"
           >
-            get started
+            Curriculum
           </Link>
+          <Link to="/login" className="font-body text-[13px] font-medium text-text-muted no-underline hover:text-text">
+            Log in
+          </Link>
+          <LinkButton to="/signup" variant="secondary" size="sm">
+            Enroll now
+          </LinkButton>
         </div>
       </nav>
     </header>
