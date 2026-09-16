@@ -9,9 +9,10 @@ import ProgressBar from '@/components/ui/ProgressBar'
 import StatusPill from '@/components/ui/StatusPill'
 import Callout from '@/components/ui/Callout'
 import Card from '@/components/ui/Card'
+import ListRow, { RowMeta, RowTitle } from '@/components/ui/ListRow'
 import { LinkButton } from '@/components/ui/Button'
 import { StarIcon } from '@/components/ui/icons'
-import IllustrationSlot from '@/components/ui/IllustrationSlot'
+import Illustration from '@/components/ui/Illustration'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 
 function formatHours(hours: number) {
@@ -26,9 +27,9 @@ function WeeklyHoursCard() {
     return (
       <Card>
         <p className="meta">This week</p>
-        <p className="mt-2 text-[14px] leading-relaxed text-on-light-mute">
+        <p className="mt-2 text-[14px] leading-relaxed">
           Set a weekly hours target in{' '}
-          <Link to="/settings" className="font-bold text-primary">
+          <Link to="/settings" className="font-bold text-accent-on-cream">
             Settings
           </Link>{' '}
           to track how much time you're putting in each week.
@@ -46,9 +47,9 @@ function WeeklyHoursCard() {
   return (
     <Card>
       <p className="meta">This week</p>
-      <p className="mt-2 font-display text-3xl font-bold text-on-light">
+      <p className="mt-2 font-display text-3xl font-bold">
         {formatHours(loggedHours)}
-        <span className="text-lg text-on-light-mute"> / {formatHours(targetHours)} hrs</span>
+        <span className="text-lg font-body font-normal text-ink-2-on-cream"> / {formatHours(targetHours)} hrs</span>
       </p>
       <div className="mt-3">
         <ProgressBar percent={percent} />
@@ -58,7 +59,7 @@ function WeeklyHoursCard() {
           You hit your weekly goal — nice work.
         </Callout>
       ) : (
-        <p className="mt-3 text-[13.5px] text-on-light-mute">{formatHours(remaining)} hrs left to reach your target.</p>
+        <p className="mt-3 text-[13.5px] text-ink-2-on-cream">{formatHours(remaining)} hrs left to reach your target.</p>
       )}
     </Card>
   )
@@ -78,29 +79,40 @@ function WeekRow({
   const complete = isWeekComplete(week) && week.lessons_total + week.assignments_total > 0
   const paymentLocked = isPaymentLocked(allWeeks, week, paymentStatus)
 
+  const meta = !week.unlocked
+    ? paymentLocked
+      ? 'Payment required to unlock'
+      : 'Locked until the previous week is complete'
+    : complete
+    ? `${week.lessons_total} lesson${week.lessons_total === 1 ? '' : 's'} · ${week.assignments_total} assignment${
+        week.assignments_total === 1 ? '' : 's'
+      } done`
+    : isCurrent
+    ? `Lesson ${week.lessons_completed} of ${week.lessons_total} · in progress`
+    : `${week.lessons_completed} of ${week.lessons_total} lessons done`
+
   const content = (
-    <Card active={isCurrent} locked={!week.unlocked} className="flex items-center justify-between gap-3">
+    <ListRow state={week.unlocked ? 'active' : 'default'}>
       <div className="min-w-0">
-        <p className="meta mb-1">Week {String(week.position).padStart(2, '0')}</p>
-        <p className="truncate font-bold">{week.title}</p>
+        <RowTitle className="truncate">
+          Week {String(week.position).padStart(2, '0')} · {week.title}
+        </RowTitle>
+        <RowMeta>{meta}</RowMeta>
       </div>
-      {complete && (
-        <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-pass-deep text-xs text-white">
-          ✓
-        </span>
+      {!week.unlocked ? (
+        <StatusPill variant="locked" tone="dark">
+          {paymentLocked ? 'Payment required' : 'Locked'}
+        </StatusPill>
+      ) : complete ? (
+        <StatusPill variant="pass" tone="cream">
+          Complete
+        </StatusPill>
+      ) : (
+        <StatusPill variant="progress" tone="cream">
+          In progress
+        </StatusPill>
       )}
-      {!complete && isCurrent && (
-        <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full bg-ground-ink text-xs text-white">
-          ↗
-        </span>
-      )}
-      {!week.unlocked && (
-        <span className="shrink-0 text-[13px] text-text-muted" aria-label={paymentLocked ? 'payment required' : 'locked'}>
-          🔒
-        </span>
-      )}
-      {!complete && !isCurrent && week.unlocked && <StatusPill variant="progress">in progress</StatusPill>}
-    </Card>
+    </ListRow>
   )
 
   if (!week.unlocked) return content
@@ -146,52 +158,51 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-ground">
       <AppNav />
       <main className="mx-auto max-w-[1160px] px-6 py-9">
-        {error && <p className="text-sm font-bold text-fail-text">Couldn't load your progress: {error}</p>}
+        {error && <p className="text-sm font-bold text-danger-text">Couldn't load your progress: {error}</p>}
         {!error && data?.enrolled === false && (
-          <p className="text-sm text-text-muted">You're not enrolled yet — this shouldn't happen; contact support.</p>
+          <p className="text-sm text-muted">You're not enrolled yet — this shouldn't happen; contact support.</p>
         )}
 
         {active && (
           <div className="flex flex-wrap items-end justify-between gap-6 pb-9">
             <div>
-              <p className="mb-2.5 font-mono text-[11px] uppercase tracking-[0.08em] text-text-muted">
+              <p className="mb-2.5 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
                 Continue where you left off
               </p>
-              <h1 className="mb-4.5 font-display text-[clamp(26px,3.6vw,40px)] uppercase leading-[1.05] text-text">
+              <h1 className="mb-4.5 font-display text-[clamp(26px,3.6vw,40px)] uppercase leading-[1.05] text-display">
                 Week {String(active.position).padStart(2, '0')} — {active.title}
               </h1>
               <div className="flex items-center gap-3">
-                <div className="h-[6px] w-[200px] max-w-[50vw] overflow-hidden rounded-pill bg-line">
-                  <div className="h-full rounded-pill bg-primary" style={{ width: `${activePercent}%` }} />
-                </div>
-                <span className="font-mono text-[11px] text-text-muted">{activePercent}%</span>
+                <ProgressBar percent={activePercent} className="w-[200px] max-w-[50vw]" />
+                <span className="font-mono text-[11px] text-muted">{activePercent}%</span>
               </div>
             </div>
-            <LinkButton to={`/weeks/${active.week_id}`} variant="site" className="shrink-0">
+            <LinkButton to={`/weeks/${active.week_id}`} variant="cta" className="shrink-0">
               Continue
             </LinkButton>
           </div>
         )}
 
-        <div className="rounded-shell border border-line p-8">
+        {paymentLockActive && (
+          <Callout tone="warn" heading="Weeks 2–12 need unlocking" className="mb-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <p>Week 1 is free — weeks 2 through 12 unlock once you're on a paid plan.</p>
+              <LinkButton to="/messages" variant="cta" size="sm" className="shrink-0">
+                Message your mentor
+              </LinkButton>
+            </div>
+          </Callout>
+        )}
+
+        <div className="rounded-shell border border-hairline p-8">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-6">
-            <h2 className="text-xl font-bold text-text-bright">Your 12 weeks</h2>
-            {paymentLockActive && (
-              <div className="flex max-w-[520px] items-start gap-3 rounded-card border border-[rgba(238,72,35,.5)] px-4.5 py-3.5">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs text-white">
-                  !
-                </span>
-                <p className="text-[12.5px] leading-[1.55] text-text-body">
-                  Week 1 is free — weeks 2–12 unlock with payment. <em className="text-text-muted">[copy pending]</em>{' '}
-                  <a href="#" className="font-bold text-primary">
-                    Contact us to unlock →
-                  </a>
-                </p>
-              </div>
-            )}
+            <h2 className="text-xl font-bold text-heading">Your 12 weeks</h2>
+            <p className="max-w-[420px] text-[14.5px] leading-[1.55] text-muted">
+              Each week is four to five lessons and one graded build. Finish the build to open the next week.
+            </p>
           </div>
 
-          <div className="grid gap-3.5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px,1fr))' }}>
+          <div className="flex flex-col gap-3.5">
             {weeks.map((week) => (
               <WeekRow
                 key={week.week_id}
@@ -206,16 +217,16 @@ export default function DashboardPage() {
 
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {certificateCode && (
-            <div className="rounded-panel border border-line p-6 sm:col-span-2 lg:col-span-1">
-              <p className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-[0.08em] text-text-muted">
+            <div className="rounded-panel border border-hairline p-6 sm:col-span-2 lg:col-span-1">
+              <p className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-[0.08em] text-muted">
                 <StarIcon className="h-3.5 w-3.5" /> track complete
               </p>
               <div className="mt-4">
-                <IllustrationSlot ratio="43/24" />
+                <Illustration slot="v4-cert" loading="lazy" className="w-full" style={{ aspectRatio: '43/24', borderRadius: 14 }} />
               </div>
-              <p className="mt-4 font-display text-xl uppercase text-text">You completed the track!</p>
-              <p className="mt-1 text-[14.5px] text-text-muted">Your certificate is ready to share.</p>
-              <LinkButton to={`/certificates/${certificateCode}`} variant="site" className="mt-4 w-full">
+              <p className="mt-4 font-display text-xl uppercase text-display">You completed the track!</p>
+              <p className="mt-1 text-[14.5px] text-muted">Your certificate is ready to share.</p>
+              <LinkButton to={`/certificates/${certificateCode}`} variant="primary" className="mt-4 w-full">
                 View certificate
               </LinkButton>
             </div>
@@ -226,23 +237,23 @@ export default function DashboardPage() {
           {overall && (
             <Card>
               <p className="meta">Overall progress</p>
-              <p className="mt-2 font-display text-5xl font-bold text-on-light">
+              <p className="mt-2 font-display text-5xl font-bold">
                 {overallPercent}
                 <span className="text-2xl">%</span>
               </p>
               <div className="mt-3">
                 <ProgressBar percent={overallPercent} />
               </div>
-              <dl className="mt-5 space-y-2 border-t border-line-strong/40 pt-4 text-[13.5px]">
+              <dl className="mt-5 space-y-2 border-t border-cream-rule pt-4 text-[13.5px]">
                 <div className="flex justify-between">
                   <dt className="meta">Lessons done</dt>
-                  <dd className="font-bold text-on-light">
+                  <dd className="font-bold">
                     {lessonsCompleted}/{lessonsTotal}
                   </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="meta">Submissions</dt>
-                  <dd className="font-bold text-on-light">{submissionsCount}</dd>
+                  <dd className="font-bold">{submissionsCount}</dd>
                 </div>
               </dl>
             </Card>

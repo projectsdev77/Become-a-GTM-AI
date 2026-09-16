@@ -57,36 +57,36 @@ export default function AssignmentPage() {
       )}
 
       <main className="mx-auto max-w-[820px] px-6 py-9">
-        {error && <p className="text-sm font-bold text-fail-text">{error}</p>}
+        {error && <p className="text-sm font-bold text-danger-text">{error}</p>}
 
         {assignment && (
           <>
-            <div className="rounded-shell border border-line p-9">
+            <div className="rounded-shell border border-hairline p-9">
               <div className="mb-4 flex flex-wrap items-center gap-3">
-                <span className="pill" style={{ background: 'var(--color-card-light)', color: 'var(--color-on-light)' }}>
+                <span className="rounded-pill border border-border-secondary px-3.5 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wide text-display">
                   {TYPE_LABEL[assignment.assignment_type] ?? assignment.assignment_type}
                 </span>
                 {assignment.assignment_type === 'text' && (
-                  <span className="font-mono text-[11px] uppercase tracking-wide text-text-muted">
+                  <span className="font-mono text-[11px] uppercase tracking-wide text-muted">
                     {textConfig(assignment).min_words}–{textConfig(assignment).max_words} words
                   </span>
                 )}
                 {assignment.assignment_type === 'url' && urlConfig(assignment).allowed_hosts?.length > 0 && (
-                  <span className="font-mono text-[11px] uppercase tracking-wide text-text-muted">
+                  <span className="font-mono text-[11px] uppercase tracking-wide text-muted">
                     accepted: {urlConfig(assignment).allowed_hosts.join(', ')}
                   </span>
                 )}
                 {assignment.assignment_type === 'quiz' && (
-                  <span className="font-mono text-[11px] uppercase tracking-wide text-text-muted">
+                  <span className="font-mono text-[11px] uppercase tracking-wide text-muted">
                     pass threshold {quizConfig(assignment).pass_threshold}% · attempt {submissions.length + 1}
                   </span>
                 )}
               </div>
 
-              <h1 className="mb-4 font-display text-[clamp(22px,2.8vw,30px)] uppercase leading-[1.1] text-text">
+              <h1 className="mb-4 font-display text-[clamp(22px,2.8vw,30px)] uppercase leading-[1.1] text-display">
                 {assignment.title}
               </h1>
-              <div className="prose prose-invert prose-sm max-w-none prose-p:text-text-body prose-p:leading-[1.75] prose-a:text-primary">
+              <div className="prose prose-invert prose-sm max-w-none prose-p:text-body prose-p:leading-[1.75] prose-a:text-accent">
                 <ReactMarkdown>{assignment.instructions}</ReactMarkdown>
               </div>
 

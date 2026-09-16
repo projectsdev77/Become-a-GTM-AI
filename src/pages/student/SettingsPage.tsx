@@ -13,7 +13,7 @@ import { Field, Label, TextAreaField, FieldHint } from '@/components/ui/Field'
 import PasswordRequirementsList from '@/components/ui/PasswordRequirementsList'
 import { validatePassword } from '@/lib/passwordPolicy'
 
-const HOURS_PRESETS = [2, 5, 8, 12]
+const HOURS_PRESETS = [2, 4, 6, 10]
 
 function ProfileForm() {
   const { user, profile, refreshProfile } = useAuth()
@@ -61,10 +61,10 @@ function ProfileForm() {
 
   return (
     <>
-      <div className="rounded-panel border border-line p-7">
-        <p className="mb-5 text-base font-bold text-text-bright">Profile</p>
+      <div className="rounded-panel border border-hairline p-7">
+        <h2 className="mb-5 text-[19px] font-bold text-heading">Profile</h2>
         <div className="mb-6 flex items-center gap-4">
-          <Avatar name={form.full_name || profile?.full_name} size={52} />
+          <Avatar name={form.full_name || profile?.full_name} size={56} />
           <Button type="button" variant="secondary" size="sm">
             Change photo
           </Button>
@@ -93,7 +93,7 @@ function ProfileForm() {
           </div>
         )}
 
-        {error && <p className="mt-4 text-sm font-bold text-fail-text">{error}</p>}
+        {error && <p className="mt-4 text-sm font-bold text-danger-text">{error}</p>}
         {saved && (
           <Callout tone="pass" className="mt-4">
             Saved.
@@ -106,38 +106,38 @@ function ProfileForm() {
       </div>
 
       {isStudent && (
-        <div className="rounded-panel border border-line p-7">
-          <p className="mb-1.5 text-base font-bold text-text-bright">Weekly hours target</p>
-          <p className="mb-5 text-[13.5px] leading-relaxed text-text-muted">
-            Sets the pace shown on your dashboard. You can change it any week.
-          </p>
-
-          <div className="mb-6 flex items-end gap-2.5">
-            <span className="font-display text-[40px] leading-none text-text-bright">
-              {form.weekly_hours_target || '—'}
-            </span>
-            <span className="mb-1.5 font-mono text-[10.5px] uppercase tracking-[0.06em] text-text-muted">Hrs/week</span>
+        <div className="flex flex-wrap items-center justify-between gap-[clamp(20px,3vw,44px)] rounded-panel border border-hairline p-7">
+          <div className="min-w-0 flex-1 basis-[280px]">
+            <h2 className="mb-2 text-[19px] font-bold text-heading">Weekly hours target</h2>
+            <p className="mb-5 text-[13.5px] leading-relaxed text-muted">
+              Sets the pace shown on your dashboard. Be honest — it drives your nudges.
+            </p>
+            <div className="flex flex-wrap gap-2.5">
+              {HOURS_PRESETS.map((preset) => {
+                const selected =
+                  preset === 10
+                    ? Number(form.weekly_hours_target) >= 10
+                    : form.weekly_hours_target === String(preset)
+                return (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => setForm({ ...form, weekly_hours_target: String(preset) })}
+                    className={`flex min-h-11 items-center whitespace-nowrap rounded-pill px-[18px] py-2.5 text-[12.5px] font-semibold ${
+                      selected ? 'bg-accent font-bold text-on-accent' : 'border border-border-secondary text-muted'
+                    }`}
+                  >
+                    {preset === 10 ? '10+ hrs' : `${preset} hrs`}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-
-          <div className="flex flex-wrap gap-2.5">
-            {HOURS_PRESETS.map((preset) => {
-              const selected =
-                preset === 12
-                  ? Number(form.weekly_hours_target) >= 12
-                  : form.weekly_hours_target === String(preset)
-              return (
-                <button
-                  key={preset}
-                  type="button"
-                  onClick={() => setForm({ ...form, weekly_hours_target: String(preset) })}
-                  className={`rounded-pill px-5 py-2.5 text-[13.5px] font-semibold ${
-                    selected ? 'bg-card-light text-on-light' : 'border border-line text-text-body hover:border-line-strong'
-                  }`}
-                >
-                  {preset === 12 ? '12+ hrs' : `${preset} hrs`}
-                </button>
-              )
-            })}
+          <div className="shrink-0 text-center">
+            <div className="font-display text-[clamp(44px,7vw,64px)] leading-[0.9] text-accent">
+              {form.weekly_hours_target || '—'}
+            </div>
+            <div className="mt-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-muted">Hrs / week</div>
           </div>
         </div>
       )}
@@ -182,8 +182,8 @@ function PasswordForm() {
   }
 
   return (
-    <div className="rounded-panel border border-line p-7">
-      <p className="mb-5 text-base font-bold text-text-bright">Password</p>
+    <div className="rounded-panel border border-hairline p-7">
+      <h2 className="mb-5 text-[19px] font-bold text-heading">Password</h2>
       <div className="grid gap-[18px] [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
         <div>
           <Label htmlFor="current_password">Current</Label>
@@ -223,7 +223,7 @@ function PasswordForm() {
         />
       </div>
 
-      {error && <p className="mt-4 text-sm font-bold text-fail-text">{error}</p>}
+      {error && <p className="mt-4 text-sm font-bold text-danger-text">{error}</p>}
       {saved && (
         <Callout tone="pass" className="mt-4">
           Password updated.
@@ -264,10 +264,10 @@ function DangerZone() {
   }
 
   return (
-    <div className="rounded-panel p-7" style={{ border: '1px solid var(--color-fail-border)' }}>
-      <p className="mb-1.5 text-base font-bold text-text-bright">Delete account</p>
-      <p className="mb-5 max-w-[56ch] text-[13.5px] leading-relaxed text-text-muted">
-        Removes your submissions, feedback, and certificate. This can't be undone.
+    <div className="rounded-panel border border-danger-border p-7">
+      <h2 className="mb-2 text-[19px] font-bold text-heading">Delete account</h2>
+      <p className="mb-5 max-w-[56ch] text-[13.5px] leading-relaxed text-body">
+        Removes your submissions, feedback, and certificate permanently. This can&apos;t be undone.
       </p>
 
       {!confirming ? (
@@ -281,10 +281,9 @@ function DangerZone() {
             id="confirm_delete"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
-            className="max-w-xs"
-            style={{ borderColor: 'var(--color-fail-border)' }}
+            className="field-error max-w-xs"
           />
-          {error && <p className="text-sm font-bold text-fail-text">{error}</p>}
+          {error && <p className="text-sm font-bold text-danger-text">{error}</p>}
           <div className="flex flex-wrap gap-3">
             <Button
               type="button"
@@ -327,20 +326,22 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-ground">
       <AppNav />
-      <main className="mx-auto max-w-[820px] px-4 py-10 sm:px-6">
-        <h1 className="font-display text-[clamp(24px,3.2vw,34px)] uppercase text-text">Settings</h1>
+      <main className="mx-auto max-w-[900px] px-4 py-10 sm:px-6">
+        <h1 className="font-display text-[clamp(28px,5.6vw,44px)] uppercase leading-[0.94] tracking-[-0.02em] text-display">
+          Settings
+        </h1>
 
-        <div className="mt-7 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(320px,1fr))]">
+        <div className="mt-7 flex flex-col gap-[clamp(14px,1.8vw,20px)]">
           <ProfileForm />
           <PasswordForm />
 
           {isStudent && data?.payment_status && (
             <Card>
               <p className="meta">Plan</p>
-              <p className="mt-2 font-display text-xl font-bold text-on-light">
+              <p className="mt-2 font-display text-xl font-bold text-ink-on-cream">
                 {data.payment_status === 'paid' ? 'Full access' : 'Free week'}
               </p>
-              <p className="mt-1.5 text-[13.5px] text-on-light-mute">
+              <p className="mt-1.5 text-[13.5px] text-ink-2-on-cream">
                 {data.payment_status === 'paid'
                   ? 'You have full access to all 12 weeks.'
                   : 'Week 1 is free. Contact us to unlock the rest of the program.'}
@@ -351,7 +352,7 @@ export default function SettingsPage() {
           {overall && (
             <Card>
               <p className="meta">Overall progress</p>
-              <p className="mt-2 font-display text-4xl font-bold text-on-light">{overallPercent}%</p>
+              <p className="mt-2 font-display text-4xl font-bold text-ink-on-cream">{overallPercent}%</p>
               <div className="mt-3">
                 <ProgressBar percent={overallPercent} />
               </div>

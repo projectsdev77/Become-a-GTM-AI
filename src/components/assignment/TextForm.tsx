@@ -39,11 +39,11 @@ export default function TextForm({
           style={{ minHeight: 240 }}
           error={tooLong}
         />
-        <span className="pointer-events-none absolute bottom-3 right-4 font-mono text-[11px] font-bold text-text-muted">
+        <span className="pointer-events-none absolute bottom-3 right-4 font-mono text-[11px] font-bold text-muted">
           {words} words
         </span>
       </div>
-      <p className={`font-mono text-[11px] uppercase tracking-wide ${tooShort || tooLong ? 'text-warn' : 'text-text-muted'}`}>
+      <p className={`font-mono text-[11px] uppercase tracking-wide ${tooShort || tooLong ? 'text-accent' : 'text-muted'}`}>
         min {config.min_words} · max {config.max_words}
       </p>
       <Button type="submit" variant="primary" disabled={disabled || tooShort || tooLong || words === 0} className="w-full">

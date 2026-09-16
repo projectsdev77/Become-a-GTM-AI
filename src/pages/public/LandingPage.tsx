@@ -1,22 +1,26 @@
 import PublicNav from '@/components/layout/PublicNav'
 import { LinkButton } from '@/components/ui/Button'
-import IllustrationSlot from '@/components/ui/IllustrationSlot'
+import Card from '@/components/ui/Card'
+import Illustration, { type IllustrationSlotId } from '@/components/ui/Illustration'
 
-const TRACKS = [
+const TRACKS: { name: string; blurb: string; active: boolean; slot: IllustrationSlotId }[] = [
   {
     name: 'Self-paced',
     blurb: 'For operators fitting it around a full GTM workload.',
     active: false,
+    slot: 'v4-t1',
   },
   {
     name: 'Cohort',
     blurb: 'Weekly deadlines, live reviews, a mentor on call.',
     active: true,
+    slot: 'v4-t2',
   },
   {
     name: 'Team',
     blurb: 'For a whole RevOps team levelling up together.',
     active: false,
+    slot: 'v4-t3',
   },
 ]
 
@@ -27,84 +31,101 @@ export default function LandingPage() {
 
       <main className="mx-auto max-w-[1160px] px-6">
         {/* hero */}
-        <section className="pb-2 pt-16">
-          <h1 className="max-w-[14ch] text-balance font-display text-[clamp(34px,6.2vw,72px)] uppercase leading-[0.98] tracking-[-0.01em] text-text">
-            <span className="text-primary">#</span>Become a GTM engineer
+        <section className="relative pb-2 pt-16">
+          <h1 className="max-w-[16ch] text-balance pr-[clamp(64px,10vw,116px)] font-display text-[clamp(34px,7vw,80px)] uppercase leading-[0.94] tracking-[-0.02em] text-display">
+            <span className="text-accent">#</span>Become a GTM engineer, not just a GTM hire
           </h1>
-          <p className="mt-7 max-w-[430px] text-[15px] leading-[1.65] text-text-muted">
-            A 12-week, self-paced program that turns RevOps and GTM practitioners into builders — real
-            assignments, AI feedback on submit, a mentor when you want one.
-          </p>
+          <span
+            aria-hidden="true"
+            className="absolute right-0 top-[clamp(2px,1.6vw,16px)] hidden h-[clamp(56px,7vw,84px)] w-[clamp(56px,7vw,84px)] items-center justify-center rounded-pill bg-accent text-[clamp(20px,2.6vw,28px)] text-on-accent sm:flex"
+          >
+            ↗
+          </span>
         </section>
 
         <section className="flex flex-wrap items-end justify-between gap-6 py-9 pb-14">
-          <div className="text-[13px] leading-[1.7] text-text-muted">
+          <div className="text-[13.5px] leading-[1.75] text-muted">
             With more than
             <br />
-            <strong className="font-bold text-text">2K+ members</strong>
+            <strong className="font-bold text-display">2K+ practitioners</strong>
             <br />
-            <strong className="font-bold text-text">500+ lessons</strong>
+            <strong className="font-bold text-display">500+ lessons</strong>
           </div>
-          <LinkButton to="/signup" variant="site" className="shrink-0">
+          <LinkButton to="/signup" variant="cta" className="shrink-0">
             Start week 1 free
           </LinkButton>
         </section>
 
         {/* three-up illustration gallery, centre frame deliberately taller */}
-        <section className="flex flex-wrap items-center justify-center gap-5 pb-[72px]">
-          <IllustrationSlot ratio="3/4" className="max-w-[300px] flex-1 basis-[240px]" />
-          <IllustrationSlot ratio="3/4.6" className="max-w-[300px] flex-1 basis-[240px]" />
-          <IllustrationSlot ratio="3/4" className="max-w-[300px] flex-1 basis-[240px]" />
+        <section className="flex flex-wrap items-center justify-center gap-5 pb-[66px]">
+          <Illustration
+            slot="v4-g1"
+            loading="eager"
+            className="flex-1 basis-[170px]"
+            style={{ maxWidth: 250, aspectRatio: '3/4', borderRadius: 16 }}
+          />
+          <Illustration
+            slot="v4-g2"
+            loading="eager"
+            className="flex-1 basis-[170px]"
+            style={{ maxWidth: 250, aspectRatio: '3/4.7', borderRadius: 16 }}
+          />
+          <Illustration
+            slot="v4-g3"
+            loading="eager"
+            className="flex-1 basis-[170px]"
+            style={{ maxWidth: 250, aspectRatio: '3/4', borderRadius: 16 }}
+          />
         </section>
 
         {/* outlined shell: the program */}
-        <section className="mb-6 rounded-shell border border-line p-9">
+        <section className="mb-6 rounded-shell border border-hairline p-9">
           <div className="mb-7 flex flex-wrap justify-between gap-7">
-            <h2 className="font-body text-[22px] font-bold text-text-bright">The program</h2>
-            <p className="max-w-[420px] text-[14.5px] leading-[1.55] text-text-muted">
-              Three tracks through the same 12 weeks — pick the pace that matches how much you can actually
-              ship each week.
+            <h2 className="whitespace-nowrap font-body text-[clamp(20px,2.4vw,26px)] font-bold text-heading">
+              Our tracks
+            </h2>
+            <p className="max-w-[420px] text-[14.5px] leading-[1.55] text-muted">
+              Three ways through the same twelve weeks — pick the one that matches how much you can actually ship
+              each week.
             </p>
           </div>
 
-          <div className="grid gap-[18px]" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px,1fr))' }}>
+          <div className="grid gap-[18px]" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px,1fr))' }}>
             {TRACKS.map((track) => (
-              <div key={track.name} className={`rounded-chip p-5 ${track.active ? 'bg-primary' : 'bg-card-light'}`}>
-                <div className="mb-3.5 flex items-start justify-between gap-3">
-                  <div className={`text-[17px] font-bold leading-[1.2] ${track.active ? 'text-white' : 'text-on-light'}`}>
-                    {track.name}
-                    <br />
-                    track
-                  </div>
-                  <span
-                    className={`flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full text-[15px] ${
-                      track.active ? 'bg-ground-ink text-white' : 'bg-primary text-white'
-                    }`}
-                  >
-                    ↗
-                  </span>
+              <Card key={track.name} active={track.active}>
+                <div className="mb-2 pr-10 text-[18px] font-bold leading-[1.18]">
+                  {track.name}
+                  <br />
+                  track
                 </div>
-                <p className={`mb-4 text-[12.5px] leading-[1.5] ${track.active ? 'text-primary-tint' : 'text-on-light-mute'}`}>
-                  {track.blurb}
-                </p>
-                <IllustrationSlot ratio="4/3" className="w-full" />
-              </div>
+                <p className="mb-4 text-[12.5px] leading-[1.5]">{track.blurb}</p>
+                <Illustration
+                  slot={track.slot}
+                  loading="lazy"
+                  className="w-full"
+                  style={{ aspectRatio: '4/3', borderRadius: 10 }}
+                />
+              </Card>
             ))}
           </div>
 
-          <div className="pb-2 pt-10 text-center">
-            <p className="font-display text-[clamp(20px,3.4vw,32px)] uppercase leading-[1.18] text-text">
-              Keep shipping until you <span className="text-primary">find your funnel</span>
+          <div className="pb-1.5 pt-[clamp(30px,4vw,46px)] text-center">
+            <p className="font-display text-[clamp(19px,3.4vw,36px)] uppercase leading-[1.1] text-display">
+              Keep shipping until you
+              <br />
+              <span className="text-accent">find your own funnel</span>
             </p>
-            <p className="mt-3.5 text-[13px] leading-[1.6] text-text-muted">
+            <p className="mt-4 text-[13px] leading-[1.6] text-muted">
               Every week ends with something running in production.
+              <br />
+              Not a certificate — a thing that works.
             </p>
           </div>
         </section>
 
-        <footer className="flex flex-wrap justify-between gap-3 px-2 pb-10 pt-1 font-mono text-[11px] text-text-muted">
-          <span>© {new Date().getFullYear()} GTM Engineer Bootcamp</span>
-          <span>Built for practitioners</span>
+        <footer className="flex flex-wrap justify-between gap-3 px-2 pb-10 pt-1 text-[11.5px] font-semibold text-muted">
+          <span>Copyright GTM Engineer Bootcamp</span>
+          <span>Built for practitioners {new Date().getFullYear()}</span>
         </footer>
       </main>
     </div>

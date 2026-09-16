@@ -39,9 +39,9 @@ export default function SubmissionResult({
       </div>
 
       {submission.content && (
-        <div className="mt-4 rounded-card border border-line-strong/30 bg-ground-deep p-4">
-          <p className="meta mb-1.5 text-on-light-meta">Submission</p>
-          <p className="whitespace-pre-wrap text-[14.5px] leading-relaxed text-text-body">{submission.content}</p>
+        <div className="mt-4 rounded-card border border-hairline bg-inset p-4">
+          <p className="meta mb-1.5">Submission</p>
+          <p className="whitespace-pre-wrap text-[14.5px] leading-relaxed text-body">{submission.content}</p>
         </div>
       )}
 
@@ -78,46 +78,46 @@ export default function SubmissionResult({
           icon={submission.final_status === 'passed' ? <CheckIcon className="h-3.5 w-3.5" /> : <MessageIcon className="h-3.5 w-3.5" />}
           className="mt-4"
         >
-          <div className="prose prose-invert prose-sm max-w-none prose-p:text-current prose-code:font-mono prose-code:rounded-[5px] prose-code:bg-[#3A362F] prose-code:px-1.5 prose-code:py-0.5 prose-code:text-text-bright prose-code:before:content-none prose-code:after:content-none">
+          <div className="prose prose-invert prose-sm max-w-none prose-p:text-current prose-code:font-mono prose-code:rounded-[5px] prose-code:bg-inset prose-code:px-1.5 prose-code:py-0.5 prose-code:text-heading prose-code:before:content-none prose-code:after:content-none">
             <ReactMarkdown>{submission.ai_feedback}</ReactMarkdown>
           </div>
         </Callout>
       )}
 
       {submission.human_feedback && (
-        <div className="mt-4 rounded-card border border-line p-4">
+        <div className="mt-4 rounded-card border border-hairline p-4">
           <p className="meta mb-1.5">Mentor feedback</p>
-          <p className="text-[14.5px] leading-relaxed text-text-body">{submission.human_feedback}</p>
+          <p className="text-[14.5px] leading-relaxed text-body">{submission.human_feedback}</p>
         </div>
       )}
 
       {submission.flagged_for_review_at && !submission.reviewed_at && (
-        <p className="mt-4 text-[13.5px] text-text-muted">
+        <p className="mt-4 text-[13.5px] text-muted">
           You asked for a second look on {new Date(submission.flagged_for_review_at).toLocaleDateString()}. A mentor
           will follow up here.
         </p>
       )}
 
       {submission.final_status === 'passed' && isLatest && (
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-card bg-pass-wash px-4 py-3">
-          <p className="font-mono text-[11px] uppercase tracking-wide text-pass-deep">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-card bg-accent px-4 py-3">
+          <p className="font-mono text-[11px] uppercase tracking-wide text-on-accent">
             Nice work — the next week is ready.
           </p>
           {continueHref && (
-            <LinkButton to={continueHref} variant="primary" size="sm" className="shrink-0">
+            <LinkButton to={continueHref} variant="secondary" size="sm" className="shrink-0 border-on-accent text-on-accent">
               Continue
             </LinkButton>
           )}
         </div>
       )}
       {submission.final_status === 'needs_work' && isLatest && (
-        <p className="mt-5 font-mono text-[11px] uppercase tracking-wide text-warn">
+        <p className="mt-5 font-mono text-[11px] uppercase tracking-wide text-accent">
           Give it another attempt when you're ready — retries don't cost you anything.
         </p>
       )}
 
       {canFlag && (
-        <div className="mt-5 border-t border-line-strong/30 pt-4">
+        <div className="mt-5 border-t border-hairline pt-4">
           {showFlagForm ? (
             <div className="space-y-2">
               <TextAreaField

@@ -4,7 +4,8 @@ import { supabase } from '@/lib/supabase'
 import PublicNav from '@/components/layout/PublicNav'
 import CertificateCard from '@/components/certificate/CertificateCard'
 import Callout from '@/components/ui/Callout'
-import { AnchorButton, Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/Button'
+import Illustration from '@/components/ui/Illustration'
 import { AlertIcon, CheckIcon } from '@/components/ui/icons'
 
 interface CertificateSnapshot {
@@ -59,16 +60,16 @@ export default function CertificatePage() {
     <div className="min-h-screen bg-ground">
       <PublicNav />
       <main className="mx-auto max-w-[820px] px-4 py-16 sm:px-6">
-        {loading && <p className="text-center font-mono text-xs font-bold uppercase tracking-wide text-text-muted">loading…</p>}
+        {loading && <p className="text-center font-mono text-xs font-bold uppercase tracking-wide text-muted">loading…</p>}
 
         {!loading && (
           <p className="mb-6 flex justify-center">
             {notFound ? (
-              <span className="pill pill-fail">
+              <span className="badge badge-alert">
                 <AlertIcon className="h-3 w-3" /> invalid code · {code}
               </span>
             ) : (
-              <span className="pill pill-pass">
+              <span className="badge badge-pass">
                 <CheckIcon className="h-3 w-3" /> verified certificate · code {code}
               </span>
             )}
@@ -87,15 +88,23 @@ export default function CertificatePage() {
               fields={snapshot}
               issuedAt={issuedAt ? new Date(issuedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : null}
               code={code}
+              illustration={
+                <Illustration
+                  slot="v4-cert"
+                  loading="eager"
+                  className="mb-[clamp(26px,3.6vw,40px)] w-full rounded-panel"
+                  style={{ aspectRatio: '3/1' }}
+                />
+              }
             />
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-              <Button type="button" variant="site" onClick={() => void handleShare()}>
+              <Button type="button" variant="cta" onClick={() => void handleShare()}>
                 Share
               </Button>
-              <AnchorButton href="#" variant="secondary" onClick={(e) => { e.preventDefault(); window.print() }}>
+              <Button type="button" variant="secondary" onClick={() => window.print()}>
                 Download PDF
-              </AnchorButton>
-              <p className="pl-2 font-mono text-[11px] text-text-muted">Plain-text rendering, no rich formatting</p>
+              </Button>
+              <p className="pl-2 font-mono text-[11px] text-muted">Plain-text rendering, no rich formatting</p>
             </div>
           </>
         )}

@@ -40,19 +40,19 @@ function ResourceRow({
               rel="noreferrer"
               onClick={(e) => e.stopPropagation()}
               className={`text-[13.5px] font-bold leading-[1.45] no-underline hover:underline ${
-                resource.checked ? 'text-text-muted line-through' : 'text-text-body'
+                resource.checked ? 'text-muted line-through' : 'text-body'
               }`}
             >
               {resource.title}
             </a>
             <span className="mt-1 flex flex-wrap items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-wide text-text-muted">
+              <span className="font-mono text-[10px] uppercase tracking-wide text-muted">
                 {RESOURCE_TYPE_LABEL[resource.resource_type] ?? resource.resource_type}
               </span>
               {resource.estimated_minutes && (
-                <span className="font-mono text-[10px] text-text-muted">· {resource.estimated_minutes} min</span>
+                <span className="font-mono text-[10px] text-muted">· {resource.estimated_minutes} min</span>
               )}
-              {!resource.is_required && <span className="font-mono text-[10px] uppercase text-text-muted">· optional</span>}
+              {!resource.is_required && <span className="font-mono text-[10px] uppercase text-muted">· optional</span>}
             </span>
           </span>
         }
@@ -90,18 +90,18 @@ export default function LessonPage() {
       )}
 
       <main className="mx-auto max-w-[1160px] px-6 py-9">
-        {error && <p className="text-sm font-bold text-fail-text">{error}</p>}
+        {error && <p className="text-sm font-bold text-danger-text">{error}</p>}
 
         {lesson && (
           <div className="flex flex-wrap gap-6">
-            <div className="min-w-0 flex-[2_1_460px] rounded-shell border border-line p-9">
+            <div className="min-w-0 flex-[2_1_460px] rounded-shell border border-hairline p-9">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.08em] text-text-muted">
+                  <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
                     Week {week?.position} · Lesson {lesson.position}
                     {lesson.estimated_minutes ? ` · ${lesson.estimated_minutes} min` : ''}
                   </p>
-                  <h1 className="font-display text-[clamp(24px,3vw,34px)] uppercase leading-[1.08] text-text">
+                  <h1 className="font-display text-[clamp(24px,3vw,34px)] uppercase leading-[1.08] text-display">
                     {lesson.title}
                   </h1>
                 </div>
@@ -109,28 +109,28 @@ export default function LessonPage() {
               </div>
 
               {lesson.body && (
-                <div className="prose prose-invert prose-sm mt-5 max-w-none prose-headings:font-body prose-headings:text-text-bright prose-p:text-text-body prose-p:leading-[1.75] prose-strong:text-text-bright prose-a:text-primary prose-li:text-text-body prose-code:font-mono prose-code:text-[color:var(--color-code-string)] prose-code:before:content-none prose-code:after:content-none prose-pre:rounded-field prose-pre:border prose-pre:border-line prose-pre:bg-ground-deep prose-pre:font-mono prose-pre:text-[12.5px] prose-pre:leading-[1.75] prose-pre:text-[color:var(--color-code-body)]">
+                <div className="prose prose-invert prose-sm mt-5 max-w-none prose-headings:font-body prose-headings:text-heading prose-p:text-body prose-p:leading-[1.75] prose-strong:text-heading prose-a:text-accent prose-li:text-body prose-code:font-mono prose-code:text-[color:var(--color-code-string)] prose-code:before:content-none prose-code:after:content-none prose-pre:rounded-input prose-pre:border prose-pre:border-hairline prose-pre:bg-inset prose-pre:font-mono prose-pre:text-[12.5px] prose-pre:leading-[1.75] prose-pre:text-code">
                   <ReactMarkdown>{lesson.body}</ReactMarkdown>
                 </div>
               )}
 
-              <p className="mt-6 text-[15px] leading-[1.75] text-text-body">
+              <p className="mt-6 text-[15px] leading-[1.75] text-body">
                 Mark each resource in the sidebar as you work through it, then start the assignment.
               </p>
 
               {resources.length > 0 && (
-                <div className="mt-8 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <div className="mt-8 flex flex-col gap-4 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-text-muted">
+                    <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
                       {completedAt ? 'Next up' : `${doneCount}/${requiredResources.length} required checked`}
                     </p>
-                    <p className="mt-1 font-bold text-text-bright">
+                    <p className="mt-1 font-bold text-heading">
                       {completedAt ? (nextLesson?.title ?? 'Nice work') : 'Check off the required resources to continue'}
                     </p>
                   </div>
                   <Button
                     type="button"
-                    variant="primary"
+                    variant="cta"
                     disabled={!completedAt}
                     onClick={() => {
                       if (nextLesson) {
@@ -148,8 +148,8 @@ export default function LessonPage() {
             </div>
 
             <aside className="min-w-[240px] flex-[1_1_250px]">
-              <div className="sticky top-5 rounded-panel border border-line p-6">
-                <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.08em] text-text-muted">Resources</p>
+              <div className="sticky top-5 rounded-panel border border-hairline p-6">
+                <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">Resources</p>
 
                 {resources.length > 0 ? (
                   <ul className="flex flex-col gap-3.5">
@@ -163,7 +163,7 @@ export default function LessonPage() {
                   </ul>
                 ) : (
                   <div className="text-center">
-                    <p className="text-[13.5px] text-text-muted">No external resources for this lesson.</p>
+                    <p className="text-[13.5px] text-muted">No external resources for this lesson.</p>
                     {!completedAt && (
                       <Button type="button" variant="secondary" size="sm" onClick={() => void markCompleteManually()} className="mt-3 w-full">
                         Mark as complete
@@ -173,7 +173,7 @@ export default function LessonPage() {
                 )}
 
                 {firstAssignment && (
-                  <LinkButton to={`/weeks/${weekId}/assignments/${firstAssignment.id}`} variant="primary" className="mt-6 w-full">
+                  <LinkButton to={`/weeks/${weekId}/assignments/${firstAssignment.id}`} variant="cta" className="mt-6 w-full">
                     Start assignment
                   </LinkButton>
                 )}

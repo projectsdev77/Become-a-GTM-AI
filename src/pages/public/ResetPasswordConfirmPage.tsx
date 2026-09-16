@@ -51,22 +51,22 @@ export default function ResetPasswordConfirmPage() {
     <div className="min-h-screen bg-ground">
       <PublicNav />
       <main className="flex items-center justify-center px-4 py-16">
-        <div className="w-full max-w-[460px] rounded-shell border border-line p-10">
+        <div className="w-full max-w-[480px] rounded-shell border border-hairline p-10">
           {done ? (
             <>
               <Callout tone="pass" heading="Password updated">
                 You can now log in with your new password.
               </Callout>
-              <Button variant="primary" onClick={() => navigate('/dashboard')} className="mt-6 w-full">
+              <Button variant="cta" onClick={() => navigate('/dashboard')} className="mt-6 w-full">
                 Go to dashboard
               </Button>
             </>
           ) : (
             <>
-              <h1 className="font-display text-[28px] uppercase leading-[1.1] tracking-[-0.02em] text-text">
+              <h1 className="font-display text-[clamp(26px,4.4vw,32px)] uppercase leading-[0.96] tracking-[-0.02em] text-display">
                 Choose a new password
               </h1>
-              <p className="mt-2.5 text-sm leading-relaxed text-text-muted">
+              <p className="mt-2.5 text-sm leading-relaxed text-muted">
                 You&apos;re resetting your account password.
               </p>
 
@@ -104,7 +104,7 @@ export default function ResetPasswordConfirmPage() {
                     {error}
                   </Callout>
                 )}
-                <Button type="submit" variant="primary" disabled={submitting} className="w-full">
+                <Button type="submit" variant="cta" disabled={submitting} className="w-full">
                   {submitting ? 'Saving…' : 'Save new password'}
                 </Button>
               </form>
