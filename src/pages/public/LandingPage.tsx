@@ -3,22 +3,22 @@ import { LinkButton } from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import Illustration, { type IllustrationSlotId } from '@/components/ui/Illustration'
 
-const TRACKS: { name: string; blurb: string; active: boolean; slot: IllustrationSlotId }[] = [
+const HOW_IT_WORKS: { name: string; blurb: string; active: boolean; slot: IllustrationSlotId }[] = [
   {
-    name: 'Self-paced',
-    blurb: 'For operators fitting it around a full GTM workload.',
+    name: 'Learn on your own time',
+    blurb: 'Twelve weeks that build on each other — finish week one to unlock week two. No cohort schedule, no deadlines.',
     active: false,
     slot: 'v4-t1',
   },
   {
-    name: 'Cohort',
-    blurb: 'Weekly deadlines, live reviews, a mentor on call.',
+    name: 'Ship, then get real feedback',
+    blurb: 'Every assignment is graded the moment you submit — a pass, a needs-work, with specifics either way.',
     active: true,
     slot: 'v4-t2',
   },
   {
-    name: 'Team',
-    blurb: 'For a whole RevOps team levelling up together.',
+    name: 'Never stuck alone',
+    blurb: "If the feedback isn't enough, escalate to a real mentor who reviews your submission.",
     active: false,
     slot: 'v4-t3',
   },
@@ -45,19 +45,31 @@ export default function LandingPage() {
 
         <section className="flex flex-wrap items-end justify-between gap-6 py-9 pb-14">
           <div className="text-[13.5px] leading-[1.75] text-muted">
-            With more than
+            One self-paced track.
             <br />
-            <strong className="font-bold text-display">2K+ practitioners</strong>
+            <strong className="font-bold text-display">12 weeks, AI-graded</strong>
             <br />
-            <strong className="font-bold text-display">500+ lessons</strong>
+            <strong className="font-bold text-display">Real mentors when you're stuck</strong>
           </div>
           <LinkButton to="/signup" variant="cta" className="shrink-0">
             Start week 1 free
           </LinkButton>
         </section>
 
+        {/* claim strip — every one of these is a real, checkable product fact, not marketing filler */}
+        <section className="flex flex-wrap items-center gap-x-8 gap-y-2 border-y border-hairline py-4">
+          {['No start dates', 'No deadlines', 'No late penalties', 'Feedback on every submission'].map((claim, i) => (
+            <span
+              key={claim}
+              className={`font-mono text-[11px] font-bold uppercase tracking-[0.1em] ${i === 0 ? 'text-accent' : 'text-muted'}`}
+            >
+              {claim}
+            </span>
+          ))}
+        </section>
+
         {/* three-up illustration gallery, centre frame deliberately taller */}
-        <section className="flex flex-wrap items-center justify-center gap-5 pb-[66px]">
+        <section className="flex flex-wrap items-center justify-center gap-5 pb-[66px] pt-[46px]">
           <Illustration
             slot="v4-g1"
             loading="eager"
@@ -82,25 +94,21 @@ export default function LandingPage() {
         <section className="mb-6 rounded-shell border border-hairline p-9">
           <div className="mb-7 flex flex-wrap justify-between gap-7">
             <h2 className="whitespace-nowrap font-body text-[clamp(20px,2.4vw,26px)] font-bold text-heading">
-              Our tracks
+              How it works
             </h2>
             <p className="max-w-[420px] text-[14.5px] leading-[1.55] text-muted">
-              Three ways through the same twelve weeks — pick the one that matches how much you can actually ship
-              each week.
+              The same loop every week: learn, ship an assignment, get feedback — from the grader first, from a
+              mentor if you need it.
             </p>
           </div>
 
           <div className="grid gap-[18px]" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px,1fr))' }}>
-            {TRACKS.map((track) => (
-              <Card key={track.name} active={track.active}>
-                <div className="mb-2 pr-10 text-[18px] font-bold leading-[1.18]">
-                  {track.name}
-                  <br />
-                  track
-                </div>
-                <p className="mb-4 text-[12.5px] leading-[1.5]">{track.blurb}</p>
+            {HOW_IT_WORKS.map((step) => (
+              <Card key={step.name} active={step.active}>
+                <div className="mb-2 pr-10 text-[18px] font-bold leading-[1.18]">{step.name}</div>
+                <p className="mb-4 text-[12.5px] leading-[1.5]">{step.blurb}</p>
                 <Illustration
-                  slot={track.slot}
+                  slot={step.slot}
                   loading="lazy"
                   className="w-full"
                   style={{ aspectRatio: '4/3', borderRadius: 10 }}

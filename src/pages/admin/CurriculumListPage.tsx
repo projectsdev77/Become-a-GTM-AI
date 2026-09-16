@@ -82,8 +82,10 @@ export default function CurriculumListPage() {
               <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_280px]">
                 <div>
                   <div className="flex flex-col gap-[clamp(12px,1.6vw,18px)]">
-                    {weeks.map((week, i) => (
-                      <ListRow key={week.id} state={week.status === 'published' ? 'active' : 'default'}>
+                    {weeks.map((week, i) => {
+                      const published = week.status === 'published'
+                      return (
+                      <ListRow key={week.id} state={published ? 'active' : 'default'}>
                         <div className="min-w-0 flex-1 basis-[240px]">
                           <div className="mb-1.5 flex flex-wrap items-center gap-2.5">
                             <RowMeta className="mt-0">Week {String(week.position).padStart(2, '0')}</RowMeta>
@@ -104,13 +106,14 @@ export default function CurriculumListPage() {
                             onClick={() => {
                               if (confirm(`Delete "${week.title}" and everything in it?`)) void remove(week.id)
                             }}
-                            className="font-mono text-[11.5px] font-bold uppercase text-danger-text hover:underline"
+                            className={`font-mono text-[11.5px] font-bold uppercase hover:underline ${published ? 'text-danger-border' : 'text-danger-text'}`}
                           >
                             del
                           </button>
                         </div>
                       </ListRow>
-                    ))}
+                      )
+                    })}
                   </div>
 
                   <form
