@@ -47,7 +47,7 @@ export default function LandingPage() {
           <div className="text-[13.5px] leading-[1.75] text-muted">
             One self-paced track.
             <br />
-            <strong className="font-bold text-display">12 weeks, AI-graded</strong>
+            <strong className="font-bold text-display">12 weeks, instant feedback</strong>
             <br />
             <strong className="font-bold text-display">Real mentors when you're stuck</strong>
           </div>
