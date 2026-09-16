@@ -1,20 +1,22 @@
 import { Link } from 'react-router-dom'
 import type { ReactNode, ButtonHTMLAttributes, AnchorHTMLAttributes, ComponentProps } from 'react'
 
-export type ButtonVariant = 'primary' | 'site' | 'secondary' | 'ghost'
+export type ButtonVariant = 'primary' | 'cta' | 'secondary' | 'ghost'
 export type ButtonSize = 'md' | 'sm'
 
-// primary/site carry the signature circular arrow badge; secondary/ghost don't.
-const BADGED: ButtonVariant[] = ['primary', 'site']
+// cta carries the signature circular arrow badge — reserved for "leads
+// somewhere" navigation, at most twice per screen. Every other action
+// (Save, Submit, Send, Update, Create, Cancel) is badge-free.
+const BADGED: ButtonVariant[] = ['cta']
 
 function buttonClasses(variant: ButtonVariant, size: ButtonSize, danger: boolean, className: string) {
   const variantCls: Record<ButtonVariant, string> = {
     primary: 'btn-primary',
-    site: 'btn-site',
+    cta: 'btn-cta',
     secondary: `btn-secondary${danger ? ' danger' : ''}`,
     ghost: 'btn-ghost',
   }
-  const sizeCls = size === 'sm' && BADGED.includes(variant) ? 'min-h-[40px]' : size === 'sm' ? 'min-h-[38px] px-4 py-[9px] text-[13px]' : ''
+  const sizeCls = size === 'sm' && BADGED.includes(variant) ? 'min-h-[40px]' : size === 'sm' ? 'min-h-[38px] px-4 py-[9px] text-[12.5px]' : ''
   return `btn ${variantCls[variant]} ${sizeCls} ${className}`
 }
 
@@ -31,9 +33,9 @@ function content(variant: ButtonVariant, glyph: string, children: ReactNode) {
 interface OwnProps {
   variant?: ButtonVariant
   size?: ButtonSize
-  /** Outlined-red treatment for a `secondary` button (e.g. "Delete account"). */
+  /** Outlined destructive treatment for a `secondary` button (e.g. "Remove student"). */
   danger?: boolean
-  /** Badge glyph for primary/site variants. Defaults to the app's signature ↗. */
+  /** Badge glyph for the `cta` variant. Defaults to the app's signature ↗. */
   glyph?: string
   className?: string
   children: ReactNode

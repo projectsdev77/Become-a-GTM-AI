@@ -102,18 +102,18 @@ export function GoogleIcon({ size = 18 }: { size?: number }) {
   )
 }
 
-/** The wordmark monogram: "G" on a card-pressed chip. Minimum 28px. Never recolour. */
+/** The wordmark monogram: "G" on an amber chip. Minimum 28px. Never recolour. Placeholder — a real mark is outstanding. */
 export function Monogram({ size = 28, className = '' }: { size?: number; className?: string }) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center rounded-logo font-display font-bold ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-chip font-display font-bold ${className}`}
       style={{
         width: size,
         height: size,
         fontSize: size * 0.42,
         lineHeight: 1,
-        background: 'var(--color-card-pressed)',
-        color: 'var(--color-on-light)',
+        background: 'var(--color-accent)',
+        color: 'var(--color-on-accent)',
       }}
     >
       G

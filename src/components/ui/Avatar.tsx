@@ -19,8 +19,8 @@ export default function Avatar({
         width: size,
         height: size,
         fontSize: size * 0.4,
-        background: 'var(--color-card-light)',
-        color: 'var(--color-on-light)',
+        background: 'var(--color-cream)',
+        color: 'var(--color-ink-on-cream)',
       }}
     >
       {initial(name)}

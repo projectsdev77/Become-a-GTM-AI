@@ -11,7 +11,7 @@ const TABS = [
 
 export default function AdminNav() {
   return (
-    <div className="border-b border-line bg-ground-deep">
+    <div className="border-b border-hairline bg-shell">
       <nav className="mx-auto flex max-w-[1160px] gap-1 overflow-x-auto px-6">
         {TABS.map((tab) => (
           <NavLink
@@ -21,8 +21,8 @@ export default function AdminNav() {
             className={({ isActive }) =>
               `whitespace-nowrap border-b-2 px-4 py-3 font-body text-[13px] no-underline ${
                 isActive
-                  ? 'border-primary font-semibold text-text'
-                  : 'border-transparent font-medium text-text-muted hover:text-text'
+                  ? 'border-accent font-semibold text-display'
+                  : 'border-transparent font-medium text-muted hover:text-display'
               }`
             }
           >

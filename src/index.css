@@ -1,12 +1,12 @@
 /* ============================================================
-   GTM Engineer Bootcamp — design tokens, rev 1.0 (full rebrand)
+   GTM Engineer Bootcamp — design tokens, rev 2.0 (v4 redesign)
    Tailwind v4. Nothing in the codebase should reference a color that is
    not defined here.
 
-   The core visual rule: big containers are hairline outlines on the
-   ground (no fill). Small containers inside them are filled — light
-   (done/listed), orange (active, max one per view), or an outline
-   (locked/upcoming). Never stack a filled card inside a filled panel.
+   One accent, five dark grounds, one cream panel family. Cream rows
+   inside dark shells mark the active/complete/attention-needing item;
+   dark outlined rows are the default state. The amber arrow badge is a
+   motif reserved for "leads somewhere" CTAs — at most twice per screen.
    No shadows anywhere — hierarchy comes from borders and fills only.
    ============================================================ */
 @import "tailwindcss";
@@ -18,53 +18,45 @@
 @import "@fontsource/poppins/500.css";
 @import "@fontsource/poppins/600.css";
 @import "@fontsource/poppins/700.css";
-@import "@fontsource/poppins/800.css";
 @import "@fontsource/jetbrains-mono/400.css";
 @import "@fontsource/jetbrains-mono/500.css";
-@import "@fontsource/jetbrains-mono/700.css";
 
 @theme {
-  /* ---- Ground & surfaces (warm charcoal, low-glare) ---- */
-  --color-ground:        #34312C;
-  --color-ground-deep:   #2A2724;
-  --color-ground-ink:    #221F1B;
+  /* ---- Dark ground ---- */
+  --color-ground:           #0A0908;
+  --color-shell:            #14120F;
+  --color-inset:            #1D1A16;
+  --color-hairline:         #2E2A24;
+  --color-border-secondary: #443E35;
 
-  /* ---- Lines ---- */
-  --color-line:          #4D4841;
-  --color-line-strong:   #6F6A61;
-
-  /* ---- Type ---- */
-  --color-text:          #CFCBC4;
-  --color-text-bright:   #E8E4DC;
-  --color-text-body:     #BFBAB0;
-  --color-text-muted:    #A8A59E;
+  /* ---- Ink on dark ---- */
+  --color-display:  #F0EBE2;
+  --color-heading:  #F7F3EB;
+  --color-body:     #B5AEA1;
+  --color-muted:    #918A7D;
+  --color-code:     #C4BDB0;
 
   /* ---- Accent ---- */
-  --color-primary:       #EE4823;
-  --color-primary-hover: #FF6A45;
-  --color-primary-soft:  #FFD9CC;
-  --color-primary-tint:  #FFE3D9;
+  --color-accent:          #F0B23C;
+  --color-accent-hover:    #FFC55E;
+  --color-on-accent:       #241B06;
+  --color-accent-dim:      #6B5320;
+  --color-body-on-accent:  #5A4412;
 
-  /* ---- Light cards (the contrast carriers) ---- */
-  --color-card-light:    #D9D5CD;
-  --color-card-pressed:  #CFCBC4;
-  --color-on-light:      #221F1B;
-  --color-on-light-mute: #5B584F;
-  --color-on-light-meta: #6E6A61;
+  /* ---- Cream panel ---- */
+  --color-cream:            #EFEAE1;
+  --color-ink-on-cream:     #1A1713;
+  --color-ink-2-on-cream:   #5E574C;
+  --color-label-on-cream:   #6E665A;
+  --color-accent-on-cream:  #7A5712;
+  --color-cream-rule:       rgba(34,23,19,.18);
 
   /* ---- Status ---- */
-  --color-pass:          #3E9A64;
-  --color-pass-deep:     #2E7D4F;
-  --color-pass-border:   #3F6B4F;
-  --color-pass-wash:     rgba(46,125,79,.12);
-  --color-warn:          #F2B33D;
-  --color-warn-border:   #B98A3C;
-  --color-warn-text:     #E2C288;
-  --color-fail:          #C4553C;
-  --color-fail-border:   #B4543C;
-  --color-fail-text:     #E1A292;
+  --color-pass:          #2F7D52;
+  --color-alert:         #B4543C;
+  --color-danger-border: #8C4A3A;
+  --color-danger-text:   #E0A796;
   --color-code-string:   #7FC79B;
-  --color-code-body:     #C6C1B7;
 
   /* ---- Type families (self-hosted via @fontsource) ---- */
   --font-display: 'Archivo Black', sans-serif;
@@ -72,13 +64,13 @@
   --font-mono:    'JetBrains Mono', monospace;
 
   /* ---- Radius ---- */
-  --radius-field:  14px;
-  --radius-card:   16px;
-  --radius-chip:   18px;
-  --radius-panel:  24px;
-  --radius-shell:  32px;
-  --radius-pill:   999px;
-  --radius-logo:   8px;
+  --radius-shell: 28px;
+  --radius-card:  24px;
+  --radius-panel: 20px;
+  --radius-row:   16px;
+  --radius-input: 14px;
+  --radius-chip:  9px;
+  --radius-pill:  999px;
 
   /* ---- Elevation: NONE. Do not add box-shadow anywhere. ---- */
 }
@@ -88,19 +80,19 @@
 
   body {
     background: var(--color-ground);
-    color: var(--color-text-body);
+    color: var(--color-body);
     font-family: var(--font-body);
-    font-size: 15px;
+    font-size: 15.5px;
     line-height: 1.6;
   }
 
-  a { color: var(--color-primary); text-decoration: none; }
-  a:hover { color: var(--color-primary-hover); }
+  a { color: var(--color-accent); text-decoration: none; }
+  a:hover { color: var(--color-accent-hover); }
 
-  ::selection { background: var(--color-primary); color: #fff; }
+  ::selection { background: var(--color-accent); color: var(--color-on-accent); }
 
   :focus-visible {
-    outline: 3px solid var(--color-primary);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
   }
 
@@ -116,134 +108,147 @@
      badge flex-shrink:0 — labels never wrap, badges never crush. */
 
   .btn {
-    display: inline-flex; align-items: center; justify-content: space-between; gap: 8px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 14px;
     flex: none; white-space: nowrap;
     min-height: 44px;
     border-radius: var(--radius-pill);
-    font-family: var(--font-body); font-weight: 700; font-size: 14px;
+    font-family: var(--font-body); font-weight: 700; font-size: 13.5px;
     text-decoration: none; cursor: pointer;
     transition: background-color 150ms ease-out, border-color 150ms ease-out, filter 150ms ease-out;
   }
   .btn-badge {
     display: flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; border-radius: var(--radius-pill);
-    font-size: 12px; flex-shrink: 0;
+    width: 32px; height: 32px; border-radius: var(--radius-pill);
+    font-size: 14px; flex-shrink: 0;
+    background: var(--color-shell); color: var(--color-accent);
   }
 
-  /* in-app + marketing primary: orange pill, dark circular arrow badge */
+  /* plain amber action button — Save, Submit, Send, Update, Create */
   .btn-primary {
-    background: var(--color-primary); color: #fff;
-    padding: 9px 9px 9px 22px; min-height: 48px;
+    background: var(--color-accent); color: var(--color-on-accent);
+    padding: 12px 24px; gap: 0;
   }
-  .btn-primary:hover { background: var(--color-primary-hover); }
-  .btn-primary .btn-badge { width: 30px; height: 30px; background: var(--color-ground-ink); color: #fff; }
+  .btn-primary:hover { background: var(--color-accent-hover); }
 
-  /* light / inverse primary — hero CTA, Continue, Share */
-  .btn-site {
-    background: var(--color-card-pressed); color: var(--color-on-light);
-    padding: 7px 7px 7px 20px;
+  /* amber CTA with dark arrow badge — reserved for "leads somewhere"
+     navigation, at most twice per screen (hero + one primary in-page CTA) */
+  .btn-cta {
+    background: var(--color-accent); color: var(--color-on-accent);
+    padding: 6px 6px 6px 20px;
   }
-  .btn-site:hover { filter: brightness(0.96); }
-  .btn-site .btn-badge { background: var(--color-ground-ink); color: var(--color-card-pressed); }
+  .btn-cta:hover { background: var(--color-accent-hover); }
 
   /* outlined secondary */
   .btn-secondary {
-    background: transparent; color: var(--color-text);
-    border: 1px solid var(--color-line-strong);
-    padding: 10px 20px; justify-content: center;
+    background: transparent; color: var(--color-display);
+    border: 1px solid var(--color-border-secondary);
+    padding: 11px 20px; font-weight: 600; gap: 0;
   }
-  .btn-secondary:hover { border-color: var(--color-text-muted); }
-  .btn-secondary.danger { border-color: var(--color-fail-border); color: var(--color-fail-text); }
+  .btn-secondary:hover { border-color: var(--color-muted); }
+  .btn-secondary.danger { border-color: var(--color-danger-border); color: var(--color-danger-text); }
 
   /* text-only ghost — nav items, tertiary actions */
   .btn-ghost {
-    background: transparent; color: var(--color-text-muted);
-    font-weight: 600; padding: 0; min-height: 0; justify-content: flex-start;
+    background: transparent; color: var(--color-muted);
+    font-weight: 600; padding: 0; min-height: 0; gap: 0;
   }
-  .btn-ghost:hover { color: var(--color-text); }
+  .btn-ghost:hover { color: var(--color-display); }
 
   .btn:disabled, .btn[aria-disabled="true"] {
     opacity: 0.45; pointer-events: none;
   }
 
-  .pill {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 5px 12px; border-radius: var(--radius-pill);
-    font-family: var(--font-body); font-size: 11px; font-weight: 700;
-    white-space: nowrap;
+  /* list row — the dominant primitive. active(cream)/default(outlined)/
+     pending(amber border), content left, status right, wraps. */
+  .row {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 16px; flex-wrap: wrap;
+    border-radius: var(--radius-row);
+    padding: 18px clamp(20px, 2.4vw, 26px);
   }
-  .pill-pass     { background: var(--color-pass-deep); color: #fff; }
-  .pill-warn     { background: var(--color-warn); color: var(--color-on-light); }
-  .pill-fail     { background: var(--color-fail); color: #fff; }
-  .pill-active   { background: #fff; color: var(--color-on-light); }
-  .pill-locked   { background: transparent; color: var(--color-text-muted); font-family: var(--font-mono); font-size: 10.5px; padding: 3px 0; }
-  .pill-pending  { background: transparent; border: 1px solid var(--color-line-strong); color: var(--color-text-muted); }
+  .row-active {
+    background: var(--color-cream); color: var(--color-ink-on-cream);
+  }
+  .row-active .row-meta { color: var(--color-ink-2-on-cream); }
+  .row-default {
+    background: transparent; border: 1px solid var(--color-hairline);
+    color: var(--color-display);
+  }
+  .row-default .row-meta { color: var(--color-muted); }
+  .row-pending {
+    background: transparent; border: 1px solid var(--color-accent-dim);
+    color: var(--color-display);
+  }
+  .row-pending .row-meta { color: var(--color-muted); }
+  .row-title { font-size: 16px; font-weight: 700; }
+  .row-meta { font-size: 13.5px; font-weight: 600; margin-top: 3px; }
 
-  /* on a light card, tint the outlined variants down for contrast */
-  .pill-warn-outline { background: transparent; border: 1px solid var(--color-warn-border); color: var(--color-warn-text); }
-  .pill-fail-outline { background: transparent; border: 1px solid var(--color-fail-border); color: var(--color-fail-text); }
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 14px; border-radius: var(--radius-pill);
+    font-family: var(--font-body); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.06em; white-space: nowrap;
+  }
+  .badge-alert    { background: var(--color-alert); color: #fff; }
+  .badge-pending  { background: transparent; border: 1px solid var(--color-accent-dim); color: var(--color-accent); }
+  .badge-pass     { background: var(--color-pass); color: #fff; }
+  .badge-neutral  { background: transparent; color: var(--color-muted); padding: 0; letter-spacing: normal; }
+  .badge-neutral-on-cream { background: transparent; color: var(--color-ink-2-on-cream); padding: 0; letter-spacing: normal; }
 
   .card {
-    background: var(--color-card-light);
+    background: var(--color-cream);
     border-radius: var(--radius-card);
-    padding: 15px 18px;
-    color: var(--color-on-light);
+    padding: clamp(22px, 3vw, 36px);
+    color: var(--color-ink-on-cream);
   }
   .card-active {
-    background: var(--color-primary);
-    color: #fff;
+    background: var(--color-accent);
+    color: var(--color-on-accent);
   }
-  .card-active .meta { color: var(--color-primary-soft); }
-  .card-active p:not(.meta) { color: var(--color-primary-tint); }
-  .card-locked {
-    background: transparent; border: 1px solid var(--color-line);
-    color: var(--color-text-body);
+  .card-active .meta { color: var(--color-body-on-accent); }
+  .card-outlined {
+    background: transparent; border: 1px solid var(--color-hairline);
+    color: var(--color-body);
   }
 
   .field {
-    width: 100%; padding: 13px 16px; font-size: 16px;
-    background: var(--color-ground-deep); color: var(--color-text-bright);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-field);
+    width: 100%; padding: 14px 16px; font-size: 16px;
+    background: var(--color-inset); color: var(--color-display);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-input);
     outline: none;
     transition: border-color 150ms ease-out;
   }
-  .field::placeholder { color: var(--color-text-muted); }
-  .field:focus { border-color: var(--color-primary); }
-  .field-error { border-color: var(--color-fail-border); }
+  .field::placeholder { color: var(--color-muted); }
+  .field:focus { border-color: var(--color-accent); }
+  .field-error { border-color: var(--color-danger-border); }
 
   .label {
-    font-family: var(--font-mono); font-size: 10.5px; font-weight: 500;
-    letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-muted);
+    font-family: var(--font-body); font-size: 11.5px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-muted);
   }
   .meta {
-    font-family: var(--font-mono); font-size: 10.5px; font-weight: 500;
-    letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-muted);
+    font-family: var(--font-mono); font-size: 12.5px; font-weight: 500;
+    letter-spacing: 0.04em; color: var(--color-muted);
   }
 
   .callout {
     border-radius: var(--radius-panel);
-    padding: 18px 20px;
+    padding: clamp(20px, 2.6vw, 30px);
+    border: 1px solid var(--color-hairline);
+    background: transparent; color: var(--color-body);
   }
-  .callout-info {
-    border: 1px solid rgba(238,72,35,.5); background: transparent; color: var(--color-text-body);
-  }
-  .callout-pass {
-    border: 1px solid var(--color-pass-border); background: var(--color-pass-wash); color: var(--color-text-body);
-    border-radius: 20px; padding: 22px 24px;
-  }
-  .callout-warn {
-    border: 1px solid var(--color-warn-border); background: rgba(242,179,61,.1); color: var(--color-text-body);
-  }
-  .callout-fail {
-    border: 1px solid var(--color-fail-border); background: rgba(196,85,60,.12); color: var(--color-text-body);
-  }
+  .callout-info { border-color: var(--color-border-secondary); }
+  .callout-pass { border-color: var(--color-pass); }
+  .callout-warn,
+  .callout-pending { border-color: var(--color-accent-dim); }
+  .callout-fail { border-color: var(--color-danger-border); }
 
-  .progress-track { height: 6px; border-radius: var(--radius-pill); background: var(--color-line); overflow: hidden; }
-  .progress-fill   { height: 100%; border-radius: var(--radius-pill); background: var(--color-primary); transition: width 200ms ease-out; }
+  .progress-track { height: 7px; border-radius: var(--radius-pill); background: var(--color-hairline); overflow: hidden; }
+  .progress-fill   { height: 100%; border-radius: var(--radius-pill); background: var(--color-accent); transition: width 200ms ease-out; }
 
   /* illustration frame */
-  .ill-frame { border-radius: var(--radius-card); overflow: hidden; background: var(--color-ground-deep); }
+  .ill-frame { overflow: hidden; background: var(--color-inset); display: block; }
   .ill-frame > img { display: block; width: 100%; height: 100%; object-fit: cover; }
 }
 

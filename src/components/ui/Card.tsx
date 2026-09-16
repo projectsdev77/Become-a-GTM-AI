@@ -13,7 +13,7 @@ export default function Card({
   children: ReactNode
 } & HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`card ${locked ? 'card-locked' : ''} ${active ? 'card-active' : ''} ${className}`} {...rest}>
+    <div className={`card ${locked ? 'card-outlined' : ''} ${active ? 'card-active' : ''} ${className}`} {...rest}>
       {children}
     </div>
   )

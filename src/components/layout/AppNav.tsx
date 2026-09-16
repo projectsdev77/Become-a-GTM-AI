@@ -7,7 +7,7 @@ import Avatar from '@/components/ui/Avatar'
 function UnreadBadge({ count }: { count: number }) {
   if (count === 0) return null
   return (
-    <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 font-mono text-[10px] font-bold leading-none text-white">
+    <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-alert px-1 font-mono text-[10px] font-bold leading-none text-white">
       {count > 9 ? '9+' : count}
     </span>
   )
@@ -15,7 +15,7 @@ function UnreadBadge({ count }: { count: number }) {
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return `flex items-center gap-1.5 font-body text-[13px] no-underline ${
-    isActive ? 'font-semibold text-text' : 'font-medium text-text-muted hover:text-text'
+    isActive ? 'font-semibold text-display' : 'font-medium text-muted hover:text-display'
   }`
 }
 
@@ -36,19 +36,15 @@ export default function AppNav() {
   }
 
   return (
-    <header className="border-b border-line">
+    <header className="border-b border-hairline">
       <nav className="mx-auto flex max-w-[1160px] items-center justify-between gap-4 px-6 py-3.5">
         <Link to="/dashboard" className="flex items-center gap-[9px] no-underline">
           <Monogram size={28} />
-          <span className="hidden font-display text-[12px] uppercase leading-none tracking-[0.02em] text-text sm:inline">
+          <span className="hidden font-display text-[12px] uppercase leading-none tracking-[-0.02em] text-display sm:inline">
             GTM Engineer Bootcamp
           </span>
-          {profile?.role === 'mentor' && (
-            <span className="pill pill-pending">Mentor</span>
-          )}
-          {profile?.role === 'admin' && (
-            <span className="pill pill-pending">Admin</span>
-          )}
+          {profile?.role === 'mentor' && <span className="badge badge-pending">Mentor</span>}
+          {profile?.role === 'admin' && <span className="badge badge-pending">Admin</span>}
         </Link>
         <div className="flex items-center gap-6">
           {profile?.role === 'student' && (

@@ -2,7 +2,7 @@ import type { InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes,
 
 export function Label({ children, className = '', ...rest }: LabelHTMLAttributes<HTMLLabelElement> & { children: ReactNode }) {
   return (
-    <label className={`label mb-1.5 block text-text-bright ${className}`} {...rest}>
+    <label className={`label mb-2 block ${className}`} {...rest}>
       {children}
     </label>
   )
@@ -29,9 +29,9 @@ export function SelectField({ error, className = '', children, ...rest }: Select
 }
 
 export function FieldError({ children }: { children: ReactNode }) {
-  return <p className="mt-1.5 font-mono text-[11px] font-bold uppercase tracking-wide text-fail-text">{children}</p>
+  return <p className="mt-1.5 text-[12.5px] font-semibold text-danger-text">{children}</p>
 }
 
 export function FieldHint({ children }: { children: ReactNode }) {
-  return <p className="mt-1.5 text-[13px] text-text-muted">{children}</p>
+  return <p className="mt-1.5 text-[13px] text-muted">{children}</p>
 }
