@@ -28,7 +28,7 @@ export default function QuizForm({
       <Card className="flex items-center gap-4">
         <span className="meta shrink-0">Answered</span>
         <ProgressBar percent={questions.length ? (answeredCount / questions.length) * 100 : 0} />
-        <span className="shrink-0 font-mono text-sm font-bold text-on-light">
+        <span className="shrink-0 font-mono text-sm font-bold text-ink-on-cream">
           {answeredCount} / {questions.length}
         </span>
       </Card>
@@ -37,10 +37,10 @@ export default function QuizForm({
         return (
           <fieldset key={q.id} className="card">
             <legend className="flex items-start gap-3 px-1 pb-1">
-              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary font-mono text-xs font-bold text-white">
+              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent font-mono text-xs font-bold text-on-accent">
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <span className="font-bold text-on-light">{q.prompt}</span>
+              <span className="font-bold text-ink-on-cream">{q.prompt}</span>
             </legend>
             <div className="mt-3 space-y-2.5 pl-10">
               {q.options.map((opt) => {
@@ -48,8 +48,10 @@ export default function QuizForm({
                 return (
                   <label
                     key={opt.id}
-                    className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-field border px-4 py-3 text-[15px] ${
-                      checked ? 'border-primary bg-primary font-bold text-white' : 'border-line-strong bg-transparent text-on-light hover:bg-black/5'
+                    className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-input border px-4 py-3 text-[15px] ${
+                      checked
+                        ? 'border-accent bg-accent font-bold text-on-accent'
+                        : 'border-cream-rule bg-transparent text-ink-on-cream hover:bg-black/5'
                     } ${disabled ? 'cursor-not-allowed opacity-70' : ''}`}
                   >
                     <span className="relative inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-current">
@@ -62,7 +64,7 @@ export default function QuizForm({
                         onChange={() => setAnswers((prev) => ({ ...prev, [q.id]: opt.id }))}
                         className="absolute inset-0 h-full w-full cursor-pointer rounded-full opacity-0"
                       />
-                      {checked && <span className="h-2.5 w-2.5 rounded-full bg-white" />}
+                      {checked && <span className="h-2.5 w-2.5 rounded-full bg-on-accent" />}
                     </span>
                     {opt.text}
                   </label>
@@ -73,8 +75,8 @@ export default function QuizForm({
         )
       })}
 
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-panel border border-line px-6 py-4">
-        <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-text-muted">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-panel border border-hairline px-6 py-4">
+        <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
           answer all {questions.length} to submit · no time limit
         </p>
         <Button type="submit" variant="primary" disabled={disabled || !allAnswered}>

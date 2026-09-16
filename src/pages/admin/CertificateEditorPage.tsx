@@ -68,20 +68,19 @@ export default function CertificateEditorPage() {
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1160px] px-4 py-10 sm:px-6">
-        <p className="meta text-primary">[ public-facing template ]</p>
-        <h1 className="mt-2 font-display text-[clamp(24px,3.2vw,34px)] uppercase leading-[1.05] text-text">
+        <h1 className="font-display text-[clamp(28px,5.2vw,44px)] uppercase leading-[0.94] tracking-[-0.02em] text-display">
           Certificate template
         </h1>
-        <p className="mt-2 max-w-2xl text-[14.5px] text-text-muted">
+        <p className="mt-2 max-w-2xl text-[14.5px] text-muted">
           Structured fields only — merge fields are substituted into escaped text, so nothing you type here can
           become markup on the public certificate page.
         </p>
 
-        {error && <p className="mt-4 text-sm font-bold text-fail-text">{error}</p>}
+        {error && <p className="mt-4 text-sm font-bold text-danger-text">{error}</p>}
 
         {!template && !error && (
-          <div className="mt-6 rounded-panel border border-dashed border-line-strong p-8 text-center">
-            <p className="text-[14.5px] text-text-muted">No active template yet.</p>
+          <div className="mt-6 rounded-panel border border-dashed border-border-secondary p-8 text-center">
+            <p className="text-[14.5px] text-muted">No active template yet.</p>
             <Button type="button" variant="primary" onClick={() => void createDefault()} className="mt-4">
               Create default template
             </Button>
@@ -89,8 +88,9 @@ export default function CertificateEditorPage() {
         )}
 
         {template && (
-          <div className="mt-6 grid gap-5 lg:grid-cols-2">
-            <div className="rounded-panel border border-line p-7">
+          <div className="mt-6 flex flex-wrap items-start gap-[clamp(16px,2.4vw,28px)]">
+            <div className="min-w-[280px] flex-1 basis-[320px] rounded-panel border border-hairline p-7">
+              <h2 className="mb-5 text-[19px] font-bold text-heading">Fields</h2>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="title_text">Title</Label>
@@ -125,16 +125,16 @@ export default function CertificateEditorPage() {
                       type="color"
                       value={form.accent_color}
                       onChange={(e) => setForm({ ...form, accent_color: e.target.value })}
-                      className="mt-0 h-11 w-full rounded-field border border-line bg-ground-deep"
+                      className="mt-0 h-11 w-full rounded-input border border-hairline bg-inset"
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5 rounded-field border border-line p-3.5">
+                <div className="flex items-center gap-2.5 rounded-input border border-hairline p-3.5">
                   <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-pass text-white">
                     <CheckIcon className="h-2.5 w-2.5" />
                   </span>
-                  <span className="text-[12.5px] leading-relaxed text-text-body">
+                  <span className="text-[12.5px] leading-relaxed text-body">
                     Renders as plain text — no rich formatting (XSS guard).
                   </span>
                 </div>
@@ -145,8 +145,8 @@ export default function CertificateEditorPage() {
               </div>
             </div>
 
-            <div>
-              <p className="meta mb-3">Live preview (sample data)</p>
+            <div className="min-w-[280px] flex-1 basis-[320px]">
+              <p className="mb-3.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-muted">Live preview (sample data)</p>
               <CertificateCard
                 fields={{
                   title_text: form.title_text,

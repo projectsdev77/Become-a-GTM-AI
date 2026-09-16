@@ -32,12 +32,12 @@ export default function MessageThread({ studentId }: { studentId: string }) {
   let lastDay = ''
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-panel border border-line">
+    <div className="flex flex-col overflow-hidden rounded-panel border border-hairline">
       <div className="flex max-h-[420px] flex-col gap-3.5 overflow-y-auto p-5">
-        {loading && <p className="font-mono text-xs font-bold uppercase text-text-muted">loading…</p>}
-        {error && <p className="text-sm font-bold text-fail-text">{error}</p>}
+        {loading && <p className="font-mono text-xs font-bold uppercase text-muted">loading…</p>}
+        {error && <p className="text-sm font-bold text-danger-text">{error}</p>}
         {!loading && messages.length === 0 && (
-          <p className="text-[14.5px] text-text-muted">No messages yet — say hello.</p>
+          <p className="text-[14.5px] text-muted">No messages yet — say hello.</p>
         )}
         {messages.map((m) => {
           const mine = m.sender_id === user?.id
@@ -47,17 +47,17 @@ export default function MessageThread({ studentId }: { studentId: string }) {
           return (
             <div key={m.id} className="flex flex-col">
               {showDivider && (
-                <p className="my-2 text-center font-mono text-[10.5px] uppercase tracking-[0.08em] text-text-muted">{day}</p>
+                <p className="my-2 text-center font-mono text-[10.5px] uppercase tracking-[0.08em] text-muted">{day}</p>
               )}
               <div
                 className={`flex max-w-[min(560px,86%)] flex-col gap-1.5 px-4 py-3 text-[14px] leading-relaxed ${
                   mine
-                    ? 'self-end rounded-[20px_20px_6px_20px] bg-card-light text-on-light'
-                    : 'self-start rounded-[20px_20px_20px_6px] border border-line text-text-body'
+                    ? 'self-end rounded-[20px_20px_6px_20px] bg-cream text-ink-on-cream'
+                    : 'self-start rounded-[20px_20px_20px_6px] border border-hairline text-body'
                 }`}
               >
                 <p>{m.body}</p>
-                <p className={`font-mono text-[10px] ${mine ? 'text-on-light-meta' : 'text-text-muted'}`}>
+                <p className={`font-mono text-[10px] ${mine ? 'text-ink-2-on-cream' : 'text-muted'}`}>
                   {mine ? 'YOU' : otherLabel.toUpperCase()} · {timeLabel(m.created_at)}
                 </p>
               </div>
@@ -72,7 +72,7 @@ export default function MessageThread({ studentId }: { studentId: string }) {
           void send(draft)
           setDraft('')
         }}
-        className="flex items-end gap-2.5 border-t border-line p-4"
+        className="flex items-end gap-2.5 border-t border-hairline p-4"
       >
         <TextAreaField
           value={draft}

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import AppNav from '@/components/layout/AppNav'
 import AdminNav from '@/components/layout/AdminNav'
+import Card from '@/components/ui/Card'
 
 interface Stats {
   students: number
@@ -40,59 +41,69 @@ function useAdminStats() {
 function StatTile({
   label,
   value,
+  meta,
   to,
   warn,
 }: {
   label: string
   value: string
+  meta?: string
   to: string
   warn?: boolean
 }) {
   return (
-    <Link
-      to={to}
-      className={`block rounded-panel p-5 no-underline ${warn ? 'border border-fail-border' : 'card'}`}
-      style={warn ? { background: 'rgba(196,85,60,.12)' } : undefined}
-    >
-      <p className={`font-display text-[34px] leading-none ${warn ? 'text-fail-text' : 'text-on-light'}`}>{value}</p>
-      <p
-        className={`meta mt-2 ${warn ? 'text-fail-text' : 'text-on-light-meta'}`}
-      >
-        {label}
-      </p>
+    <Link to={to} className="block no-underline">
+      <Card active={warn} className="p-[22px]">
+        <p className="font-display text-[clamp(30px,4vw,42px)] leading-none">{value}</p>
+        <p className={`mt-2.5 text-[11.5px] font-bold uppercase tracking-[0.06em] ${warn ? '' : 'text-label-on-cream'}`}>
+          {label}
+        </p>
+        {meta && <p className={`mt-1.5 text-[12.5px] font-semibold ${warn ? '' : 'text-ink-2-on-cream'}`}>{meta}</p>}
+      </Card>
     </Link>
   )
 }
 
 export default function AdminDashboardPage() {
   const stats = useAdminStats()
+  const totalWeeks = stats ? stats.weeksPublished + stats.weeksDraft : 0
 
   return (
     <div className="min-h-screen bg-ground">
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1160px] px-4 py-10 sm:px-6">
-        <p className="meta text-primary">[ system overview ]</p>
-        <h1 className="mt-2 font-display text-[clamp(24px,3.2vw,34px)] uppercase leading-[1.05] text-text">
-          Admin overview
+        <h1 className="font-display text-[clamp(28px,5.6vw,44px)] uppercase leading-[0.94] tracking-[-0.02em] text-display">
+          Overview
         </h1>
 
         {stats && (
-          <div className="mt-7 rounded-shell border border-line p-6">
-            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-              <StatTile label="Active students" value={String(stats.students)} to="/admin/students" />
+          <div className="mt-7 rounded-shell border border-hairline p-6">
+            <div className="grid grid-cols-1 gap-[clamp(12px,1.6vw,18px)] sm:grid-cols-2 lg:grid-cols-4">
+              <StatTile label="Students" value={String(stats.students)} to="/admin/students" />
               <StatTile label="Mentors" value={String(stats.mentors)} to="/admin/mentors" />
               <StatTile
-                label="Published / draft weeks"
-                value={`${stats.weeksPublished} / ${stats.weeksDraft}`}
+                label="Weeks published"
+                value={`${stats.weeksPublished}/${totalWeeks || stats.weeksPublished}`}
+                meta={`${stats.weeksDraft} in draft`}
                 to="/admin/curriculum"
               />
               <StatTile
                 label="Broken links"
                 value={String(stats.brokenLinks)}
+                meta="Found by today's check"
                 to="/admin/broken-links"
                 warn={stats.brokenLinks > 0}
               />
+            </div>
+
+            <div className="py-[clamp(28px,3.6vw,44px)] pb-1.5 text-center">
+              <p className="font-display text-[clamp(18px,3vw,32px)] uppercase leading-[1.1] text-display">
+                {stats.weeksPublished} week{stats.weeksPublished === 1 ? '' : 's'} live.{' '}
+                <span className="text-accent">
+                  {stats.weeksDraft} to write.
+                </span>
+              </p>
             </div>
           </div>
         )}

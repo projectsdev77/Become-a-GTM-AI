@@ -31,25 +31,31 @@ export default function ResetPasswordRequestPage() {
     <div className="min-h-screen bg-ground">
       <PublicNav />
       <main className="flex items-center justify-center px-4 py-16">
-        <div className="w-full max-w-[460px] rounded-shell border border-line p-10">
+        <div className="w-full max-w-[480px] rounded-shell border border-hairline p-10">
           <div className="mb-8 flex items-center gap-[9px]">
             <Monogram size={28} />
-            <span className="font-display text-[13px] uppercase leading-none tracking-[0.02em] text-text">
+            <span className="font-display text-[13px] uppercase leading-none tracking-[0.02em] text-display">
               GTM Engineer
             </span>
           </div>
 
-          <h1 className="font-display text-[28px] uppercase leading-[1.1] tracking-[-0.02em] text-text">
+          <h1 className="font-display text-[clamp(26px,4.4vw,32px)] uppercase leading-[0.96] tracking-[-0.02em] text-display">
             Reset your password
           </h1>
 
           {sent ? (
-            <Callout tone="pass" heading="Sent state" className="mt-6">
-              Check your inbox — we sent a link to {email} if an account exists for it.
-            </Callout>
+            <div className="mt-6 rounded-panel bg-cream p-5 text-ink-on-cream">
+              <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-label-on-cream">
+                Sent state
+              </p>
+              <p className="mb-1.5 text-[15px] font-bold">Check your inbox</p>
+              <p className="text-[13.5px] leading-relaxed text-ink-2-on-cream">
+                We sent a link to {email} if an account exists for it.
+              </p>
+            </div>
           ) : (
             <>
-              <p className="mt-2.5 text-sm leading-relaxed text-text-muted">
+              <p className="mt-2.5 text-sm leading-relaxed text-muted">
                 Enter the email you enrolled with and we&apos;ll send a reset link. It expires in 30 minutes.
               </p>
               <form onSubmit={handleSubmit} className="mt-7 space-y-5">
@@ -62,15 +68,15 @@ export default function ResetPasswordRequestPage() {
                     {error}
                   </Callout>
                 )}
-                <Button type="submit" variant="primary" disabled={submitting} className="w-full">
+                <Button type="submit" variant="cta" disabled={submitting} className="w-full">
                   {submitting ? 'Sending…' : 'Send reset link'}
                 </Button>
               </form>
             </>
           )}
 
-          <p className="mt-6 text-center text-[13px] text-text-muted">
-            <Link to="/login" className="font-bold text-primary">
+          <p className="mt-6 text-center text-[13px] text-muted">
+            <Link to="/login" className="font-bold text-accent">
               Back to log in
             </Link>
           </p>

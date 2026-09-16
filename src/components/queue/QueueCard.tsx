@@ -30,20 +30,20 @@ export default function QueueCard({
   }
 
   return (
-    <div className={`rounded-panel p-6 ${isFailed ? 'bg-card-light' : 'border border-line'}`}>
+    <div className={`rounded-panel p-6 ${isFailed ? 'bg-cream text-ink-on-cream' : 'border border-hairline text-display'}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <Avatar name={item.studentName} size={40} />
           <div>
-            <p className={`font-bold ${isFailed ? 'text-on-light' : 'text-text-bright'}`}>{item.studentName}</p>
-            <p className={`text-[13px] ${isFailed ? 'text-on-light-mute' : 'text-text-muted'}`}>
+            <p className="font-bold">{item.studentName}</p>
+            <p className={`text-[13px] ${isFailed ? 'text-ink-2-on-cream' : 'text-muted'}`}>
               Week {item.weekPosition} · {item.assignmentTitle} · attempt {item.attempt_number}
             </p>
           </div>
         </div>
         <div className="text-right">
           <StatusPill variant={isFailed ? 'fail' : 'warn'}>{cause}</StatusPill>
-          <p className={`mt-1.5 font-mono text-[11px] ${isFailed ? 'text-on-light-meta' : 'text-text-muted'}`}>
+          <p className={`mt-1.5 font-mono text-[11px] ${isFailed ? 'text-ink-2-on-cream' : 'text-muted'}`}>
             {new Date(item.submitted_at).toLocaleDateString()}
           </p>
         </div>
@@ -51,9 +51,9 @@ export default function QueueCard({
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {item.content && (
-          <div className={`rounded-card p-4 ${isFailed ? 'bg-card-pressed' : 'border border-line'}`}>
-            <p className={`meta mb-1.5 ${isFailed ? 'text-on-light-meta' : ''}`}>Submission</p>
-            <p className={`whitespace-pre-wrap text-[14px] leading-relaxed ${isFailed ? 'text-on-light' : 'text-text-body'}`}>
+          <div className={`rounded-card p-4 ${isFailed ? 'bg-[rgba(26,23,19,.06)]' : 'border border-hairline'}`}>
+            <p className={`meta mb-1.5 ${isFailed ? 'text-label-on-cream' : ''}`}>Submission</p>
+            <p className={`whitespace-pre-wrap text-[14px] leading-relaxed ${isFailed ? '' : 'text-body'}`}>
               {item.content}
             </p>
           </div>
@@ -77,19 +77,17 @@ export default function QueueCard({
       )}
 
       {item.reviewed_at ? (
-        <div className={`mt-5 border-t pt-4 ${isFailed ? 'border-[rgba(34,31,27,.18)]' : 'border-line'}`}>
-          <p className={`meta ${isFailed ? 'text-on-light-meta' : ''}`}>
+        <div className={`mt-5 border-t pt-4 ${isFailed ? 'border-[color:var(--color-cream-rule)]' : 'border-hairline'}`}>
+          <p className={`meta ${isFailed ? 'text-label-on-cream' : ''}`}>
             Resolved: {item.final_status === 'passed' ? 'passed' : 'needs work'}
           </p>
-          {item.human_feedback && (
-            <p className={`mt-1.5 text-[14.5px] ${isFailed ? 'text-on-light' : 'text-text-bright'}`}>{item.human_feedback}</p>
-          )}
+          {item.human_feedback && <p className="mt-1.5 text-[14.5px]">{item.human_feedback}</p>}
         </div>
       ) : (
         onResolve && (
-          <div className={`mt-5 space-y-3 border-t pt-4 ${isFailed ? 'border-[rgba(34,31,27,.18)]' : 'border-line'}`}>
+          <div className={`mt-5 space-y-3 border-t pt-4 ${isFailed ? 'border-[color:var(--color-cream-rule)]' : 'border-hairline'}`}>
             <div className="flex flex-wrap items-center gap-3">
-              <span className={`meta ${isFailed ? 'text-on-light-meta' : ''}`}>Verdict</span>
+              <span className={`meta ${isFailed ? 'text-label-on-cream' : ''}`}>Verdict</span>
               <Button type="button" size="sm" variant={status === 'passed' ? 'primary' : 'secondary'} onClick={() => setStatus('passed')}>
                 <CheckIcon className="h-3.5 w-3.5" /> Pass
               </Button>
@@ -109,7 +107,7 @@ export default function QueueCard({
               rows={2}
             />
             <div className="flex flex-wrap items-center justify-between gap-4">
-              <p className={`font-mono text-[11px] font-bold uppercase tracking-wide ${isFailed ? 'text-on-light-meta' : 'text-text-muted'}`}>
+              <p className={`font-mono text-[11px] font-bold uppercase tracking-wide ${isFailed ? 'text-label-on-cream' : 'text-muted'}`}>
                 student is notified immediately on resolve
               </p>
               <Button type="button" variant="primary" onClick={() => void handleResolve()} disabled={saving || !feedback.trim()}>

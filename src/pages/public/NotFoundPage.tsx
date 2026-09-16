@@ -1,5 +1,6 @@
 import PublicNav from '@/components/layout/PublicNav'
 import { LinkButton } from '@/components/ui/Button'
+import Illustration from '@/components/ui/Illustration'
 
 export default function NotFoundPage() {
   return (
@@ -15,29 +16,36 @@ export default function NotFoundPage() {
         }
         .notfound-cursor { animation: notfound-cursor-blink 1s step-end infinite; }
       `}</style>
-      <main className="mx-auto max-w-[720px] px-4 py-20 text-center sm:px-6">
+      <main className="mx-auto max-w-[680px] px-4 py-20 text-center sm:px-6">
         <h1
-          className="font-display uppercase leading-[.92] text-text"
-          style={{ fontSize: 'clamp(40px, 9vw, 104px)' }}
+          className="mb-[clamp(24px,3.4vw,38px)] font-display uppercase leading-[.86] tracking-[-0.03em] text-display"
+          style={{ fontSize: 'clamp(56px, 16vw, 150px)' }}
         >
-          4<span className="text-primary">0</span>4
+          4<span className="text-accent">0</span>4
         </h1>
 
-        <div className="mb-7 overflow-x-auto rounded-field border border-line bg-ground-deep p-5 text-left font-mono text-[13px] leading-[1.8] text-[color:var(--color-code-body)]">
+        <Illustration
+          slot="v4-404"
+          loading="eager"
+          className="mb-[clamp(24px,3.2vw,34px)] w-full rounded-panel"
+          style={{ aspectRatio: '2/1' }}
+        />
+
+        <div className="mb-[clamp(24px,3.2vw,34px)] overflow-x-auto rounded-panel border border-hairline bg-inset p-5 text-left font-mono text-[13px] leading-[1.85] text-code">
           <p>
-            <span className="text-primary">$</span> cd /this/page
+            <span className="text-accent">$</span> cd /this/page
           </p>
-          <p className="text-fail-text">bash: cd: /this/page: No such file or directory</p>
+          <p className="text-danger-text">bash: cd: /this/page: No such file or directory</p>
           <p>
-            <span className="text-primary">$</span> cd /dashboard <span className="text-text-muted"># try this instead</span>
+            <span className="text-accent">$</span> cd /dashboard <span className="text-muted"># try this instead</span>
           </p>
           <p>
-            <span className="text-primary">$</span> <span className="notfound-cursor text-text">▍</span>
+            <span className="text-accent">$</span> <span className="notfound-cursor text-display">▍</span>
           </p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-3">
-          <LinkButton to="/dashboard" variant="site">
+          <LinkButton to="/dashboard" variant="cta">
             Back to dashboard
           </LinkButton>
           <LinkButton to="/curriculum" variant="secondary">

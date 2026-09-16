@@ -11,7 +11,7 @@ export default function StatusToggle({
   return (
     <button
       onClick={() => onChange(isPublished ? 'draft' : 'published')}
-      className={`pill shrink-0 ${isPublished ? 'pill-pass' : 'pill-locked'}`}
+      className={`badge shrink-0 ${isPublished ? 'badge-pass' : 'badge-neutral'}`}
     >
       {isPublished ? 'published' : 'draft'}
     </button>

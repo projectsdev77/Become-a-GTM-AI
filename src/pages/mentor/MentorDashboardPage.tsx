@@ -7,9 +7,8 @@ import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { useMentorStudents } from '@/hooks/useMentorStudents'
 import { useExceptionQueue } from '@/hooks/useExceptionQueue'
 import { MESSAGES_READ_EVENT } from '@/hooks/useUnreadMessages'
-import { Table, THead, TBody, TR, TH, TD } from '@/components/ui/Table'
+import ListRow, { RowTitle, RowMeta } from '@/components/ui/ListRow'
 import Avatar from '@/components/ui/Avatar'
-import { ChevronRightIcon } from '@/components/ui/icons'
 
 function timeAgo(iso: string | null): string {
   if (!iso) return 'never active'
@@ -61,66 +60,51 @@ export default function MentorDashboardPage() {
     <div className="min-h-screen bg-ground">
       <AppNav />
       <main className="mx-auto max-w-[1160px] px-4 py-10 sm:px-6">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-6">
-          <h1 className="font-display text-[clamp(24px,3.2vw,34px)] uppercase text-text">Your students</h1>
+        <div className="mb-7 flex flex-wrap items-center justify-between gap-4 border-b border-hairline pb-6">
+          <h1 className="font-display text-[clamp(28px,5.6vw,44px)] uppercase leading-[0.94] tracking-[-0.02em] text-display">
+            Your students
+          </h1>
           <nav className="flex flex-wrap gap-2.5">
-            <span className="rounded-pill bg-card-light px-[18px] py-2 text-[13px] font-bold text-on-light">
+            <span className="flex min-h-11 items-center whitespace-nowrap rounded-pill bg-cream px-[18px] py-2 text-[13px] font-bold text-ink-on-cream">
               Your students
             </span>
             <Link
               to="/mentor/queue"
-              className="flex items-center gap-2 rounded-pill border border-line px-[18px] py-2 text-[13px] font-medium text-text-body no-underline hover:border-line-strong"
+              className="flex min-h-11 items-center gap-2 whitespace-nowrap rounded-pill border border-border-secondary px-[18px] py-2 text-[13px] font-medium text-body no-underline hover:border-muted"
             >
               Queue
-              {openQueueItems.length > 0 && <span className="pill pill-warn">{openQueueItems.length}</span>}
+              {openQueueItems.length > 0 && <span className="badge badge-pending">{openQueueItems.length}</span>}
             </Link>
           </nav>
         </div>
 
-        {error && <p className="mt-4 text-sm font-bold text-fail-text">{error}</p>}
+        {error && <p className="mb-4 text-sm font-bold text-danger-text">{error}</p>}
 
-        <Table>
-          <THead>
-            <TR>
-              <TH>Student</TH>
-              <TH>Last active</TH>
-              <TH>Messages</TH>
-              <TH />
-            </TR>
-          </THead>
-          <TBody>
-            {students.map((student) => (
-              <TR key={student.id}>
-                <TD>
-                  <span className="flex items-center gap-3">
-                    <Avatar name={student.full_name} size={32} />
-                    <span className="font-semibold text-text-bright">{student.full_name ?? 'Unnamed student'}</span>
-                  </span>
-                </TD>
-                <TD className="font-mono text-[12px]">{timeAgo(student.last_active_at)}</TD>
-                <TD>
-                  {(unreadByStudent.get(student.id) ?? 0) > 0 ? (
-                    <span className="inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-primary px-2 font-mono text-[11px] font-bold leading-none text-white">
-                      {unreadByStudent.get(student.id)}
-                    </span>
+        <div className="flex flex-col gap-[clamp(12px,1.6vw,18px)]">
+          {students.map((student) => {
+            const unread = unreadByStudent.get(student.id) ?? 0
+            return (
+              <Link key={student.id} to={`/mentor/students/${student.id}`} className="block no-underline">
+                <ListRow state={unread > 0 ? 'active' : 'default'}>
+                  <div className="flex min-w-0 flex-1 basis-[240px] items-center gap-3.5">
+                    <Avatar name={student.full_name} size={38} />
+                    <div className="min-w-0">
+                      <RowTitle>{student.full_name ?? 'Unnamed student'}</RowTitle>
+                      <RowMeta>{timeAgo(student.last_active_at)}</RowMeta>
+                    </div>
+                  </div>
+                  {unread > 0 ? (
+                    <span className="badge badge-alert shrink-0">{unread} unread</span>
                   ) : (
-                    <span className="font-mono text-[11px] text-text-muted">—</span>
+                    <span className="shrink-0 whitespace-nowrap text-[12.5px] font-semibold text-muted">On track</span>
                   )}
-                </TD>
-                <TD className="text-right">
-                  <Link
-                    to={`/mentor/students/${student.id}`}
-                    className="inline-flex items-center gap-1 font-mono text-[11.5px] font-bold uppercase text-primary no-underline hover:underline"
-                  >
-                    view <ChevronRightIcon className="h-3.5 w-3.5" />
-                  </Link>
-                </TD>
-              </TR>
-            ))}
-          </TBody>
-        </Table>
+                </ListRow>
+              </Link>
+            )
+          })}
+        </div>
         {students.length === 0 && (
-          <p className="py-8 text-center font-mono text-xs font-bold uppercase text-text-muted">No students assigned yet.</p>
+          <p className="py-8 text-center font-mono text-xs font-bold uppercase text-muted">No students assigned yet.</p>
         )}
       </main>
     </div>

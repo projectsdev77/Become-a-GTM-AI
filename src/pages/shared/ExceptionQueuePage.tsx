@@ -3,7 +3,7 @@ import AppNav from '@/components/layout/AppNav'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { useExceptionQueue } from '@/hooks/useExceptionQueue'
 import QueueCard from '@/components/queue/QueueCard'
-import IllustrationSlot from '@/components/ui/IllustrationSlot'
+import Illustration from '@/components/ui/Illustration'
 
 // Mentor-only (see App.tsx): admins no longer evaluate submissions, so
 // there is no admin route into this page and no mentor-reassignment
@@ -20,10 +20,12 @@ export default function ExceptionQueuePage() {
     <div className="min-h-screen bg-ground">
       <AppNav />
       <main className="mx-auto max-w-[1160px] px-4 py-10 sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-5 border-b border-line pb-6">
-          <h1 className="font-display text-[clamp(24px,3.2vw,34px)] uppercase text-text">Exception queue</h1>
-          <p className="max-w-[380px] text-[13.5px] text-text-muted">
-            Grading failures and student-flagged reviews land here. Clear them in order.
+        <div className="flex flex-wrap items-end justify-between gap-5 border-b border-hairline pb-6">
+          <h1 className="font-display text-[clamp(28px,5.6vw,44px)] uppercase leading-[0.94] tracking-[-0.02em] text-display">
+            Exception queue
+          </h1>
+          <p className="max-w-[380px] text-[14.5px] leading-relaxed text-muted">
+            Grading failures and student-flagged reviews. Clear these first — a student is waiting on every row.
           </p>
         </div>
 
@@ -31,8 +33,8 @@ export default function ExceptionQueuePage() {
           <button
             type="button"
             onClick={() => setTab('open')}
-            className={`rounded-pill px-[18px] py-2 text-[13px] font-bold ${
-              tab === 'open' ? 'bg-card-light text-on-light' : 'border border-line text-text-body hover:border-line-strong'
+            className={`flex min-h-11 items-center whitespace-nowrap rounded-pill px-[18px] py-2 text-[13px] font-bold ${
+              tab === 'open' ? 'bg-cream text-ink-on-cream' : 'border border-border-secondary text-body hover:border-muted'
             }`}
           >
             Needs attention ({open.length})
@@ -40,17 +42,17 @@ export default function ExceptionQueuePage() {
           <button
             type="button"
             onClick={() => setTab('resolved')}
-            className={`rounded-pill px-[18px] py-2 text-[13px] font-bold ${
-              tab === 'resolved' ? 'bg-card-light text-on-light' : 'border border-line text-text-body hover:border-line-strong'
+            className={`flex min-h-11 items-center whitespace-nowrap rounded-pill px-[18px] py-2 text-[13px] font-bold ${
+              tab === 'resolved' ? 'bg-cream text-ink-on-cream' : 'border border-border-secondary text-body hover:border-muted'
             }`}
           >
             Resolved ({resolved.length})
           </button>
         </div>
 
-        {error && <p className="mt-4 text-sm font-bold text-fail-text">{error}</p>}
+        {error && <p className="mt-4 text-sm font-bold text-danger-text">{error}</p>}
 
-        <div className="mt-6 rounded-panel border border-line p-6">
+        <div className="mt-6">
           {list.length > 0 ? (
             <div className="flex flex-col gap-3">
               {list.map((item) => (
@@ -62,13 +64,25 @@ export default function ExceptionQueuePage() {
               ))}
             </div>
           ) : (
-            <div className="py-10 text-center">
-              <IllustrationSlot ratio="1/1" className="mx-auto w-[180px] rounded-panel" />
-              <p className="mt-6 font-display text-xl uppercase text-text">
-                {tab === 'open' ? "Queue's clear" : 'Nothing resolved yet'}
+            <div className="rounded-panel border border-hairline py-[clamp(28px,4vw,48px)] text-center">
+              <Illustration
+                slot="v4-queue-empty"
+                className="mx-auto mb-[26px] rounded-panel"
+                style={{ width: 'min(200px,50vw)', aspectRatio: '1/1' }}
+              />
+              <p className="mb-3 font-display text-[clamp(19px,3vw,30px)] uppercase leading-[1.1] text-display">
+                {tab === 'open' ? (
+                  <>
+                    Queue is <span className="text-accent">clear</span>
+                  </>
+                ) : (
+                  'Nothing resolved yet'
+                )}
               </p>
-              <p className="mt-2 text-sm text-text-muted">
-                {tab === 'open' ? 'Nothing needs a human right now.' : 'Resolved items will show up here.'}
+              <p className="mx-auto max-w-[40ch] text-[14px] leading-relaxed text-muted">
+                {tab === 'open'
+                  ? "No failed grades, no flagged reviews. We'll email you when something lands here."
+                  : 'Resolved items will show up here.'}
               </p>
             </div>
           )}

@@ -5,9 +5,10 @@ import AppNav from '@/components/layout/AppNav'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import Avatar from '@/components/ui/Avatar'
 import ProgressBar from '@/components/ui/ProgressBar'
+import ListRow, { RowMeta } from '@/components/ui/ListRow'
 import StatusPill, { type StatusVariant } from '@/components/ui/StatusPill'
+import { Button } from '@/components/ui/Button'
 import MessageThread from '@/components/messages/MessageThread'
-import { ChevronRightIcon } from '@/components/ui/icons'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { useProgressOverview } from '@/hooks/useProgressOverview'
 import { useWeeklyHours } from '@/hooks/useWeeklyHours'
@@ -108,82 +109,86 @@ export default function StudentDetailPage() {
   return (
     <div className="min-h-screen bg-ground">
       <AppNav />
-      <Breadcrumb
-        items={[{ label: 'your students', to: '/mentor' }, { label: studentProfile?.full_name?.toLowerCase() ?? 'student' }]}
-      />
       <main className="mx-auto max-w-[1160px] px-4 py-10 sm:px-6">
-        {error && <p className="mb-4 text-sm font-bold text-fail-text">{error}</p>}
+        <Breadcrumb
+          items={[{ label: 'your students', to: '/mentor' }, { label: studentProfile?.full_name?.toLowerCase() ?? 'student' }]}
+        />
+
+        {error && <p className="mb-4 text-sm font-bold text-danger-text">{error}</p>}
+
+        <div className="mb-[clamp(26px,3.4vw,38px)] flex flex-wrap items-center justify-between gap-6">
+          <div className="flex flex-wrap items-center gap-[18px]">
+            <Avatar name={studentProfile?.full_name} size={64} />
+            <div>
+              <h1 className="font-display text-[clamp(26px,4.4vw,40px)] uppercase leading-[0.96] tracking-[-0.02em] text-display">
+                {studentProfile?.full_name ?? 'Student'}
+              </h1>
+              {studentProfile?.background && (
+                <p className="mt-1 max-w-md text-[13.5px] text-muted">{studentProfile.background}</p>
+              )}
+            </div>
+          </div>
+          {studentId && (
+            <Button variant="cta" onClick={() => document.getElementById('mentor-thread')?.scrollIntoView({ behavior: 'smooth' })}>
+              Message {studentProfile?.full_name?.split(' ')[0] ?? 'student'}
+            </Button>
+          )}
+        </div>
 
         <div className="flex flex-wrap gap-5">
           <div className="min-w-0 flex-[2_1_440px]">
-            <div className="mb-4 rounded-panel border border-line p-7">
-              <div className="mb-6 flex flex-wrap items-center gap-4">
-                <Avatar name={studentProfile?.full_name} size={52} />
-                <div>
-                  <p className="font-display text-[22px] uppercase leading-tight text-text">
-                    {studentProfile?.full_name ?? 'Student'}
-                  </p>
-                  {studentProfile?.background && (
-                    <p className="mt-1 max-w-md text-[13.5px] text-text-muted">{studentProfile.background}</p>
-                  )}
+            <div className="mb-4 flex flex-wrap items-center gap-[clamp(24px,4vw,56px)] rounded-panel border border-hairline p-7">
+              <div className="min-w-0 flex-1 basis-[240px]">
+                <p className="mb-3 text-[11.5px] font-bold uppercase tracking-[0.06em] text-muted">Progress</p>
+                <div className="mb-3 flex items-baseline gap-2.5">
+                  <span className="font-display text-[30px] text-display">{overallPercent}%</span>
                 </div>
+                <ProgressBar percent={overallPercent} className="max-w-[320px]" />
               </div>
-
-              <ProgressBar percent={overallPercent} className="mb-4" />
-
-              <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
-                <div className="rounded-card bg-card-light px-[18px] py-4">
-                  <p className="font-display text-2xl text-on-light">{overallPercent}%</p>
-                  <p className="mt-1 font-mono text-[10.5px] text-on-light-meta">PROGRESS</p>
+              <div className="flex shrink-0 flex-wrap gap-[clamp(20px,4vw,44px)]">
+                <div>
+                  <p className="font-display text-2xl text-display">{submissions.length}</p>
+                  <p className="mt-1 text-[11.5px] font-bold uppercase tracking-[0.06em] text-muted">Submissions</p>
                 </div>
-                <div className="rounded-card border border-line px-[18px] py-4">
-                  <p className="font-display text-2xl text-text">{submissions.length}</p>
-                  <p className="mt-1 font-mono text-[10.5px] text-text-muted">SUBMISSIONS</p>
-                </div>
-                <div className="rounded-card border border-line px-[18px] py-4">
-                  <p className="font-display text-2xl text-text">
+                <div>
+                  <p className="font-display text-2xl text-display">
                     {studentProfile?.weekly_hours_target != null ? `${studentProfile.weekly_hours_target}h` : '—'}
                   </p>
-                  <p className="mt-1 font-mono text-[10.5px] text-text-muted">
-                    WEEKLY TARGET
-                    {weeklyHours && ` · ${(weeklyHours.logged_minutes / 60).toFixed(1)}H LOGGED`}
+                  <p className="mt-1 text-[11.5px] font-bold uppercase tracking-[0.06em] text-muted">
+                    Weekly target
+                    {weeklyHours && ` · ${(weeklyHours.logged_minutes / 60).toFixed(1)}h logged`}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-panel border border-line p-7">
-              <p className="mb-4 text-base font-bold text-text-bright">Recent submissions</p>
-              <div className="flex flex-col gap-2.5">
-                {submissionsLoading && <p className="font-mono text-xs font-bold uppercase text-text-muted">loading…</p>}
+            <div className="rounded-panel border border-hairline p-7">
+              <h2 className="mb-5 text-[19px] font-bold text-heading">Recent submissions</h2>
+              <div className="flex flex-col gap-[clamp(12px,1.6vw,18px)]">
+                {submissionsLoading && <p className="font-mono text-xs font-bold uppercase text-muted">loading…</p>}
                 {!submissionsLoading && submissions.length === 0 && (
-                  <p className="text-[14.5px] text-text-muted">No submissions yet.</p>
+                  <p className="text-[14.5px] text-muted">No submissions yet.</p>
                 )}
                 {submissions.map((s, i) => (
-                  <div
-                    key={s.id}
-                    className={`flex flex-wrap items-center justify-between gap-3.5 rounded-card px-[18px] py-[15px] ${
-                      i === 0 ? 'bg-card-light' : 'border border-line'
-                    }`}
-                  >
-                    <div>
-                      <p className={`font-mono text-[10.5px] ${i === 0 ? 'text-on-light-meta' : 'text-text-muted'}`}>
+                  <ListRow key={s.id} state={i === 0 ? 'active' : 'default'}>
+                    <div className="min-w-0 flex-1 basis-[240px]">
+                      <RowMeta className="mt-0 mb-1.5">
                         {new Date(s.submitted_at).toLocaleDateString()} · attempt {s.attempt_number}
-                      </p>
-                      <p className={`text-sm font-bold ${i === 0 ? 'text-on-light' : 'text-text-bright'}`}>
-                        {s.assignmentTitle}
-                      </p>
+                      </RowMeta>
+                      <p className="text-[16px] font-bold leading-tight">{s.assignmentTitle}</p>
                     </div>
-                    <StatusPill variant={STATUS_VARIANT[s.final_status]}>{STATUS_LABEL[s.final_status]}</StatusPill>
-                  </div>
+                    <StatusPill variant={STATUS_VARIANT[s.final_status]} tone={i === 0 ? 'cream' : 'dark'}>
+                      {STATUS_LABEL[s.final_status]}
+                    </StatusPill>
+                  </ListRow>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="min-w-[260px] flex-[1_1_280px]">
-            <div className="rounded-panel border border-line p-6">
-              <p className="mb-4 font-mono text-xs uppercase tracking-[0.08em] text-text-muted">Thread</p>
+          <div className="min-w-[260px] flex-[1_1_280px]" id="mentor-thread">
+            <div className="rounded-panel border border-hairline p-6">
+              <p className="mb-4 font-mono text-xs uppercase tracking-[0.08em] text-muted">Thread</p>
               {studentId && <MessageThread studentId={studentId} />}
             </div>
           </div>
@@ -191,9 +196,9 @@ export default function StudentDetailPage() {
 
         <Link
           to="/mentor"
-          className="mt-8 inline-flex items-center gap-1 font-mono text-xs font-bold uppercase tracking-wide text-primary"
+          className="mt-8 inline-flex items-center gap-1 font-mono text-xs font-bold uppercase tracking-wide text-accent"
         >
-          <ChevronRightIcon className="h-3.5 w-3.5 rotate-180" /> back to your students
+          ← back to your students
         </Link>
       </main>
     </div>

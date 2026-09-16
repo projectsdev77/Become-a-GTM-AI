@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import AppNav from '@/components/layout/AppNav'
 import AdminNav from '@/components/layout/AdminNav'
-import { Table, THead, TBody, TR, TH, TD } from '@/components/ui/Table'
+import ListRow, { RowTitle, RowMeta } from '@/components/ui/ListRow'
 import { Field } from '@/components/ui/Field'
-import StatusPill from '@/components/ui/StatusPill'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import type { Profile } from '@/types/database'
 
@@ -72,47 +71,36 @@ export default function StudentsListPage() {
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="meta text-primary">[ {students.length} total ]</p>
-            <h1 className="mt-2 font-display text-[clamp(24px,3.2vw,34px)] uppercase leading-[1.05] text-text">Students</h1>
-          </div>
-          <Field value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name or email…" className="w-64" />
-        </div>
+        <h1 className="font-display text-[clamp(28px,5.2vw,44px)] uppercase leading-[0.94] tracking-[-0.02em] text-display">
+          {students.length} students
+        </h1>
 
-        <div className="mt-6">
-          <Table>
-            <THead>
-              <TR>
-                <TH>Student</TH>
-                <TH>Mentor</TH>
-                <TH>Payment</TH>
-                <TH />
-              </TR>
-            </THead>
-            <TBody>
-              {filtered.map((s) => (
-                <TR key={s.id}>
-                  <TD className="font-semibold text-text">{s.full_name ?? 'Unnamed student'}</TD>
-                  <TD className="text-[13.5px] text-text-muted">{s.mentorName ?? 'No mentor assigned'}</TD>
-                  <TD>
-                    {s.payment_status === 'paid' ? (
-                      <StatusPill variant="pass">paid</StatusPill>
-                    ) : (
-                      <StatusPill variant="locked">unpaid</StatusPill>
-                    )}
-                  </TD>
-                  <TD className="text-right">
-                    <Link to={`/admin/students/${s.id}`} className="font-mono text-[11.5px] font-bold uppercase text-primary no-underline hover:underline">
-                      view →
-                    </Link>
-                  </TD>
-                </TR>
-              ))}
-            </TBody>
-          </Table>
-          {filtered.length === 0 && <p className="py-8 text-center font-mono text-xs font-bold uppercase text-text-muted">No students found.</p>}
+        <Field
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search by name or email…"
+          className="mt-6 max-w-[360px]"
+        />
+
+        <div className="mt-6 flex flex-col gap-[clamp(12px,1.6vw,18px)]">
+          {filtered.map((s) => (
+            <Link key={s.id} to={`/admin/students/${s.id}`} className="block no-underline">
+              <ListRow state={s.payment_status === 'paid' ? 'active' : 'pending'}>
+                <div className="min-w-0 flex-1 basis-[240px]">
+                  <RowTitle>{s.full_name ?? 'Unnamed student'}</RowTitle>
+                  <RowMeta>{s.mentorName ? `mentor ${s.mentorName}` : 'no mentor assigned'}</RowMeta>
+                </div>
+                {s.payment_status === 'paid' ? (
+                  <span className="badge badge-pass shrink-0">Paid</span>
+                ) : (
+                  <span className="badge badge-pending shrink-0">Unpaid</span>
+                )}
+              </ListRow>
+            </Link>
+          ))}
         </div>
+        {filtered.length === 0 && <p className="py-8 text-center font-mono text-xs font-bold uppercase text-muted">No students found.</p>}
       </main>
     </div>
   )

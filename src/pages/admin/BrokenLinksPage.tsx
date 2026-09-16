@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import AppNav from '@/components/layout/AppNav'
 import AdminNav from '@/components/layout/AdminNav'
-import { Table, THead, TBody, TR, TH, TD } from '@/components/ui/Table'
+import ListRow, { RowMeta } from '@/components/ui/ListRow'
 import Callout from '@/components/ui/Callout'
 import { Button } from '@/components/ui/Button'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
@@ -95,26 +95,25 @@ export default function BrokenLinksPage() {
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="meta text-primary">[ {resources.length} flagged ]</p>
-            <h1 className="mt-2 font-display text-[clamp(24px,3.2vw,34px)] uppercase leading-[1.05] text-text">Broken links</h1>
-          </div>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h1 className="font-display text-[clamp(28px,5.2vw,44px)] uppercase leading-[0.94] tracking-[-0.02em] text-display">
+            {resources.length} broken link{resources.length === 1 ? '' : 's'}
+          </h1>
           <div className="flex flex-col items-end gap-1.5">
             <Button type="button" variant="secondary" onClick={() => void runCheck()} disabled={checking}>
               {checking ? 'Checking…' : 'Re-run check now'}
             </Button>
             {lastCheck && !checking && (
-              <p className="font-mono text-[11px] text-text-muted">
+              <p className="font-mono text-[11px] text-muted">
                 checked {lastCheck.checked} · {lastCheck.brokenCount} broken
               </p>
             )}
           </div>
         </div>
-        <p className="mt-2 text-[14.5px] text-text-muted">
+        <p className="mt-2 text-[14.5px] text-muted">
           Links that failed a check. Students never see this. Use{' '}
-          <span className="font-bold text-text">mark fixed</span> once you&apos;ve fixed a link, or{' '}
-          <span className="font-bold text-text">always allow</span> if it keeps flagging a link you&apos;ve confirmed
+          <span className="font-bold text-display">mark fixed</span> once you&apos;ve fixed a link, or{' '}
+          <span className="font-bold text-display">always allow</span> if it keeps flagging a link you&apos;ve confirmed
           works.
         </p>
         {checkError && (
@@ -125,53 +124,50 @@ export default function BrokenLinksPage() {
 
         <div className="mt-6">
           {resources.length > 0 ? (
-            <Table>
-              <THead>
-                <TR>
-                  <TH>URL</TH>
-                  <TH>HTTP</TH>
-                  <TH>Where it lives</TH>
-                  <TH>Last checked</TH>
-                  <TH />
-                </TR>
-              </THead>
-              <TBody>
-                {resources.map((r) => (
-                  <TR key={r.id}>
-                    <TD>
-                      <p className="font-semibold text-text">{r.title}</p>
-                      <a href={r.url} target="_blank" rel="noreferrer" className="block truncate font-mono text-[12px] text-primary">
-                        {r.url}
-                      </a>
-                    </TD>
-                    <TD className="font-mono font-bold text-warn">{r.last_status_code ?? '—'}</TD>
-                    <TD className="text-[13.5px] text-text-muted">
+            <div className="flex flex-col gap-[clamp(12px,1.6vw,18px)]">
+              {resources.map((r) => (
+                <ListRow key={r.id} state="active">
+                  <div className="min-w-0 flex-1 basis-[280px]">
+                    <RowMeta className="mt-0 mb-1.5">
                       Week {r.weekPosition} · {r.lessonTitle}
-                    </TD>
-                    <TD className="font-mono text-[12px] text-text-muted">
-                      {r.last_checked_at ? new Date(r.last_checked_at).toLocaleDateString() : 'never'}
-                    </TD>
-                    <TD>
-                      <div className="flex flex-wrap items-center justify-end gap-3">
-                        <Link to={`/admin/curriculum/lessons/${r.lesson_id}`} className="font-mono text-[11.5px] font-bold uppercase text-primary no-underline hover:underline">
-                          edit
-                        </Link>
-                        <button onClick={() => void dismiss(r.id)} className="font-mono text-[11.5px] font-bold uppercase text-text-muted hover:text-text">
-                          mark fixed
-                        </button>
-                        <button
-                          onClick={() => void alwaysAllow(r.id)}
-                          title="I've checked this link myself and it works — stop flagging it, even if automated checks keep failing it"
-                          className="font-mono text-[11.5px] font-bold uppercase text-text-muted hover:text-text"
-                        >
-                          always allow
-                        </button>
-                      </div>
-                    </TD>
-                  </TR>
-                ))}
-              </TBody>
-            </Table>
+                    </RowMeta>
+                    <a
+                      href={r.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block truncate font-mono text-[13px] font-medium text-ink-on-cream"
+                    >
+                      {r.title} — {r.url}
+                    </a>
+                  </div>
+                  <div className="flex shrink-0 flex-wrap items-center gap-4">
+                    <span className="font-mono text-[12.5px] font-bold text-accent-on-cream">
+                      {r.last_status_code ?? 'timeout'} ·{' '}
+                      {r.last_checked_at ? new Date(r.last_checked_at).toLocaleDateString() : 'never checked'}
+                    </span>
+                    <Link
+                      to={`/admin/curriculum/lessons/${r.lesson_id}`}
+                      className="whitespace-nowrap text-[12.5px] font-bold text-ink-on-cream underline decoration-2 underline-offset-2"
+                    >
+                      edit
+                    </Link>
+                    <button
+                      onClick={() => void dismiss(r.id)}
+                      className="whitespace-nowrap text-[12.5px] font-bold text-ink-2-on-cream hover:text-ink-on-cream"
+                    >
+                      mark fixed
+                    </button>
+                    <button
+                      onClick={() => void alwaysAllow(r.id)}
+                      title="I've checked this link myself and it works — stop flagging it, even if automated checks keep failing it"
+                      className="whitespace-nowrap text-[12.5px] font-bold text-ink-2-on-cream hover:text-ink-on-cream"
+                    >
+                      always allow
+                    </button>
+                  </div>
+                </ListRow>
+              ))}
+            </div>
           ) : (
             <Callout tone="pass" heading="all clear">
               No broken links right now.
