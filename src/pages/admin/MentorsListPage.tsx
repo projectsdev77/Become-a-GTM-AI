@@ -2,11 +2,10 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '@/lib/supabase'
 import AppNav from '@/components/layout/AppNav'
 import AdminNav from '@/components/layout/AdminNav'
-import { Table, THead, TBody, TR, TH, TD } from '@/components/ui/Table'
+import ListRow, { RowTitle, RowMeta } from '@/components/ui/ListRow'
 import { Field, Label } from '@/components/ui/Field'
 import { Button } from '@/components/ui/Button'
 import Callout from '@/components/ui/Callout'
-import StatusPill from '@/components/ui/StatusPill'
 import Avatar from '@/components/ui/Avatar'
 import { AlertIcon } from '@/components/ui/icons'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
@@ -106,8 +105,11 @@ function AddMentorForm({ onAdded }: { onAdded: () => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-panel border border-line p-6">
-      <p className="meta mb-3.5">Invite by email</p>
+    <form onSubmit={handleSubmit} className="rounded-panel border border-accent-dim p-7">
+      <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-muted">Invite a mentor</p>
+      <p className="mb-4.5 max-w-[52ch] text-[13.5px] leading-relaxed text-body">
+        They&apos;ll get an email with a signup link.
+      </p>
       <div className="flex flex-wrap gap-3">
         <div className="min-w-[220px] flex-1">
           <Label htmlFor="mentor_full_name">Full name</Label>
@@ -152,48 +154,33 @@ export default function MentorsListPage() {
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="meta text-primary">[ {mentors.length} total ]</p>
-            <h1 className="mt-2 font-display text-[clamp(24px,3.2vw,34px)] uppercase leading-[1.05] text-text">Mentors</h1>
-          </div>
+        <h1 className="mb-6 font-display text-[clamp(28px,5.2vw,44px)] uppercase leading-[0.94] tracking-[-0.02em] text-display">
+          Mentor roster
+        </h1>
+
+        <div className="mb-5">
           <AddMentorForm onAdded={refresh} />
         </div>
 
-        <div className="mt-6">
-          <Table>
-            <THead>
-              <TR>
-                <TH>Mentor</TH>
-                <TH>Status</TH>
-                <TH>Active students</TH>
-              </TR>
-            </THead>
-            <TBody>
-              {mentors.map((m) => (
-                <TR key={m.id}>
-                  <TD>
-                    <div className="flex items-center gap-3">
-                      <Avatar name={m.full_name} size={32} />
-                      <span className="font-semibold text-text">{m.full_name ?? 'Unnamed mentor'}</span>
-                    </div>
-                  </TD>
-                  <TD>
-                    {m.pending ? (
-                      <span className="pill pill-pending">pending invite</span>
-                    ) : (
-                      <StatusPill variant="pass">active</StatusPill>
-                    )}
-                  </TD>
-                  <TD className="text-[13.5px] text-text-muted">{m.activeStudentCount}</TD>
-                </TR>
-              ))}
-            </TBody>
-          </Table>
-          {mentors.length === 0 && (
-            <p className="py-8 text-center font-mono text-xs font-bold uppercase text-text-muted">No mentors yet.</p>
-          )}
+        <div className="flex flex-col gap-[clamp(12px,1.6vw,18px)]">
+          {mentors.map((m) => (
+            <ListRow key={m.id} state={m.pending ? 'pending' : 'active'}>
+              <div className="flex min-w-0 flex-1 basis-[240px] items-center gap-3.5">
+                <Avatar name={m.full_name} size={38} />
+                <div className="min-w-0">
+                  <RowTitle>{m.full_name ?? 'Unnamed mentor'}</RowTitle>
+                  <RowMeta>{m.pending ? 'Invited · awaiting acceptance' : `${m.activeStudentCount} students`}</RowMeta>
+                </div>
+              </div>
+              {m.pending ? (
+                <span className="badge badge-pending shrink-0">Pending invite</span>
+              ) : (
+                <span className="badge badge-pass shrink-0">Active</span>
+              )}
+            </ListRow>
+          ))}
         </div>
+        {mentors.length === 0 && <p className="py-8 text-center font-mono text-xs font-bold uppercase text-muted">No mentors yet.</p>}
       </main>
     </div>
   )

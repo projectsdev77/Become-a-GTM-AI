@@ -38,17 +38,17 @@ function ResourceRow({
   useEffect(() => setUrl(resource.url), [resource.url])
 
   return (
-    <div className={`rounded-field border p-3.5 ${resource.is_broken ? 'border-fail-border' : 'border-line'}`}>
+    <div className={`rounded-input border p-3.5 ${resource.is_broken ? 'border-danger-border' : 'border-hairline'}`}>
       <div className="flex flex-wrap items-center gap-3">
         <ReorderButtons canMoveUp={canMoveUp} canMoveDown={canMoveDown} onMoveUp={onMoveUp} onMoveDown={onMoveDown} />
         <span
-          className={`h-2.5 w-2.5 shrink-0 rounded-full ${resource.is_broken ? 'bg-fail' : 'bg-pass'}`}
+          className={`h-2.5 w-2.5 shrink-0 rounded-full ${resource.is_broken ? 'bg-alert' : 'bg-pass'}`}
           title={resource.is_broken ? 'Broken link' : 'Link healthy'}
         />
         <select
           value={resource.resource_type}
           onChange={(e) => onUpdate({ resource_type: e.target.value as ResourceType })}
-          className="rounded-pill border border-line-strong bg-ground-deep px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-text-body"
+          className="rounded-pill border border-border-secondary bg-inset px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-body"
         >
           {RESOURCE_TYPES.map((t) => (
             <option key={t} value={t}>
@@ -74,14 +74,14 @@ function ResourceRow({
         <Checkbox
           checked={resource.is_required}
           onChange={(checked) => onUpdate({ is_required: checked })}
-          label={<span className="font-mono text-[11px] font-bold uppercase text-text-muted">required</span>}
+          label={<span className="font-mono text-[11px] font-bold uppercase text-muted">required</span>}
         />
-        {resource.is_broken && <span className="font-mono text-[10.5px] font-bold uppercase text-fail-text">broken</span>}
+        {resource.is_broken && <span className="font-mono text-[10.5px] font-bold uppercase text-danger-text">broken</span>}
         <button
           onClick={() => {
             if (confirm(`Delete "${resource.title}"?`)) onDelete()
           }}
-          className="font-mono text-[11px] font-bold uppercase text-fail-text hover:underline"
+          className="font-mono text-[11px] font-bold uppercase text-danger-text hover:underline"
         >
           del
         </button>
@@ -158,12 +158,12 @@ export default function LessonEditorPage() {
       <AppNav />
       <AdminNav />
       {lesson && (
-        <div className="border-b border-line">
+        <div className="border-b border-hairline">
           <div className="mx-auto flex max-w-[1160px] flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
             <Breadcrumb items={[{ label: 'curriculum', to: '/admin/curriculum' }, { label: 'week', to: `/admin/curriculum/weeks/${lesson.week_id}` }, { label: 'lesson' }]} />
             <div className="flex items-center gap-3">
-              {justSaved && <span className="font-mono text-[11px] font-bold uppercase text-pass-deep">saved</span>}
-              <Button type="button" variant="site" size="sm" onClick={() => void saveLesson()} disabled={saving}>
+              {justSaved && <span className="font-mono text-[11px] font-bold uppercase text-pass">saved</span>}
+              <Button type="button" variant="primary" size="sm" onClick={() => void saveLesson()} disabled={saving}>
                 {saving ? 'Saving…' : 'Save changes'}
               </Button>
             </div>
@@ -174,13 +174,15 @@ export default function LessonEditorPage() {
       <main className="mx-auto max-w-[1160px] px-4 py-10 sm:px-6">
         {lesson && (
           <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-            <div className="rounded-panel border border-line p-7">
+            <div className="rounded-panel border border-hairline p-7">
               <Label htmlFor="title">Title</Label>
               <Field id="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="mb-5" />
 
-              <Label htmlFor="body">
-                Body <span className="normal-case text-text-muted">· markdown · keep it short, the substance is in the resources</span>
-              </Label>
+              <div className="mb-2 flex items-baseline justify-between gap-3">
+                <Label htmlFor="body" className="mb-0">
+                  Body <span className="normal-case text-muted">· markdown · keep it short, the substance is in the resources</span>
+                </Label>
+              </div>
               <TextAreaField
                 id="body"
                 value={form.body}
@@ -201,11 +203,9 @@ export default function LessonEditorPage() {
               </div>
             </div>
 
-            <aside className="rounded-panel border border-line p-6">
-              <div className="flex items-center justify-between">
-                <p className="meta">Resources · {resources.items.length}</p>
-              </div>
-              <div className="mt-3 space-y-2.5">
+            <aside className="rounded-panel border border-hairline p-6">
+              <p className="meta">Resources · {resources.items.length}</p>
+              <div className="mt-4 space-y-2.5">
                 {resources.items.map((resource, i) => (
                   <ResourceRow
                     key={resource.id}
@@ -235,7 +235,7 @@ export default function LessonEditorPage() {
                     })
                     setNewResource({ title: '', url: '', resource_type: 'article' })
                   }}
-                  className="rounded-field border border-dashed border-line-strong p-3"
+                  className="rounded-input border border-dashed border-border-secondary p-3"
                 >
                   <div className="space-y-2">
                     <Field
@@ -261,8 +261,8 @@ export default function LessonEditorPage() {
                         </option>
                       ))}
                     </select>
-                    <Button type="submit" variant="primary" glyph="+" className="w-full">
-                      Add resource
+                    <Button type="submit" variant="secondary" className="w-full">
+                      + Add resource
                     </Button>
                   </div>
                   {newResourceError && <FieldError>{newResourceError}</FieldError>}

@@ -141,16 +141,16 @@ export default function StudentAdminDetailPage() {
     <div className="min-h-screen bg-ground">
       <AppNav />
       <AdminNav />
-      <Breadcrumb items={[{ label: 'students', to: '/admin/students' }, { label: 'student' }]} />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        {error && <p className="text-sm font-bold text-fail-text">{error}</p>}
+        <Breadcrumb items={[{ label: 'students', to: '/admin/students' }, { label: 'student' }]} />
+        {error && <p className="text-sm font-bold text-danger-text">{error}</p>}
 
         <div className="grid gap-5 lg:grid-cols-2">
           {overall && (
-            <div className="rounded-panel border border-line p-6">
+            <div className="rounded-panel border border-hairline p-6">
               <div className="flex items-center justify-between">
                 <span className="meta">Overall progress</span>
-                <span className="font-display text-2xl text-text">{overallPercent}%</span>
+                <span className="font-display text-2xl text-display">{overallPercent}%</span>
               </div>
               <div className="mt-3">
                 <ProgressBar percent={overallPercent} />
@@ -158,8 +158,11 @@ export default function StudentAdminDetailPage() {
             </div>
           )}
 
-          <div className="rounded-panel border border-line p-6">
+          <div className="rounded-panel border border-hairline p-6">
             <span className="meta">Assigned mentor</span>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-muted">
+              Reassigning moves the message thread and the exception queue with the student.
+            </p>
             <div className="mt-3">
               <Label htmlFor="mentor">Reassign</Label>
               <SelectField id="mentor" value={mentorId ?? ''} disabled={reassigning} onChange={(e) => void reassignMentor(e.target.value)}>
@@ -175,16 +178,16 @@ export default function StudentAdminDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-panel border border-line p-6">
+          <div className="rounded-panel border border-hairline p-6">
             <div className="flex items-center justify-between">
               <span className="meta">Payment</span>
               {data?.payment_status === 'paid' ? (
                 <StatusPill variant="pass">paid</StatusPill>
               ) : (
-                <StatusPill variant="locked">unpaid</StatusPill>
+                <StatusPill variant="progress">unpaid</StatusPill>
               )}
             </div>
-            <p className="mt-2 text-[13.5px] text-text-muted">
+            <p className="mt-2 text-[13.5px] text-muted">
               Week 1 is free for everyone; the rest of the program requires payment. Stripe isn&apos;t wired up yet —
               mark paid manually once payment is confirmed some other way.
             </p>
@@ -194,7 +197,7 @@ export default function StudentAdminDetailPage() {
                 onChange={(e) => setPaymentNote(e.target.value)}
                 placeholder="Note (e.g. paid via bank transfer, ref #1234)…"
               />
-              {paymentError && <p className="text-sm font-bold text-fail-text">{paymentError}</p>}
+              {paymentError && <p className="text-sm font-bold text-danger-text">{paymentError}</p>}
               <div className="flex flex-wrap gap-3">
                 <Button
                   type="button"
@@ -217,9 +220,12 @@ export default function StudentAdminDetailPage() {
           </div>
         </div>
 
-        <div className="mt-5 rounded-panel border border-line p-6">
+        <div className="mt-5 rounded-panel border border-accent-dim p-6">
           <p className="meta">Manually unlock a week</p>
-          <p className="mt-1.5 text-[13.5px] text-text-muted">Requires a reason — this is logged and visible in the audit trail.</p>
+          <p className="mt-1.5 max-w-[56ch] text-[13.5px] text-muted">
+            Overrides the payment gate for a single week. Use for comped access and support cases — it&apos;s logged
+            against your account.
+          </p>
           <div className="mt-4 space-y-3">
             <SelectField value={unlockWeekId} onChange={(e) => setUnlockWeekId(e.target.value)}>
               <option value="">Select a locked week…</option>
@@ -230,7 +236,7 @@ export default function StudentAdminDetailPage() {
               ))}
             </SelectField>
             <Field value={unlockReason} onChange={(e) => setUnlockReason(e.target.value)} placeholder="Reason (required)…" />
-            {unlockError && <p className="text-sm font-bold text-fail-text">{unlockError}</p>}
+            {unlockError && <p className="text-sm font-bold text-danger-text">{unlockError}</p>}
             <Button type="button" variant="primary" onClick={() => void manualUnlock()} disabled={unlocking || !unlockWeekId || !unlockReason.trim()}>
               {unlocking ? 'Unlocking…' : 'Unlock'}
             </Button>
