@@ -41,7 +41,7 @@ export default function QuizQuestionEditor({
   }
 
   return (
-    <div className="card">
+    <div className="rounded-card border border-hairline p-4">
       <div className="flex items-start gap-3">
         <ReorderButtons canMoveUp={canMoveUp} canMoveDown={canMoveDown} onMoveUp={onMoveUp} onMoveDown={onMoveDown} />
         <TextAreaField
@@ -51,7 +51,7 @@ export default function QuizQuestionEditor({
           rows={2}
           className="flex-1"
         />
-        <button onClick={onDelete} className="font-mono text-[11px] font-bold uppercase text-danger-border hover:underline">
+        <button onClick={onDelete} className="font-mono text-[11px] font-bold uppercase text-danger-text hover:underline">
           del
         </button>
       </div>

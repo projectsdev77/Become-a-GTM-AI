@@ -46,7 +46,7 @@ export default function ResetPasswordRequestPage() {
           {sent ? (
             <div className="mt-6 rounded-panel bg-cream p-5 text-ink-on-cream">
               <p className="mb-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-label-on-cream">
-                Sent state
+                Link sent
               </p>
               <p className="mb-1.5 text-[15px] font-bold">Check your inbox</p>
               <p className="text-[13.5px] leading-relaxed text-ink-2-on-cream">
