@@ -145,7 +145,7 @@ export default function SignupPage() {
               <span className="h-px flex-1 bg-hairline" />
             </div>
 
-            <Button type="button" variant="secondary" onClick={() => void handleGoogle()} className="w-full">
+            <Button type="button" variant="secondary" onClick={() => void handleGoogle()} className="w-full gap-2.5">
               <GoogleIcon size={17} />
               Continue with Google
             </Button>
