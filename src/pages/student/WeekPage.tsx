@@ -51,7 +51,7 @@ function LessonRow({ weekId, lesson, isCurrent }: { weekId: string; lesson: Less
 function AssignmentSidebarCard({ weekId, assignment }: { weekId: string; assignment: AssignmentSummary }) {
   const status = assignment.latestStatus ? ASSIGNMENT_STATUS[assignment.latestStatus] : 'NOT SUBMITTED'
   return (
-    <div className="rounded-panel border border-[color:var(--color-accent-dim)] p-6.5">
+    <div className="rounded-panel border border-accent-dim p-6.5">
       <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">This week's assignment</p>
       <p className="mb-3 font-display text-xl uppercase leading-[1.15] text-display">{assignment.title}</p>
       <p className="mb-5 text-[13px] leading-[1.6] text-body">Graded by AI on submit. Escalate to your mentor any time.</p>
