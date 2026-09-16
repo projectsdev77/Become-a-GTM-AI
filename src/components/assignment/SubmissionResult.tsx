@@ -3,7 +3,6 @@ import ReactMarkdown from 'react-markdown'
 import type { Submission } from '@/types/database'
 import StatusPill from '@/components/ui/StatusPill'
 import Callout from '@/components/ui/Callout'
-import Card from '@/components/ui/Card'
 import { Button, LinkButton } from '@/components/ui/Button'
 import { TextAreaField } from '@/components/ui/Field'
 import { MessageIcon, CheckIcon } from '@/components/ui/icons'
@@ -30,7 +29,7 @@ export default function SubmissionResult({
     submission.evaluation_status === 'complete'
 
   return (
-    <Card>
+    <div className="rounded-card border border-hairline p-5">
       <div className="flex items-center justify-between">
         <span className="meta">Attempt {submission.attempt_number}</span>
         {submission.final_status === 'passed' && <StatusPill variant="pass">passed</StatusPill>}
@@ -70,9 +69,9 @@ export default function SubmissionResult({
           tone={submission.final_status === 'passed' ? 'pass' : submission.final_status === 'needs_work' ? 'warn' : 'info'}
           heading={
             submission.final_status === 'passed'
-              ? 'AI feedback — strong pass'
+              ? 'Feedback — strong pass'
               : submission.final_status === 'needs_work'
-                ? 'AI feedback — needs work'
+                ? 'Feedback — needs work'
                 : 'Feedback'
           }
           icon={submission.final_status === 'passed' ? <CheckIcon className="h-3.5 w-3.5" /> : <MessageIcon className="h-3.5 w-3.5" />}
@@ -152,6 +151,6 @@ export default function SubmissionResult({
           )}
         </div>
       )}
-    </Card>
+    </div>
   )
 }

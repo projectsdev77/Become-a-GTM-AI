@@ -34,14 +34,15 @@ export default function QuizForm({
       </Card>
 
       {questions.map((q, i) => {
+        const labelId = `quiz-question-${q.id}`
         return (
-          <fieldset key={q.id} className="card">
-            <legend className="flex items-start gap-3 px-1 pb-1">
+          <div key={q.id} className="card" role="group" aria-labelledby={labelId}>
+            <div id={labelId} className="flex items-start gap-3 px-1 pb-1">
               <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent font-mono text-xs font-bold text-on-accent">
                 {String(i + 1).padStart(2, '0')}
               </span>
               <span className="font-bold text-ink-on-cream">{q.prompt}</span>
-            </legend>
+            </div>
             <div className="mt-3 space-y-2.5 pl-10">
               {q.options.map((opt) => {
                 const checked = answers[q.id] === opt.id
@@ -71,7 +72,7 @@ export default function QuizForm({
                 )
               })}
             </div>
-          </fieldset>
+          </div>
         )
       })}
 

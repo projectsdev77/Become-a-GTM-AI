@@ -11,7 +11,7 @@ import Callout from '@/components/ui/Callout'
 import Card from '@/components/ui/Card'
 import ListRow, { RowMeta, RowTitle } from '@/components/ui/ListRow'
 import { LinkButton } from '@/components/ui/Button'
-import { StarIcon } from '@/components/ui/icons'
+import { CheckIcon, StarIcon } from '@/components/ui/icons'
 import Illustration from '@/components/ui/Illustration'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 
@@ -55,9 +55,9 @@ function WeeklyHoursCard() {
         <ProgressBar percent={percent} />
       </div>
       {goalReached ? (
-        <Callout tone="pass" className="mt-4">
-          You hit your weekly goal — nice work.
-        </Callout>
+        <p className="mt-3 flex items-center gap-1.5 text-[13.5px] font-semibold text-accent-on-cream">
+          <CheckIcon className="h-3.5 w-3.5" /> You hit your weekly goal — nice work.
+        </p>
       ) : (
         <p className="mt-3 text-[13.5px] text-ink-2-on-cream">{formatHours(remaining)} hrs left to reach your target.</p>
       )}
