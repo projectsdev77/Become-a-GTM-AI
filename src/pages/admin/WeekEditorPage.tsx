@@ -198,7 +198,7 @@ export default function WeekEditorPage() {
                           onClick={() => {
                             if (confirm(`Delete "${lesson.title}"?`)) void lessons.remove(lesson.id)
                           }}
-                          className="font-mono text-[11px] font-bold uppercase text-danger-text hover:underline"
+                          className={`font-mono text-[11px] font-bold uppercase hover:underline ${published ? 'text-danger-border' : 'text-danger-text'}`}
                         >
                           del
                         </button>

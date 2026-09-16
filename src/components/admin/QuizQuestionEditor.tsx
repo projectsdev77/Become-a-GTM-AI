@@ -51,7 +51,7 @@ export default function QuizQuestionEditor({
           rows={2}
           className="flex-1"
         />
-        <button onClick={onDelete} className="font-mono text-[11px] font-bold uppercase text-fail-text hover:underline">
+        <button onClick={onDelete} className="font-mono text-[11px] font-bold uppercase text-danger-border hover:underline">
           del
         </button>
       </div>
@@ -60,15 +60,17 @@ export default function QuizQuestionEditor({
         {options.items.map((opt) => (
           <div
             key={opt.id}
-            className={`flex items-center gap-3 rounded-field border p-2.5 ${opt.is_correct ? '' : 'border-transparent'}`}
-            style={opt.is_correct ? { borderColor: 'var(--color-pass-border)', background: 'var(--color-pass-wash)' } : undefined}
+            className={`flex items-center gap-3 rounded-input border p-2.5 ${
+              opt.is_correct ? 'border-pass' : 'border-transparent'
+            }`}
+            style={opt.is_correct ? { background: 'rgba(47,125,82,.12)' } : undefined}
           >
             <span
               className="relative inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full border"
               style={
                 opt.is_correct
-                  ? { background: 'var(--color-pass-deep)', borderColor: 'var(--color-pass-deep)' }
-                  : { background: 'transparent', borderColor: 'var(--color-line-strong)' }
+                  ? { background: 'var(--color-pass)', borderColor: 'var(--color-pass)' }
+                  : { background: 'transparent', borderColor: 'var(--color-border-secondary)' }
               }
               title="Mark as the correct answer"
             >
@@ -82,13 +84,13 @@ export default function QuizQuestionEditor({
               {opt.is_correct && <CheckIcon className="h-3 w-3 text-white" />}
             </span>
             <Field value={opt.text} onChange={(e) => void options.update(opt.id, { text: e.target.value })} className="flex-1" />
-            {opt.is_correct && <span className="font-mono text-[10px] font-bold uppercase text-pass-deep">correct</span>}
-            <button onClick={() => void options.remove(opt.id)} className="font-mono text-xs font-bold text-fail-text hover:underline">
+            {opt.is_correct && <span className="font-mono text-[10px] font-bold uppercase text-pass">correct</span>}
+            <button onClick={() => void options.remove(opt.id)} className="font-mono text-xs font-bold text-danger-text hover:underline">
               ✕
             </button>
           </div>
         ))}
-        <button onClick={() => void addOption()} className="font-mono text-[11px] font-bold uppercase text-primary hover:underline">
+        <button onClick={() => void addOption()} className="font-mono text-[11px] font-bold uppercase text-accent hover:underline">
           + add option
         </button>
       </div>

@@ -92,12 +92,12 @@ export default function AssignmentEditorPage() {
       <AppNav />
       <AdminNav />
       {assignment && (
-        <div className="border-b border-line">
+        <div className="border-b border-hairline">
           <div className="mx-auto flex max-w-[1160px] flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
             <Breadcrumb items={[{ label: 'curriculum', to: '/admin/curriculum' }, { label: 'week', to: `/admin/curriculum/weeks/${assignment.week_id}` }, { label: 'assignment' }]} />
             <div className="flex items-center gap-3">
-              {justSaved && <span className="font-mono text-[11px] font-bold uppercase text-pass-deep">saved</span>}
-              <Button type="button" variant="site" size="sm" onClick={() => void save()} disabled={saving}>
+              {justSaved && <span className="font-mono text-[11px] font-bold uppercase text-pass">saved</span>}
+              <Button type="button" variant="primary" size="sm" onClick={() => void save()} disabled={saving}>
                 {saving ? 'Saving…' : 'Save changes'}
               </Button>
             </div>
@@ -109,8 +109,8 @@ export default function AssignmentEditorPage() {
         {assignment && (
           <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
             <div>
-              <div className="rounded-panel border border-line p-7">
-                <span className="pill pill-pending mb-4 inline-flex">{assignment.assignment_type}</span>
+              <div className="rounded-panel border border-hairline p-7">
+                <span className="badge badge-pending mb-4 inline-flex">{assignment.assignment_type}</span>
                 <div>
                   <Label htmlFor="title">Title</Label>
                   <Field id="title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="mb-5" />
@@ -196,10 +196,10 @@ export default function AssignmentEditorPage() {
               </div>
 
               {assignment.assignment_type === 'quiz' && (
-                <section className="mt-6 rounded-panel border border-line p-7">
+                <section className="mt-6 rounded-panel border border-hairline p-7">
                   <div className="flex items-center justify-between">
-                    <p className="text-[16px] font-bold text-text-bright">Quiz builder</p>
-                    <p className="font-mono text-[11px] font-bold uppercase text-text-muted">{questions.items.length} questions</p>
+                    <h2 className="text-[16px] font-bold text-heading">Quiz builder</h2>
+                    <p className="font-mono text-[11px] font-bold uppercase text-muted">{questions.items.length} questions</p>
                   </div>
                   <div className="mt-4 space-y-3">
                     {questions.items.map((q, i) => (
@@ -216,7 +216,7 @@ export default function AssignmentEditorPage() {
                     ))}
                     <button
                       onClick={() => void addQuestion()}
-                      className="w-full rounded-field border border-dashed border-line-strong py-3 font-mono text-xs font-bold uppercase text-text-muted hover:border-line-strong hover:text-text"
+                      className="w-full rounded-input border border-dashed border-border-secondary py-3 font-mono text-xs font-bold uppercase text-muted hover:border-muted hover:text-display"
                     >
                       + add question
                     </button>
@@ -226,15 +226,16 @@ export default function AssignmentEditorPage() {
             </div>
 
             <aside>
-              <div className="rounded-panel p-6" style={{ border: '1px solid rgba(238,72,35,.5)' }}>
+              <div className="rounded-panel border border-danger-border p-6">
                 <div className="mb-3 flex items-center gap-2.5">
-                  <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-primary text-white">
+                  <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-alert text-white">
                     <AlertIcon className="h-3 w-3" />
                   </span>
-                  <p className="text-[14px] font-bold text-text-bright">Grading rubric</p>
+                  <p className="text-[14px] font-bold text-heading">Grading rubric — admin only</p>
                 </div>
-                <p className="text-[13px] leading-relaxed text-text-body">
-                  Admin-only. Sent to the AI grader — never rendered on the student&apos;s assignment screen.
+                <p className="text-[13px] leading-relaxed text-body">
+                  Never rendered to students, in any view. This text is sent to the AI grader only so the rubric
+                  can&apos;t be gamed.
                 </p>
               </div>
             </aside>
