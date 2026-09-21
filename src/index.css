@@ -191,6 +191,7 @@
   }
   .badge-alert    { background: var(--color-alert); color: #fff; }
   .badge-pending  { background: transparent; border: 1px solid var(--color-accent-dim); color: var(--color-accent); }
+  .badge-pending-on-cream { background: transparent; border: 1px solid var(--color-accent-on-cream); color: var(--color-accent-on-cream); }
   .badge-pass     { background: var(--color-pass); color: #fff; }
   .badge-neutral  { background: transparent; color: var(--color-muted); padding: 0; letter-spacing: normal; }
   .badge-neutral-on-cream { background: transparent; color: var(--color-ink-2-on-cream); padding: 0; letter-spacing: normal; }
@@ -231,6 +232,7 @@
     font-family: var(--font-mono); font-size: 12.5px; font-weight: 500;
     letter-spacing: 0.04em; color: var(--color-muted);
   }
+  .card .meta { color: var(--color-label-on-cream); }
 
   .callout {
     border-radius: var(--radius-panel);

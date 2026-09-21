@@ -25,7 +25,12 @@ export default function StatusPill({
   tone?: 'dark' | 'cream'
 }) {
   const { cls, icon } = config[variant]
-  const resolvedCls = cls === 'badge-neutral' && tone === 'cream' ? 'badge-neutral-on-cream' : cls
+  const resolvedCls =
+    tone === 'cream' && cls === 'badge-neutral'
+      ? 'badge-neutral-on-cream'
+      : tone === 'cream' && cls === 'badge-pending'
+        ? 'badge-pending-on-cream'
+        : cls
   return (
     <span className={`badge ${resolvedCls} ${className}`}>
       {icon}
