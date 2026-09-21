@@ -8,7 +8,7 @@ import Card from '@/components/ui/Card'
 import Callout from '@/components/ui/Callout'
 import ProgressBar from '@/components/ui/ProgressBar'
 import Avatar from '@/components/ui/Avatar'
-import { Button } from '@/components/ui/Button'
+import { Button, LinkButton } from '@/components/ui/Button'
 import { Field, Label, TextAreaField, FieldHint } from '@/components/ui/Field'
 import PasswordRequirementsList from '@/components/ui/PasswordRequirementsList'
 import { validatePassword } from '@/lib/passwordPolicy'
@@ -354,8 +354,13 @@ export default function SettingsPage() {
               <p className="mt-1.5 text-[13.5px] text-ink-2-on-cream">
                 {data.payment_status === 'paid'
                   ? 'You have full access to all 12 weeks.'
-                  : 'Week 1 is free. Contact us to unlock the rest of the program.'}
+                  : 'Week 1 is free — upgrade to unlock weeks 2 through 12.'}
               </p>
+              {data.payment_status !== 'paid' && (
+                <LinkButton to="/messages" variant="primary" size="sm" className="mt-4">
+                  Upgrade plan
+                </LinkButton>
+              )}
             </Card>
           )}
 

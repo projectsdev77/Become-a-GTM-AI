@@ -188,7 +188,7 @@ export default function DashboardPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <p>Week 1 is free — weeks 2 through 12 unlock once you're on a paid plan.</p>
               <LinkButton to="/messages" variant="cta" size="sm" className="shrink-0">
-                Message your mentor
+                Upgrade plan
               </LinkButton>
             </div>
           </Callout>
