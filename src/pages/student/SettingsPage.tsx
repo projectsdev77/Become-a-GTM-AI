@@ -22,6 +22,7 @@ function ProfileForm() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [hoursStatus, setHoursStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
 
   useEffect(() => {
     if (profile) {
@@ -57,6 +58,28 @@ function ProfileForm() {
     }
     setSaved(true)
     await refreshProfile()
+  }
+
+  async function saveHoursTarget(value: string) {
+    if (!user) return
+    setHoursStatus('saving')
+    const { error } = await supabase
+      .from('profiles')
+      .update({ weekly_hours_target: value ? Number(value) : null })
+      .eq('id', user.id)
+    if (error) {
+      setHoursStatus('error')
+      return
+    }
+    setHoursStatus('saved')
+    await refreshProfile()
+    setTimeout(() => setHoursStatus((s) => (s === 'saved' ? 'idle' : s)), 2000)
+  }
+
+  function selectHoursPreset(preset: number) {
+    const value = String(preset)
+    setForm((f) => ({ ...f, weekly_hours_target: value }))
+    void saveHoursTarget(value)
   }
 
   return (
@@ -122,7 +145,7 @@ function ProfileForm() {
                   <button
                     key={preset}
                     type="button"
-                    onClick={() => setForm({ ...form, weekly_hours_target: String(preset) })}
+                    onClick={() => selectHoursPreset(preset)}
                     className={`flex min-h-11 items-center whitespace-nowrap rounded-pill px-[18px] py-2.5 text-[12.5px] font-semibold ${
                       selected ? 'bg-accent font-bold text-on-accent' : 'border border-border-secondary text-muted'
                     }`}
@@ -139,9 +162,20 @@ function ProfileForm() {
                 placeholder="Custom"
                 value={form.weekly_hours_target}
                 onChange={(e) => setForm({ ...form, weekly_hours_target: e.target.value })}
+                onBlur={(e) => void saveHoursTarget(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') e.currentTarget.blur()
+                }}
                 className="field min-h-11 w-[92px] !p-0 text-center text-[12.5px] font-semibold"
               />
             </div>
+            {hoursStatus !== 'idle' && (
+              <p className="mt-3 font-mono text-[11px] text-muted">
+                {hoursStatus === 'saving' && 'Saving…'}
+                {hoursStatus === 'saved' && 'Saved.'}
+                {hoursStatus === 'error' && "Couldn't save — try again."}
+              </p>
+            )}
           </div>
           <div className="shrink-0 text-center">
             <div className="font-display text-[clamp(44px,7vw,64px)] leading-[0.9] text-accent">
