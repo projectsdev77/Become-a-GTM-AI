@@ -4,7 +4,7 @@ import AppNav from '@/components/layout/AppNav'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import StatusPill from '@/components/ui/StatusPill'
 import { Checkbox } from '@/components/ui/Checkbox'
-import { Button, LinkButton } from '@/components/ui/Button'
+import { Button } from '@/components/ui/Button'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { useLessonDetail, type ResourceWithProgress } from '@/hooks/useLessonDetail'
 import { useWeekDetail } from '@/hooks/useWeekDetail'
@@ -66,7 +66,7 @@ export default function LessonPage() {
   const navigate = useNavigate()
   const { lesson, resources, completedAt, loading, error, toggleResource, markCompleteManually } =
     useLessonDetail(lessonId)
-  const { week, lessons, assignments } = useWeekDetail(weekId)
+  const { week, lessons } = useWeekDetail(weekId)
 
   if (loading) return <FullPageSpinner />
 
@@ -74,7 +74,6 @@ export default function LessonPage() {
   const doneCount = requiredResources.filter((r) => r.checked).length
   const currentIndex = lessons.findIndex((l) => l.id === lessonId)
   const nextLesson = currentIndex >= 0 ? lessons[currentIndex + 1] : undefined
-  const firstAssignment = assignments[0]
 
   return (
     <div className="min-h-screen bg-ground">
@@ -170,12 +169,6 @@ export default function LessonPage() {
                       </Button>
                     )}
                   </div>
-                )}
-
-                {firstAssignment && (
-                  <LinkButton to={`/weeks/${weekId}/assignments/${firstAssignment.id}`} variant="cta" className="mt-6 w-full">
-                    Start assignment
-                  </LinkButton>
                 )}
               </div>
             </aside>
