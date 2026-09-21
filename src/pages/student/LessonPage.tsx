@@ -66,7 +66,7 @@ export default function LessonPage() {
   const navigate = useNavigate()
   const { lesson, resources, completedAt, loading, error, toggleResource, markCompleteManually } =
     useLessonDetail(lessonId)
-  const { week, lessons } = useWeekDetail(weekId)
+  const { week, lessons, assignments } = useWeekDetail(weekId)
 
   if (loading) return <FullPageSpinner />
 
@@ -74,6 +74,7 @@ export default function LessonPage() {
   const doneCount = requiredResources.filter((r) => r.checked).length
   const currentIndex = lessons.findIndex((l) => l.id === lessonId)
   const nextLesson = currentIndex >= 0 ? lessons[currentIndex + 1] : undefined
+  const firstAssignment = assignments[0]
 
   return (
     <div className="min-h-screen bg-ground">
@@ -134,13 +135,15 @@ export default function LessonPage() {
                     onClick={() => {
                       if (nextLesson) {
                         navigate(`/weeks/${weekId}/lessons/${nextLesson.id}`)
+                      } else if (firstAssignment) {
+                        navigate(`/weeks/${weekId}/assignments/${firstAssignment.id}`)
                       } else {
-                        navigate(`/weeks/${weekId}#assignments`)
+                        navigate(`/weeks/${weekId}`)
                       }
                     }}
                     className="shrink-0"
                   >
-                    {nextLesson ? 'Continue' : 'Go to assignments'}
+                    {nextLesson ? 'Continue' : firstAssignment ? 'Go to assignment' : 'Back to week'}
                   </Button>
                 </div>
               )}
