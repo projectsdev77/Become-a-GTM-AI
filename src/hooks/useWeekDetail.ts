@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 import { useAuth } from '@/context/AuthContext'
 import type { AssignmentType, SubmissionStatus, Week } from '@/types/database'
 
@@ -136,7 +137,7 @@ export function useWeekDetail(weekId: string | undefined) {
         })),
       )
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load week')
+      setError(friendlyDbError(e as { code?: string } | null, 'Failed to load week'))
     } finally {
       setLoading(false)
     }

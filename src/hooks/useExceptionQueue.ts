@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 import type { Submission } from '@/types/database'
 
 export interface QueueItem extends Submission {
@@ -74,7 +75,7 @@ export function useExceptionQueue() {
         }),
       )
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load queue')
+      setError(friendlyDbError(e as { code?: string } | null, 'Failed to load queue'))
     } finally {
       setLoading(false)
     }
@@ -91,7 +92,7 @@ export function useExceptionQueue() {
       p_human_feedback: feedback,
     })
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't resolve this submission."))
       return false
     }
     await refresh()

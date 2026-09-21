@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 import type { CertificateTemplate } from '@/types/database'
 
 const DEFAULTS = {
@@ -29,7 +30,7 @@ export function useCertificateTemplate() {
       .eq('is_active', true)
       .maybeSingle()
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't load the certificate template."))
     } else {
       setError(null)
       setTemplate(data as CertificateTemplate | null)
@@ -46,7 +47,7 @@ export function useCertificateTemplate() {
       .from('certificate_templates')
       .insert({ ...DEFAULTS, is_active: true })
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't create the certificate template."))
       return
     }
     await refresh()
@@ -56,7 +57,7 @@ export function useCertificateTemplate() {
     if (!template) return false
     const { error } = await supabase.from('certificate_templates').update(fields).eq('id', template.id)
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't save the certificate template."))
       return false
     }
     await refresh()

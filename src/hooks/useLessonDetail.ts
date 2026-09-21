@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 import type { Lesson, Resource } from '@/types/database'
 
 export interface ResourceWithProgress extends Resource {
@@ -46,7 +47,7 @@ export function useLessonDetail(lessonId: string | undefined) {
       )
       setCompletedAt(progressRes.data?.completed_at ?? null)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load lesson')
+      setError(friendlyDbError(e as { code?: string } | null, 'Failed to load lesson'))
     } finally {
       setLoading(false)
     }
@@ -69,7 +70,7 @@ export function useLessonDetail(lessonId: string | undefined) {
       if (error && error.code !== '23505') {
         // 23505 = unique_violation (already checked); anything else, revert.
         setResources((prev) => prev.map((r) => (r.id === resourceId ? { ...r, checked: false } : r)))
-        setError(error.message)
+        setError(friendlyDbError(error, "Couldn't save that."))
         return
       }
     } else {
@@ -80,7 +81,7 @@ export function useLessonDetail(lessonId: string | undefined) {
         .eq('resource_id', resourceId)
       if (error) {
         setResources((prev) => prev.map((r) => (r.id === resourceId ? { ...r, checked: true } : r)))
-        setError(error.message)
+        setError(friendlyDbError(error, "Couldn't save that."))
         return
       }
     }
@@ -98,7 +99,7 @@ export function useLessonDetail(lessonId: string | undefined) {
     if (!lessonId) return
     const { error } = await supabase.rpc('mark_lesson_complete', { p_lesson_id: lessonId })
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't mark this lesson complete."))
       return
     }
     setCompletedAt(new Date().toISOString())

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 
 export interface WeeklyHoursProgress {
   target_hours: number | null
@@ -19,7 +20,7 @@ export function useWeeklyHours(targetUserId?: string) {
       p_target_user_id: targetUserId ?? null,
     })
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't load your weekly hours."))
     } else {
       setError(null)
       setData(data as WeeklyHoursProgress)

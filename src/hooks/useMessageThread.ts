@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import { MESSAGES_READ_EVENT } from '@/hooks/useUnreadMessages'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 import type { Message } from '@/types/database'
 
 /** The 1:1 mentor/student thread — every message sharing `studentId` (no separate conversations table). */
@@ -24,7 +25,7 @@ export function useMessageThread(studentId: string | undefined) {
       .eq('student_id', studentId)
       .order('created_at', { ascending: true })
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't load this conversation."))
     } else {
       setError(null)
       setMessages((data ?? []) as Message[])
@@ -68,7 +69,7 @@ export function useMessageThread(studentId: string | undefined) {
       .single()
     setSending(false)
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't send that message."))
       return
     }
     // Fire-and-forget: a notification failure should never block sending.

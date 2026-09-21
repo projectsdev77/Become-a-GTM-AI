@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 import { useAuth } from '@/context/AuthContext'
 import AppNav from '@/components/layout/AppNav'
 import AdminNav from '@/components/layout/AdminNav'
@@ -77,7 +78,7 @@ export default function StudentAdminDetailPage() {
     })
     setSettingPayment(false)
     if (error) {
-      setPaymentError(error.message)
+      setPaymentError(friendlyDbError(error, "Couldn't update the payment status."))
       return
     }
     setPaymentNote('')
@@ -118,7 +119,7 @@ export default function StudentAdminDetailPage() {
         setUnlockWeekId('')
         setUnlockReason('')
       } else {
-        setUnlockError(error.message)
+        setUnlockError(friendlyDbError(error, "Couldn't unlock that week."))
       }
       await refreshProgress()
       return

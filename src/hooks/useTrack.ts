@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 import type { Track } from '@/types/database'
 
 /** The single track (5.2: "one row in V1"). Admin-only — creates it on first use if missing. */
@@ -19,7 +20,7 @@ export function useTrack() {
       .limit(1)
       .maybeSingle()
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't load the track."))
     } else {
       setError(null)
       setTrack(data as Track | null)
@@ -39,7 +40,7 @@ export function useTrack() {
       status: 'draft',
     })
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't create the track."))
       return
     }
     await refresh()

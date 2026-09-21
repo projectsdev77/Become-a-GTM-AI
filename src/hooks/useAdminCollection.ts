@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 
 interface Positioned {
   id: string
@@ -43,7 +44,7 @@ export function useAdminCollection<T extends Positioned>(
       .eq(parentColumn, parentId)
       .order('position')
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't load this list."))
     } else {
       setError(null)
       setItems((data ?? []) as T[])
@@ -64,7 +65,7 @@ export function useAdminCollection<T extends Positioned>(
       .select()
       .single()
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't create that."))
       return null
     }
     await refresh()
@@ -74,7 +75,7 @@ export function useAdminCollection<T extends Positioned>(
   async function update(id: string, fields: Record<string, unknown>): Promise<boolean> {
     const { error } = await supabase.from(table).update(fields).eq('id', id)
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't save that."))
       return false
     }
     await refresh()
@@ -85,7 +86,7 @@ export function useAdminCollection<T extends Positioned>(
     const removed = items.find((i) => i.id === id)
     const { error } = await supabase.from(table).delete().eq('id', id)
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't delete that."))
       return false
     }
 
@@ -99,7 +100,7 @@ export function useAdminCollection<T extends Positioned>(
       for (const item of toShift) {
         const { error: shiftError } = await supabase.from(table).update({ position: item.position - 1 }).eq('id', item.id)
         if (shiftError) {
-          setError(shiftError.message)
+          setError(friendlyDbError(shiftError, "Couldn't delete that."))
           break
         }
       }
@@ -119,7 +120,7 @@ export function useAdminCollection<T extends Positioned>(
     for (const step of steps) {
       const { error } = await step
       if (error) {
-        setError(error.message)
+        setError(friendlyDbError(error, "Couldn't reorder that."))
         return
       }
     }

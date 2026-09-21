@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import { functionErrorMessage } from '@/lib/functionsError'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 import type { Assignment, QuizConfig, Submission, TextConfig, UrlConfig } from '@/types/database'
 
 export interface QuizQuestionWithOptions {
@@ -77,7 +78,7 @@ export function useAssignmentDetail(assignmentId: string | undefined) {
       if (submissionsRes.error) throw submissionsRes.error
       setSubmissions((submissionsRes.data ?? []) as Submission[])
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load assignment')
+      setError(friendlyDbError(e as { code?: string } | null, 'Failed to load assignment'))
     } finally {
       setLoading(false)
     }
@@ -139,7 +140,7 @@ export function useAssignmentDetail(assignmentId: string | undefined) {
       await refresh()
       void invokeEvaluation(data.id)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Submission failed')
+      setError(friendlyDbError(e as { code?: string } | null, 'Submission failed'))
     } finally {
       setSubmitting(false)
     }
@@ -175,7 +176,7 @@ export function useAssignmentDetail(assignmentId: string | undefined) {
       await refresh()
       void invokeEvaluation(submission.id)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Submission failed')
+      setError(friendlyDbError(e as { code?: string } | null, 'Submission failed'))
     } finally {
       setSubmitting(false)
     }
@@ -242,7 +243,7 @@ export function useAssignmentDetail(assignmentId: string | undefined) {
       p_reason: reason,
     })
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't escalate this to your mentor."))
       return
     }
     // Fire-and-forget: same pattern as send-welcome-email/notify-message —

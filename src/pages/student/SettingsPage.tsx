@@ -12,6 +12,7 @@ import { Field, Label, TextAreaField, FieldHint } from '@/components/ui/Field'
 import PasswordRequirementsList from '@/components/ui/PasswordRequirementsList'
 import { CheckIcon } from '@/components/ui/icons'
 import { validatePassword } from '@/lib/passwordPolicy'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 
 const HOURS_PRESETS = [2, 4, 6, 10]
 const HOURS_MIN = 1
@@ -51,6 +52,16 @@ function ProfileForm() {
   const savedHoursValue = profile?.weekly_hours_target != null ? String(profile.weekly_hours_target) : ''
   const hoursDirty = form.weekly_hours_target !== savedHoursValue
 
+  // weekly_hours_target is an integer column — round and clamp whatever was
+  // typed (e.g. "2.2") instead of sending it through as-is and letting
+  // Postgres reject it with a raw type error.
+  function parsedHoursTarget(): number | null {
+    if (!form.weekly_hours_target) return null
+    const n = Math.round(Number(form.weekly_hours_target))
+    if (Number.isNaN(n)) return null
+    return Math.max(HOURS_MIN, Math.min(HOURS_MAX, n))
+  }
+
   async function handleSave() {
     if (!user) return
     setSaving(true)
@@ -62,14 +73,14 @@ function ProfileForm() {
         ...(isStudent
           ? {
               background: form.background || null,
-              weekly_hours_target: form.weekly_hours_target ? Number(form.weekly_hours_target) : null,
+              weekly_hours_target: parsedHoursTarget(),
             }
           : {}),
       })
       .eq('id', user.id)
     setSaving(false)
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error))
       return
     }
     await refreshProfile()
@@ -79,13 +90,10 @@ function ProfileForm() {
     if (!user) return
     setHoursSaving(true)
     setHoursError(null)
-    const { error } = await supabase
-      .from('profiles')
-      .update({ weekly_hours_target: form.weekly_hours_target ? Number(form.weekly_hours_target) : null })
-      .eq('id', user.id)
+    const { error } = await supabase.from('profiles').update({ weekly_hours_target: parsedHoursTarget() }).eq('id', user.id)
     setHoursSaving(false)
     if (error) {
-      setHoursError(error.message)
+      setHoursError(friendlyDbError(error))
       return
     }
     await refreshProfile()
@@ -93,7 +101,7 @@ function ProfileForm() {
 
   function updateHours(nextValue: number) {
     if (Number.isNaN(nextValue)) return
-    const clamped = Math.max(HOURS_MIN, Math.min(HOURS_MAX, nextValue))
+    const clamped = Math.max(HOURS_MIN, Math.min(HOURS_MAX, Math.round(nextValue)))
     setForm((f) => ({ ...f, weekly_hours_target: String(clamped) }))
   }
 
@@ -192,6 +200,7 @@ function ProfileForm() {
                     aria-label="Custom weekly hours target"
                     min={HOURS_MIN}
                     max={HOURS_MAX}
+                    step={1}
                     placeholder="Custom"
                     value={form.weekly_hours_target}
                     onChange={(e) => setForm((f) => ({ ...f, weekly_hours_target: e.target.value }))}

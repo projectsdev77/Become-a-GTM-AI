@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 import type { PaymentStatus } from '@/types/database'
 
 export interface WeekProgress {
@@ -62,7 +63,7 @@ export function useProgressOverview(targetUserId?: string) {
       p_target_user_id: targetUserId ?? null,
     })
     if (error) {
-      setError(error.message)
+      setError(friendlyDbError(error, "Couldn't load your progress."))
     } else {
       setError(null)
       setData(data as ProgressOverview)

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 import { useAuth } from '@/context/AuthContext'
 
 export interface MentorStudent {
@@ -41,7 +42,7 @@ export function useMentorStudents() {
         })),
       )
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load students')
+      setError(friendlyDbError(e as { code?: string } | null, 'Failed to load students'))
     } finally {
       setLoading(false)
     }

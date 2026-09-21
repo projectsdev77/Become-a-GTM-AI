@@ -5,6 +5,7 @@ import { LinkButton } from '@/components/ui/Button'
 import ListRow, { RowMeta, RowTitle } from '@/components/ui/ListRow'
 import StatusPill from '@/components/ui/StatusPill'
 import { supabase } from '@/lib/supabase'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 
 interface PublicWeek {
   track_title: string
@@ -28,7 +29,7 @@ export default function CurriculumPage() {
       .then(({ data, error }) => {
         if (!active) return
         if (error) {
-          setError(error.message)
+          setError(friendlyDbError(error, "Couldn't load the curriculum. Please try again."))
         } else {
           setWeeks((data ?? []) as PublicWeek[])
         }
