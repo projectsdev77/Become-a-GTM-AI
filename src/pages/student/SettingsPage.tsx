@@ -31,7 +31,8 @@ function ProfileForm() {
   const [form, setForm] = useState({ full_name: '', background: '', weekly_hours_target: '' })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [hoursStatus, setHoursStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [hoursSaving, setHoursSaving] = useState(false)
+  const [hoursError, setHoursError] = useState<string | null>(null)
 
   useEffect(() => {
     if (profile) {
@@ -46,6 +47,9 @@ function ProfileForm() {
   const dirty = isStudent
     ? form.full_name !== (profile?.full_name ?? '') || form.background !== (profile?.background ?? '')
     : form.full_name !== (profile?.full_name ?? '')
+
+  const savedHoursValue = profile?.weekly_hours_target != null ? String(profile.weekly_hours_target) : ''
+  const hoursDirty = form.weekly_hours_target !== savedHoursValue
 
   async function handleSave() {
     if (!user) return
@@ -71,28 +75,26 @@ function ProfileForm() {
     await refreshProfile()
   }
 
-  async function saveHoursTarget(value: string) {
+  async function handleSaveHours() {
     if (!user) return
-    setHoursStatus('saving')
+    setHoursSaving(true)
+    setHoursError(null)
     const { error } = await supabase
       .from('profiles')
-      .update({ weekly_hours_target: value ? Number(value) : null })
+      .update({ weekly_hours_target: form.weekly_hours_target ? Number(form.weekly_hours_target) : null })
       .eq('id', user.id)
+    setHoursSaving(false)
     if (error) {
-      setHoursStatus('error')
+      setHoursError(error.message)
       return
     }
-    setHoursStatus('saved')
     await refreshProfile()
-    setTimeout(() => setHoursStatus((s) => (s === 'saved' ? 'idle' : s)), 2000)
   }
 
   function updateHours(nextValue: number) {
     if (Number.isNaN(nextValue)) return
     const clamped = Math.max(HOURS_MIN, Math.min(HOURS_MAX, nextValue))
-    const value = String(clamped)
-    setForm((f) => ({ ...f, weekly_hours_target: value }))
-    void saveHoursTarget(value)
+    setForm((f) => ({ ...f, weekly_hours_target: String(clamped) }))
   }
 
   const numHours = form.weekly_hours_target ? Number(form.weekly_hours_target) : 0
@@ -207,13 +209,6 @@ function ProfileForm() {
               {form.weekly_hours_target && (
                 <p className="mt-3 text-[13.5px] text-muted">That works out to about {formatPerDay(displayHours)} a day.</p>
               )}
-              {hoursStatus !== 'idle' && (
-                <p className="mt-1.5 font-mono text-[11px] text-muted">
-                  {hoursStatus === 'saving' && 'Saving…'}
-                  {hoursStatus === 'saved' && 'Saved.'}
-                  {hoursStatus === 'error' && "Couldn't save — try again."}
-                </p>
-              )}
             </div>
             <div className="shrink-0 text-center">
               <div className="font-display text-[clamp(44px,7vw,64px)] leading-[0.9] text-accent">
@@ -221,6 +216,27 @@ function ProfileForm() {
               </div>
               <div className="mt-1.5 text-[11.5px] font-bold uppercase tracking-[0.06em] text-muted">Hrs / week</div>
             </div>
+          </div>
+
+          {hoursError && <p className="mt-4 text-sm font-bold text-danger-text">{hoursError}</p>}
+
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-hairline pt-5">
+            <div className="flex items-center gap-2.5 text-[13.5px]">
+              {hoursDirty ? (
+                <>
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-accent" />
+                  <span className="text-muted">Unsaved changes</span>
+                </>
+              ) : (
+                <>
+                  <CheckIcon className="h-4 w-4 text-pass" />
+                  <span className="text-pass">All changes saved</span>
+                </>
+              )}
+            </div>
+            <Button type="button" variant="primary" onClick={() => void handleSaveHours()} disabled={hoursSaving || !hoursDirty}>
+              {hoursSaving ? 'Saving…' : 'Save'}
+            </Button>
           </div>
         </div>
       )}
