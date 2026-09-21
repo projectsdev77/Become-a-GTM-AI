@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
@@ -32,7 +32,6 @@ function ProfileForm() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [hoursStatus, setHoursStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
-  const hoursTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (profile) {
@@ -43,12 +42,6 @@ function ProfileForm() {
       })
     }
   }, [profile])
-
-  useEffect(() => {
-    return () => {
-      if (hoursTimerRef.current) clearTimeout(hoursTimerRef.current)
-    }
-  }, [])
 
   const dirty = isStudent
     ? form.full_name !== (profile?.full_name ?? '') || form.background !== (profile?.background ?? '')
@@ -98,8 +91,7 @@ function ProfileForm() {
     const clamped = Math.max(HOURS_MIN, Math.min(HOURS_MAX, nextValue))
     const value = String(clamped)
     setForm((f) => ({ ...f, weekly_hours_target: value }))
-    if (hoursTimerRef.current) clearTimeout(hoursTimerRef.current)
-    hoursTimerRef.current = setTimeout(() => void saveHoursTarget(value), 500)
+    void saveHoursTarget(value)
   }
 
   const numHours = form.weekly_hours_target ? Number(form.weekly_hours_target) : 0
