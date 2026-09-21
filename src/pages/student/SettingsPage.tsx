@@ -487,7 +487,7 @@ export default function SettingsPage() {
           Settings
         </h1>
 
-        <div className="flex flex-wrap items-start gap-8">
+        <div className="flex flex-wrap gap-8">
           <aside className="min-w-[240px] flex-[1_1_280px]">
             <div className="sticky top-5 flex flex-col gap-6">
               <nav aria-label="Settings sections" className="flex flex-col gap-1">
