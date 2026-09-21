@@ -46,17 +46,17 @@ export default function AssignmentPage() {
   return (
     <div className="min-h-screen bg-ground">
       <AppNav />
-      {week && assignment && (
-        <Breadcrumb
-          items={[
-            { label: 'dashboard', to: '/dashboard' },
-            { label: `week ${week.position}`, to: `/weeks/${week.id}` },
-            { label: assignment.title.toLowerCase() },
-          ]}
-        />
-      )}
 
       <main className="mx-auto max-w-[820px] px-6 py-9">
+        {week && assignment && (
+          <Breadcrumb
+            items={[
+              { label: 'dashboard', to: '/dashboard' },
+              { label: `week ${week.position}`, to: `/weeks/${week.id}` },
+              { label: assignment.title.toLowerCase() },
+            ]}
+          />
+        )}
         {error && <p className="text-sm font-bold text-danger-text">{error}</p>}
 
         {assignment && (

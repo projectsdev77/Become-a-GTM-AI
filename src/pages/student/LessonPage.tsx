@@ -79,17 +79,17 @@ export default function LessonPage() {
   return (
     <div className="min-h-screen bg-ground">
       <AppNav />
-      {week && lesson && (
-        <Breadcrumb
-          items={[
-            { label: 'dashboard', to: '/dashboard' },
-            { label: `week ${week.position}`, to: `/weeks/${week.id}` },
-            { label: lesson.title.toLowerCase() },
-          ]}
-        />
-      )}
 
       <main className="mx-auto max-w-[1160px] px-6 py-9">
+        {week && lesson && (
+          <Breadcrumb
+            items={[
+              { label: 'dashboard', to: '/dashboard' },
+              { label: `week ${week.position}`, to: `/weeks/${week.id}` },
+              { label: lesson.title.toLowerCase() },
+            ]}
+          />
+        )}
         {error && <p className="text-sm font-bold text-danger-text">{error}</p>}
 
         {lesson && (

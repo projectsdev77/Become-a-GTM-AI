@@ -112,7 +112,7 @@ function ProfileForm() {
             <p className="mb-5 text-[13.5px] leading-relaxed text-muted">
               Sets the pace shown on your dashboard. Be honest — it drives your nudges.
             </p>
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap items-center gap-2.5">
               {HOURS_PRESETS.map((preset) => {
                 const selected =
                   preset === 10
@@ -131,6 +131,16 @@ function ProfileForm() {
                   </button>
                 )
               })}
+              <input
+                type="number"
+                min={1}
+                max={80}
+                inputMode="numeric"
+                placeholder="Custom"
+                value={form.weekly_hours_target}
+                onChange={(e) => setForm({ ...form, weekly_hours_target: e.target.value })}
+                className="field min-h-11 w-[92px] !p-0 text-center text-[12.5px] font-semibold"
+              />
             </div>
           </div>
           <div className="shrink-0 text-center">

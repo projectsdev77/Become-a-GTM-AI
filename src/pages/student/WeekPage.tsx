@@ -87,9 +87,9 @@ export default function WeekPage() {
   return (
     <div className="min-h-screen bg-ground">
       <AppNav />
-      {week && <Breadcrumb items={[{ label: 'dashboard', to: '/dashboard' }, { label: `week ${week.position}` }]} />}
 
       <main className="mx-auto max-w-[1160px] px-6 py-9">
+        {week && <Breadcrumb items={[{ label: 'dashboard', to: '/dashboard' }, { label: `week ${week.position}` }]} />}
         {error && <p className="text-sm font-bold text-danger-text">Couldn't load this week: {error}</p>}
 
         {week && (
