@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { useOAuthErrorParam } from '@/hooks/useOAuthErrorParam'
 import PublicNav from '@/components/layout/PublicNav'
 import { Button } from '@/components/ui/Button'
 import { Field, Label } from '@/components/ui/Field'
@@ -16,6 +17,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  useOAuthErrorParam(setError)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
