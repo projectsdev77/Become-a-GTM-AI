@@ -444,20 +444,46 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const ids = sections.map((s) => s.id)
+
+    // A short trailing section (Password, Delete account) can sit well
+    // above the viewport's trigger line and just stay there once the page
+    // can't scroll any further — it would never "arrive" at that line on
+    // its own, so it could never become active. Once the page is scrolled
+    // to (or very near) its end, just activate the last section outright.
+    function isAtPageBottom() {
+      return window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
+        if (isAtPageBottom()) {
+          setActiveSection(ids[ids.length - 1])
+          return
+        }
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
         if (visible[0]) setActiveSection(visible[0].target.id)
       },
-      { rootMargin: '-96px 0px -70% 0px', threshold: 0 },
+      // Active zone is the top 60% of the viewport — a section counts as
+      // "current" once it's scrolled up to a bit above the lower screen
+      // line, not only once it reaches the very top.
+      { rootMargin: '0px 0px -40% 0px', threshold: 0 },
     )
     ids.forEach((id) => {
       const el = document.getElementById(id)
       if (el) observer.observe(el)
     })
-    return () => observer.disconnect()
+
+    function onScroll() {
+      if (isAtPageBottom()) setActiveSection(ids[ids.length - 1])
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('scroll', onScroll)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStudent])
 
