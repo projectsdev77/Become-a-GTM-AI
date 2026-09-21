@@ -180,46 +180,28 @@ function ProfileForm() {
                   )
                 })}
                 <div
-                  role="group"
-                  aria-label="Custom weekly hours"
-                  className={`flex min-h-11 items-center gap-0.5 rounded-pill border px-[3px] ${
+                  className={`flex min-h-11 items-center gap-2 rounded-pill border px-[18px] ${
                     isCustom ? 'border-accent' : 'border-border-secondary'
                   }`}
                 >
-                  <button
-                    type="button"
-                    aria-label="Decrease hours"
-                    onClick={() => updateHours(displayHours - 1)}
-                    disabled={displayHours <= HOURS_MIN}
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg leading-none text-display disabled:opacity-30"
-                  >
-                    −
-                  </button>
                   <input
                     type="number"
                     inputMode="numeric"
-                    aria-label="Weekly hours target"
+                    aria-label="Custom weekly hours target"
                     min={HOURS_MIN}
                     max={HOURS_MAX}
-                    value={displayHours}
+                    placeholder="Custom"
+                    value={form.weekly_hours_target}
                     onChange={(e) => setForm((f) => ({ ...f, weekly_hours_target: e.target.value }))}
                     onBlur={(e) => updateHours(e.target.value ? Number(e.target.value) : displayHours)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') e.currentTarget.blur()
                     }}
-                    className={`field !min-h-0 w-[52px] !border-0 !bg-transparent !p-0 text-center text-[12.5px] font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
+                    className={`field !min-h-0 w-[40px] !border-0 !bg-transparent !p-0 text-center text-[12.5px] font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
                       isCustom ? 'text-accent' : 'text-display'
                     }`}
                   />
-                  <button
-                    type="button"
-                    aria-label="Increase hours"
-                    onClick={() => updateHours(displayHours + 1)}
-                    disabled={displayHours >= HOURS_MAX}
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg leading-none text-display disabled:opacity-30"
-                  >
-                    +
-                  </button>
+                  <span className={`text-[12.5px] font-semibold ${isCustom ? 'text-accent' : 'text-muted'}`}>hrs</span>
                 </div>
               </div>
               {form.weekly_hours_target && (
