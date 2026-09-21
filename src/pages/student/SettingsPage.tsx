@@ -88,6 +88,7 @@ function ProfileForm() {
   }
 
   function updateHours(nextValue: number) {
+    if (Number.isNaN(nextValue)) return
     const clamped = Math.max(HOURS_MIN, Math.min(HOURS_MAX, nextValue))
     const value = String(clamped)
     setForm((f) => ({ ...f, weekly_hours_target: value }))
@@ -190,22 +191,32 @@ function ProfileForm() {
                     aria-label="Decrease hours"
                     onClick={() => updateHours(displayHours - 1)}
                     disabled={displayHours <= HOURS_MIN}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-lg leading-none text-display disabled:opacity-30"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg leading-none text-display disabled:opacity-30"
                   >
                     −
                   </button>
-                  <span
-                    aria-live="polite"
-                    className={`min-w-[58px] text-center text-[12.5px] font-semibold ${isCustom ? 'text-accent' : 'text-display'}`}
-                  >
-                    {displayHours === 1 ? '1 hr' : `${displayHours} hrs`}
-                  </span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    aria-label="Weekly hours target"
+                    min={HOURS_MIN}
+                    max={HOURS_MAX}
+                    value={displayHours}
+                    onChange={(e) => setForm((f) => ({ ...f, weekly_hours_target: e.target.value }))}
+                    onBlur={(e) => updateHours(e.target.value ? Number(e.target.value) : displayHours)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') e.currentTarget.blur()
+                    }}
+                    className={`field !min-h-0 w-[52px] !border-0 !bg-transparent !p-0 text-center text-[12.5px] font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
+                      isCustom ? 'text-accent' : 'text-display'
+                    }`}
+                  />
                   <button
                     type="button"
                     aria-label="Increase hours"
                     onClick={() => updateHours(displayHours + 1)}
                     disabled={displayHours >= HOURS_MAX}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-lg leading-none text-display disabled:opacity-30"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg leading-none text-display disabled:opacity-30"
                   >
                     +
                   </button>
