@@ -39,44 +39,57 @@ function ResourceRow({
 
   return (
     <div className={`rounded-input border p-3.5 ${resource.is_broken ? 'border-danger-border' : 'border-hairline'}`}>
-      <div className="flex flex-wrap items-center gap-3">
-        <ReorderButtons canMoveUp={canMoveUp} canMoveDown={canMoveDown} onMoveUp={onMoveUp} onMoveDown={onMoveDown} />
-        <span
-          className={`h-2.5 w-2.5 shrink-0 rounded-full ${resource.is_broken ? 'bg-alert' : 'bg-pass'}`}
-          title={resource.is_broken ? 'Broken link' : 'Link healthy'}
-        />
-        <select
-          value={resource.resource_type}
-          onChange={(e) => onUpdate({ resource_type: e.target.value as ResourceType })}
-          className="rounded-pill border border-border-secondary bg-inset px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-body"
-        >
-          {RESOURCE_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
-        <div className="grid min-w-0 flex-1 gap-1.5 sm:grid-cols-2">
-          <Field
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={() => title.trim() && onUpdate({ title: title.trim() })}
-            placeholder="Resource title…"
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <ReorderButtons canMoveUp={canMoveUp} canMoveDown={canMoveDown} onMoveUp={onMoveUp} onMoveDown={onMoveDown} />
+          <span
+            className={`h-2.5 w-2.5 shrink-0 rounded-full ${resource.is_broken ? 'bg-alert' : 'bg-pass'}`}
+            title={resource.is_broken ? 'Broken link' : 'Link healthy'}
           />
-          <Field
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            onBlur={() => url.trim() && onUpdate({ url: url.trim() })}
-            className="font-mono text-[12px]"
-            placeholder="https://…"
-          />
+          <select
+            value={resource.resource_type}
+            onChange={(e) => onUpdate({ resource_type: e.target.value as ResourceType })}
+            className="rounded-pill border border-border-secondary bg-inset px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-body"
+          >
+            {RESOURCE_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
         </div>
+        {resource.is_broken && <span className="font-mono text-[10.5px] font-bold uppercase text-danger-text">broken</span>}
+      </div>
+
+      <div className="mt-3">
+        <Label htmlFor={`resource-title-${resource.id}`}>Title</Label>
+        <Field
+          id={`resource-title-${resource.id}`}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onBlur={() => title.trim() && onUpdate({ title: title.trim() })}
+          placeholder="Resource title…"
+        />
+      </div>
+
+      <div className="mt-2.5">
+        <Label htmlFor={`resource-url-${resource.id}`}>Link</Label>
+        <Field
+          id={`resource-url-${resource.id}`}
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          onBlur={() => url.trim() && onUpdate({ url: url.trim() })}
+          className="font-mono text-[12px]"
+          placeholder="https://…"
+        />
+      </div>
+
+      <div className="mt-3 flex items-center justify-between gap-3 border-t border-hairline pt-3">
         <Checkbox
           checked={resource.is_required}
           onChange={(checked) => onUpdate({ is_required: checked })}
-          label={<span className="font-mono text-[11px] font-bold uppercase text-muted">required</span>}
+          label={<span className="text-[13px] font-semibold text-body">Required to finish</span>}
         />
-        {resource.is_broken && <span className="font-mono text-[10.5px] font-bold uppercase text-danger-text">broken</span>}
         <button
           onClick={() => {
             if (confirm(`Delete "${resource.title}"?`)) onDelete()
@@ -205,7 +218,8 @@ export default function LessonEditorPage() {
 
             <aside className="rounded-panel border border-hairline p-6">
               <p className="meta">Resources · {resources.items.length}</p>
-              <div className="mt-4 space-y-2.5">
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted">Shown to learners in the order below.</p>
+              <div className="mt-4 space-y-3">
                 {resources.items.map((resource, i) => (
                   <ResourceRow
                     key={resource.id}
