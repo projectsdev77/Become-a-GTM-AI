@@ -6,6 +6,7 @@ import AdminNav from '@/components/layout/AdminNav'
 import ListRow, { RowTitle, RowMeta } from '@/components/ui/ListRow'
 import { Field } from '@/components/ui/Field'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 import type { Profile } from '@/types/database'
 
 interface StudentRow extends Profile {
@@ -16,6 +17,7 @@ interface StudentRow extends Profile {
 function useStudents() {
   const [students, setStudents] = useState<StudentRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [emailError, setEmailError] = useState<string | null>(null)
 
   useEffect(() => {
     ;(async () => {
@@ -26,7 +28,7 @@ function useStudents() {
         .order('created_at', { ascending: false })
 
       const studentIds = (profiles ?? []).map((p) => p.id)
-      const [{ data: assignments }, { data: emailRows }] = await Promise.all([
+      const [{ data: assignments }, { data: emailRows, error: emailRpcError }] = await Promise.all([
         studentIds.length
           ? supabase.from('mentor_assignments').select('student_id, mentor_id').in('student_id', studentIds).eq('is_active', true)
           : Promise.resolve({ data: [] }),
@@ -34,6 +36,12 @@ function useStudents() {
         // this RPC is the only way to reach from the client.
         supabase.rpc('admin_list_student_emails'),
       ])
+      if (emailRpcError) {
+        console.error('admin_list_student_emails failed', emailRpcError)
+        setEmailError(
+          friendlyDbError(emailRpcError, "Couldn't load student emails — search by email won't work until this is fixed."),
+        )
+      }
 
       const mentorIds = [...new Set((assignments ?? []).map((a) => a.mentor_id))]
       const { data: mentors } = mentorIds.length
@@ -56,11 +64,11 @@ function useStudents() {
     })()
   }, [])
 
-  return { students, loading }
+  return { students, loading, emailError }
 }
 
 export default function StudentsListPage() {
-  const { students, loading } = useStudents()
+  const { students, loading, emailError } = useStudents()
   const [query, setQuery] = useState('')
 
   const filtered = useMemo(() => {
@@ -84,6 +92,8 @@ export default function StudentsListPage() {
         <h1 className="font-display text-[clamp(28px,5.2vw,44px)] uppercase leading-[0.94] tracking-[-0.02em] text-display">
           {students.length} students
         </h1>
+
+        {emailError && <p className="mt-4 text-sm font-bold text-danger-text">{emailError}</p>}
 
         <Field
           type="search"
