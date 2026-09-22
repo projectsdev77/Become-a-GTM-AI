@@ -73,7 +73,7 @@ export default function MentorDashboardPage() {
               className="flex min-h-11 items-center gap-2 whitespace-nowrap rounded-pill border border-border-secondary px-[18px] py-2 text-[13px] font-medium text-body no-underline hover:border-muted"
             >
               Queue
-              {openQueueItems.length > 0 && <span className="badge badge-pending">{openQueueItems.length}</span>}
+              {openQueueItems.length > 0 && <span className="badge badge-accent">{openQueueItems.length}</span>}
             </Link>
           </nav>
         </div>
