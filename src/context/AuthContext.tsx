@@ -1,8 +1,11 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { functionErrorMessage } from '@/lib/functionsError'
 import type { Profile } from '@/types/database'
+
+const SUSPENDED_CHECK_INTERVAL_MS = 60_000
 
 interface AuthContextValue {
   session: Session | null
@@ -26,6 +29,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const navigate = useNavigate()
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
@@ -77,6 +81,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscription.subscription.unsubscribe()
     }
   }, [])
+
+  // A suspended account's ban (see admin-set-student-status) blocks new
+  // logins and token refreshes, but an already-open tab's access token is a
+  // stateless JWT — it keeps working for the rest of its ~1hr lifetime
+  // regardless of the ban, since that's only checked when a new token is
+  // issued. This polls the account's own status so a session that's open
+  // *right now* still gets kicked out, instead of quietly working until the
+  // token happens to expire. Also re-checks on refocus so a tab suspended
+  // while backgrounded is caught the moment someone comes back to it.
+  useEffect(() => {
+    const userId = session?.user?.id
+    if (!userId) return
+
+    async function checkStillActive() {
+      const { data } = await supabase.from('profiles').select('status').eq('id', userId as string).single()
+      if (data?.status === 'suspended') {
+        await supabase.auth.signOut()
+        navigate(`/login?error=${encodeURIComponent('Your account has been suspended. Contact support if this seems wrong.')}`, {
+          replace: true,
+        })
+      }
+    }
+
+    const interval = setInterval(() => void checkStillActive(), SUSPENDED_CHECK_INTERVAL_MS)
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') void checkStillActive()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
+  }, [session?.user?.id, navigate])
 
   async function signUp(email: string, password: string, fullName: string) {
     const { data, error } = await supabase.auth.signUp({
