@@ -7,6 +7,20 @@ import type { Profile } from '@/types/database'
 
 const SUSPENDED_CHECK_INTERVAL_MS = 60_000
 
+// Google OAuth via signInWithOAuth is "sign in or sign up" by default —
+// Supabase silently creates a brand-new account for any Google identity
+// that doesn't match an existing one, with no built-in way to ask for
+// login-only behavior. There's no way to prevent that account from being
+// created in the first place (it happens server-side during the redirect,
+// before our code runs again), so instead: the Login page's Google button
+// stamps this sessionStorage flag right before redirecting, and once the
+// user lands back with a session, a freshly-created-just-now account
+// (created_at within this window of "now") gets treated as "no existing
+// account" — deleted via the existing delete-account edge function and
+// signed back out — rather than silently let in as if they'd signed up.
+const OAUTH_LOGIN_INTENT_KEY = 'oauth_login_intent'
+const OAUTH_JUST_CREATED_WINDOW_MS = 60_000
+
 interface AuthContextValue {
   session: Session | null
   user: User | null
@@ -18,7 +32,7 @@ interface AuthContextValue {
     fullName: string,
   ) => Promise<{ error: string | null; needsEmailConfirmation: boolean }>
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
-  signInWithGoogle: () => Promise<{ error: string | null }>
+  signInWithGoogle: (intent: 'login' | 'signup') => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
   requestPasswordReset: (email: string) => Promise<{ error: string | null }>
@@ -54,11 +68,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(undefined, () => {})
   }
 
+  // Returns true if it handled (rejected) this session itself — callers
+  // should skip their normal setSession/loadProfile in that case. Reads
+  // and clears the intent flag synchronously before any await, so of the
+  // two places this runs from (getSession below and onAuthStateChange),
+  // only whichever's callback body starts executing first actually acts
+  // on it — the other sees it already cleared and falls through normally.
+  async function rejectIfUnrecognizedGoogleLogin(user: User) {
+    const intent = sessionStorage.getItem(OAUTH_LOGIN_INTENT_KEY)
+    sessionStorage.removeItem(OAUTH_LOGIN_INTENT_KEY)
+    if (intent !== 'login') return false
+
+    const justCreated = Date.now() - new Date(user.created_at).getTime() < OAUTH_JUST_CREATED_WINDOW_MS
+    if (!justCreated) return false
+
+    await supabase.functions.invoke('delete-account').catch(() => {})
+    await supabase.auth.signOut()
+    navigate(
+      `/login?error=${encodeURIComponent('No account found with this Google login. Sign up instead.')}`,
+      { replace: true },
+    )
+    return true
+  }
+
   useEffect(() => {
     let active = true
 
     supabase.auth.getSession().then(async ({ data }) => {
       if (!active) return
+      if (data.session?.user && (await rejectIfUnrecognizedGoogleLogin(data.session.user))) {
+        setLoading(false)
+        return
+      }
       setSession(data.session)
       if (data.session?.user) {
         await loadProfile(data.session.user.id)
@@ -68,6 +109,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     const { data: subscription } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      if (newSession?.user && (await rejectIfUnrecognizedGoogleLogin(newSession.user))) {
+        return
+      }
       setSession(newSession)
       if (newSession?.user) {
         await loadProfile(newSession.user.id)
@@ -80,6 +124,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       active = false
       subscription.subscription.unsubscribe()
     }
+    // Intentionally run once on mount — loadProfile/touchLastActive/
+    // rejectIfUnrecognizedGoogleLogin are redeclared every render but this
+    // subscription must not be torn down and recreated on every one.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // A suspended account's ban (see admin-set-student-status) blocks new
@@ -140,7 +188,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error?.message ?? null }
   }
 
-  async function signInWithGoogle() {
+  async function signInWithGoogle(intent: 'login' | 'signup') {
+    if (intent === 'login') {
+      sessionStorage.setItem(OAUTH_LOGIN_INTENT_KEY, 'login')
+    } else {
+      sessionStorage.removeItem(OAUTH_LOGIN_INTENT_KEY)
+    }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/dashboard` },

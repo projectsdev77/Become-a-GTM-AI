@@ -35,7 +35,7 @@ export default function LoginPage() {
 
   async function handleGoogle() {
     setError(null)
-    const { error } = await signInWithGoogle()
+    const { error } = await signInWithGoogle('login')
     if (error) setError(error)
   }
 

@@ -52,7 +52,7 @@ export default function SignupPage() {
 
   async function handleGoogle() {
     setError(null)
-    const { error } = await signInWithGoogle()
+    const { error } = await signInWithGoogle('signup')
     if (error) setError(error)
   }
 
