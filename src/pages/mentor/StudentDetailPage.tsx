@@ -7,11 +7,12 @@ import Avatar from '@/components/ui/Avatar'
 import ProgressBar from '@/components/ui/ProgressBar'
 import ListRow, { RowMeta } from '@/components/ui/ListRow'
 import StatusPill, { type StatusVariant } from '@/components/ui/StatusPill'
-import { Button } from '@/components/ui/Button'
+import { LinkButton } from '@/components/ui/Button'
 import MessageThread from '@/components/messages/MessageThread'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { useProgressOverview } from '@/hooks/useProgressOverview'
 import { useWeeklyHours } from '@/hooks/useWeeklyHours'
+import { useExceptionQueue } from '@/hooks/useExceptionQueue'
 import type { Submission } from '@/types/database'
 
 interface StudentProfile {
@@ -97,6 +98,8 @@ export default function StudentDetailPage() {
   const { submissions, loading: submissionsLoading } = useRecentSubmissions(studentId)
   const { data: weeklyHours } = useWeeklyHours(studentId)
   const studentProfile = useStudentProfile(studentId)
+  const { open: openQueueItems } = useExceptionQueue()
+  const openForStudent = openQueueItems.filter((i) => i.user_id === studentId)
 
   if (progressLoading) return <FullPageSpinner />
 
@@ -128,10 +131,10 @@ export default function StudentDetailPage() {
               )}
             </div>
           </div>
-          {studentId && (
-            <Button variant="cta" onClick={() => document.getElementById('mentor-thread')?.scrollIntoView({ behavior: 'smooth' })}>
-              Message {studentProfile?.full_name?.split(' ')[0] ?? 'student'}
-            </Button>
+          {openForStudent.length > 0 && (
+            <LinkButton to="/mentor/queue" variant="cta">
+              Review {openForStudent.length} in queue
+            </LinkButton>
           )}
         </div>
 
