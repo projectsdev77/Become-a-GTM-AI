@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { Field, Label, SelectField } from '@/components/ui/Field'
 import StatusPill from '@/components/ui/StatusPill'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
+import { functionErrorMessage } from '@/lib/functionsError'
 import { useProgressOverview } from '@/hooks/useProgressOverview'
 import type { Profile } from '@/types/database'
 
@@ -26,6 +27,26 @@ function useMentorOptions() {
     })()
   }, [])
   return mentors
+}
+
+function useStudentAccount(studentId: string | undefined) {
+  const [account, setAccount] = useState<{ full_name: string | null; status: Profile['status'] } | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  async function refresh() {
+    if (!studentId) return
+    setLoading(true)
+    const { data } = await supabase.from('profiles').select('full_name, status').eq('id', studentId).single()
+    setAccount(data as { full_name: string | null; status: Profile['status'] } | null)
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    void refresh()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studentId])
+
+  return { account, loading, refresh }
 }
 
 function useCurrentMentor(studentId: string | undefined) {
@@ -60,6 +81,10 @@ export default function StudentAdminDetailPage() {
   const mentors = useMentorOptions()
   const { mentorId, refresh: refreshMentor } = useCurrentMentor(studentId)
   const [reassigning, setReassigning] = useState(false)
+  const { account, refresh: refreshAccount } = useStudentAccount(studentId)
+  const [confirmingStatus, setConfirmingStatus] = useState(false)
+  const [settingStatus, setSettingStatus] = useState(false)
+  const [statusError, setStatusError] = useState<string | null>(null)
 
   const [unlockWeekId, setUnlockWeekId] = useState('')
   const [unlockReason, setUnlockReason] = useState('')
@@ -97,6 +122,26 @@ export default function StudentAdminDetailPage() {
     })
     setReassigning(false)
     if (!error) await refreshMentor()
+  }
+
+  async function setAccountStatus(status: 'active' | 'suspended') {
+    if (!studentId) return
+    setSettingStatus(true)
+    setStatusError(null)
+    const { data, error: invokeError } = await supabase.functions.invoke('admin-set-student-status', {
+      body: { studentId, status },
+    })
+    setSettingStatus(false)
+    if (invokeError) {
+      setStatusError(await functionErrorMessage(invokeError))
+      return
+    }
+    if (data?.error) {
+      setStatusError(data.error as string)
+      return
+    }
+    setConfirmingStatus(false)
+    await refreshAccount()
   }
 
   async function manualUnlock() {
@@ -146,7 +191,10 @@ export default function StudentAdminDetailPage() {
       <AppNav />
       <AdminNav />
       <main className="mx-auto max-w-[1000px] px-4 py-10 sm:px-6">
-        <Breadcrumb items={[{ label: 'students', to: '/admin/students' }, { label: 'student' }]} />
+        <Breadcrumb items={[{ label: 'students', to: '/admin/students' }, { label: account?.full_name?.toLowerCase() ?? 'student' }]} />
+        <h1 className="mb-6 mt-2 font-display text-[clamp(26px,4.4vw,38px)] uppercase leading-[0.96] tracking-[-0.02em] text-display">
+          {account?.full_name ?? 'Student'}
+        </h1>
         {error && <p className="text-sm font-bold text-danger-text">{error}</p>}
 
         <div className="grid gap-5 lg:grid-cols-2">
@@ -220,6 +268,50 @@ export default function StudentAdminDetailPage() {
                   Mark as unpaid
                 </Button>
               </div>
+            </div>
+          </div>
+
+          <div className="rounded-panel border border-hairline p-6">
+            <div className="flex items-center justify-between">
+              <span className="meta">Account</span>
+              {account?.status === 'suspended' ? (
+                <StatusPill variant="locked">suspended</StatusPill>
+              ) : (
+                <StatusPill variant="pass">active</StatusPill>
+              )}
+            </div>
+            <p className="mt-2 text-[13.5px] text-muted">
+              {account?.status === 'suspended'
+                ? "This student can't sign in until reactivated. Their progress and submissions are untouched."
+                : "Suspending blocks sign-in immediately. Their progress and submissions stay intact and nothing is deleted."}
+            </p>
+            {statusError && <p className="mt-3 text-sm font-bold text-danger-text">{statusError}</p>}
+            <div className="mt-4">
+              {!confirmingStatus ? (
+                <Button
+                  type="button"
+                  variant={account?.status === 'suspended' ? 'primary' : 'secondary'}
+                  danger={account?.status !== 'suspended'}
+                  onClick={() => setConfirmingStatus(true)}
+                >
+                  {account?.status === 'suspended' ? 'Reactivate account' : 'Suspend account'}
+                </Button>
+              ) : (
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    type="button"
+                    variant={account?.status === 'suspended' ? 'primary' : 'secondary'}
+                    danger={account?.status !== 'suspended'}
+                    onClick={() => void setAccountStatus(account?.status === 'suspended' ? 'active' : 'suspended')}
+                    disabled={settingStatus}
+                  >
+                    {settingStatus ? 'Saving…' : `Confirm ${account?.status === 'suspended' ? 'reactivate' : 'suspend'}`}
+                  </Button>
+                  <Button type="button" variant="ghost" onClick={() => setConfirmingStatus(false)} disabled={settingStatus}>
+                    Cancel
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>

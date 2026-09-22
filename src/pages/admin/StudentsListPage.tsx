@@ -114,11 +114,14 @@ export default function StudentsListPage() {
                     {s.mentorName ? `mentor ${s.mentorName}` : 'no mentor assigned'}
                   </RowMeta>
                 </div>
-                {s.payment_status === 'paid' ? (
-                  <span className="badge badge-pass shrink-0">Paid</span>
-                ) : (
-                  <span className="badge badge-pending shrink-0">Unpaid</span>
-                )}
+                <div className="flex shrink-0 items-center gap-2">
+                  {s.status === 'suspended' && <span className="badge badge-alert">Suspended</span>}
+                  {s.payment_status === 'paid' ? (
+                    <span className="badge badge-pass">Paid</span>
+                  ) : (
+                    <span className="badge badge-pending">Unpaid</span>
+                  )}
+                </div>
               </ListRow>
             </Link>
           ))}
