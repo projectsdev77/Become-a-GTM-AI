@@ -10,6 +10,7 @@ import type { Profile } from '@/types/database'
 
 interface StudentRow extends Profile {
   mentorName: string | null
+  email: string | null
 }
 
 function useStudents() {
@@ -25,13 +26,14 @@ function useStudents() {
         .order('created_at', { ascending: false })
 
       const studentIds = (profiles ?? []).map((p) => p.id)
-      const { data: assignments } = studentIds.length
-        ? await supabase
-            .from('mentor_assignments')
-            .select('student_id, mentor_id')
-            .in('student_id', studentIds)
-            .eq('is_active', true)
-        : { data: [] }
+      const [{ data: assignments }, { data: emailRows }] = await Promise.all([
+        studentIds.length
+          ? supabase.from('mentor_assignments').select('student_id, mentor_id').in('student_id', studentIds).eq('is_active', true)
+          : Promise.resolve({ data: [] }),
+        // profiles has no email column — it lives in auth.users, which
+        // this RPC is the only way to reach from the client.
+        supabase.rpc('admin_list_student_emails'),
+      ])
 
       const mentorIds = [...new Set((assignments ?? []).map((a) => a.mentor_id))]
       const { data: mentors } = mentorIds.length
@@ -40,11 +42,14 @@ function useStudents() {
 
       const mentorNameById = new Map((mentors ?? []).map((m) => [m.id, m.full_name]))
       const mentorIdByStudent = new Map((assignments ?? []).map((a) => [a.student_id, a.mentor_id]))
+      const emails = (emailRows ?? []) as { id: string; email: string }[]
+      const emailById = new Map(emails.map((r) => [r.id, r.email]))
 
       setStudents(
         ((profiles ?? []) as Profile[]).map((p) => ({
           ...p,
           mentorName: mentorNameById.get(mentorIdByStudent.get(p.id) ?? '') ?? null,
+          email: emailById.get(p.id) ?? null,
         })),
       )
       setLoading(false)
@@ -61,7 +66,12 @@ export default function StudentsListPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     if (!q) return students
-    return students.filter((s) => (s.full_name ?? '').toLowerCase().includes(q) || (s.mentorName ?? '').toLowerCase().includes(q))
+    return students.filter(
+      (s) =>
+        (s.full_name ?? '').toLowerCase().includes(q) ||
+        (s.email ?? '').toLowerCase().includes(q) ||
+        (s.mentorName ?? '').toLowerCase().includes(q),
+    )
   }, [students, query])
 
   if (loading) return <FullPageSpinner />
@@ -89,7 +99,10 @@ export default function StudentsListPage() {
               <ListRow state={s.payment_status === 'paid' ? 'active' : 'pending'}>
                 <div className="min-w-0 flex-1 basis-[240px]">
                   <RowTitle>{s.full_name ?? 'Unnamed student'}</RowTitle>
-                  <RowMeta>{s.mentorName ? `mentor ${s.mentorName}` : 'no mentor assigned'}</RowMeta>
+                  <RowMeta>
+                    {s.email ? `${s.email} · ` : ''}
+                    {s.mentorName ? `mentor ${s.mentorName}` : 'no mentor assigned'}
+                  </RowMeta>
                 </div>
                 {s.payment_status === 'paid' ? (
                   <span className="badge badge-pass shrink-0">Paid</span>
