@@ -18,7 +18,10 @@ function useMentorOptions() {
   const [mentors, setMentors] = useState<Profile[]>([])
   useEffect(() => {
     ;(async () => {
-      const { data } = await supabase.from('profiles').select('*').eq('role', 'mentor')
+      // status = 'active' excludes a removed mentor (admin_remove_mentor) —
+      // otherwise this dropdown would let an admin reassign a student to
+      // someone who's already been taken off the roster.
+      const { data } = await supabase.from('profiles').select('*').eq('role', 'mentor').eq('status', 'active')
       setMentors((data ?? []) as Profile[])
     })()
   }, [])

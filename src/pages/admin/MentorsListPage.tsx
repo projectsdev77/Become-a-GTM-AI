@@ -10,6 +10,7 @@ import Avatar from '@/components/ui/Avatar'
 import { AlertIcon } from '@/components/ui/icons'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { functionErrorMessage } from '@/lib/functionsError'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 import type { Profile } from '@/types/database'
 
 interface MentorRow extends Profile {
@@ -25,10 +26,14 @@ function useMentors() {
     // Deliberately not setLoading(true) here: it's also called right after
     // a successful invite, and flipping loading back to true would
     // unmount the whole page back to a full-page spinner right then.
+    // status = 'suspended' is a removed mentor (admin_remove_mentor) — drop
+    // them from the roster rather than showing a dead entry with nothing
+    // left to do on it.
     const { data: profiles } = await supabase
       .from('profiles')
       .select('*')
       .eq('role', 'mentor')
+      .eq('status', 'active')
       .order('created_at', { ascending: false })
 
     const mentorIds = (profiles ?? []).map((p) => p.id)
@@ -144,6 +149,60 @@ function AddMentorForm({ onAdded }: { onAdded: () => void }) {
   )
 }
 
+function MentorRow({ mentor, onRemoved }: { mentor: MentorRow; onRemoved: () => void }) {
+  const [confirming, setConfirming] = useState(false)
+  const [removing, setRemoving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleRemove() {
+    setRemoving(true)
+    setError(null)
+    const { error } = await supabase.rpc('admin_remove_mentor', { p_mentor_id: mentor.id })
+    setRemoving(false)
+    if (error) {
+      setError(friendlyDbError(error, "Couldn't remove this mentor."))
+      return
+    }
+    onRemoved()
+  }
+
+  return (
+    <div>
+      <ListRow state={mentor.pending ? 'pending' : 'active'}>
+        <div className="flex min-w-0 flex-1 basis-[240px] items-center gap-3.5">
+          <Avatar name={mentor.full_name} size={38} />
+          <div className="min-w-0">
+            <RowTitle>{mentor.full_name ?? 'Unnamed mentor'}</RowTitle>
+            <RowMeta>{mentor.pending ? 'Invited · awaiting acceptance' : `${mentor.activeStudentCount} students`}</RowMeta>
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-3">
+          {mentor.pending ? (
+            <span className="badge badge-pending">Pending invite</span>
+          ) : (
+            <span className="badge badge-pass">Active</span>
+          )}
+          {!confirming ? (
+            <Button type="button" variant="secondary" size="sm" danger onClick={() => setConfirming(true)}>
+              Remove
+            </Button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button type="button" variant="secondary" size="sm" danger onClick={() => void handleRemove()} disabled={removing}>
+                {removing ? 'Removing…' : 'Confirm'}
+              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => setConfirming(false)}>
+                Cancel
+              </Button>
+            </div>
+          )}
+        </div>
+      </ListRow>
+      {error && <p className="mt-1.5 text-[12.5px] font-bold text-danger-text">{error}</p>}
+    </div>
+  )
+}
+
 export default function MentorsListPage() {
   const { mentors, loading, refresh } = useMentors()
 
@@ -164,20 +223,7 @@ export default function MentorsListPage() {
 
         <div className="flex flex-col gap-[clamp(12px,1.6vw,18px)]">
           {mentors.map((m) => (
-            <ListRow key={m.id} state={m.pending ? 'pending' : 'active'}>
-              <div className="flex min-w-0 flex-1 basis-[240px] items-center gap-3.5">
-                <Avatar name={m.full_name} size={38} />
-                <div className="min-w-0">
-                  <RowTitle>{m.full_name ?? 'Unnamed mentor'}</RowTitle>
-                  <RowMeta>{m.pending ? 'Invited · awaiting acceptance' : `${m.activeStudentCount} students`}</RowMeta>
-                </div>
-              </div>
-              {m.pending ? (
-                <span className="badge badge-pending shrink-0">Pending invite</span>
-              ) : (
-                <span className="badge badge-pass shrink-0">Active</span>
-              )}
-            </ListRow>
+            <MentorRow key={m.id} mentor={m} onRemoved={refresh} />
           ))}
         </div>
         {mentors.length === 0 && <p className="py-8 text-center font-mono text-xs font-bold uppercase text-muted">No mentors yet.</p>}

@@ -20,7 +20,7 @@ function useAdminStats() {
     ;(async () => {
       const [students, mentors, weeksPublished, weeksDraft, brokenLinks] = await Promise.all([
         supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'student'),
-        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'mentor'),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'mentor').eq('status', 'active'),
         supabase.from('weeks').select('id', { count: 'exact', head: true }).eq('status', 'published'),
         supabase.from('weeks').select('id', { count: 'exact', head: true }).eq('status', 'draft'),
         supabase.from('resources').select('id', { count: 'exact', head: true }).eq('is_broken', true),
