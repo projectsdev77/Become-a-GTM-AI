@@ -165,11 +165,11 @@ export default function DashboardPage() {
 
         {active && (
           <div className="flex flex-wrap items-end justify-between gap-6 pb-9">
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="mb-2.5 font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
                 Continue where you left off
               </p>
-              <h1 className="mb-4.5 font-display text-[clamp(26px,3.6vw,40px)] uppercase leading-[1.05] text-display">
+              <h1 className="mb-4.5 truncate font-display text-[clamp(26px,3.6vw,40px)] uppercase leading-[1.05] text-display">
                 Week {String(active.position).padStart(2, '0')} — {active.title}
               </h1>
               <div className="flex items-center gap-3">

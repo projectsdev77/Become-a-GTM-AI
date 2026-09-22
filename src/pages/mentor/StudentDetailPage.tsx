@@ -120,10 +120,10 @@ export default function StudentDetailPage() {
         {error && <p className="mb-4 text-sm font-bold text-danger-text">{error}</p>}
 
         <div className="mb-[clamp(26px,3.4vw,38px)] flex flex-wrap items-center justify-between gap-6">
-          <div className="flex flex-wrap items-center gap-[18px]">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-[18px]">
             <Avatar name={studentProfile?.full_name} size={64} />
-            <div>
-              <h1 className="font-display text-[clamp(26px,4.4vw,40px)] uppercase leading-[0.96] tracking-[-0.02em] text-display">
+            <div className="min-w-0">
+              <h1 className="truncate font-display text-[clamp(26px,4.4vw,40px)] uppercase leading-[0.96] tracking-[-0.02em] text-display">
                 {studentProfile?.full_name ?? 'Student'}
               </h1>
               {studentProfile?.background && (
@@ -132,7 +132,7 @@ export default function StudentDetailPage() {
             </div>
           </div>
           {openForStudent.length > 0 && (
-            <LinkButton to="/mentor/queue" variant="cta">
+            <LinkButton to="/mentor/queue" variant="cta" className="shrink-0">
               Review {openForStudent.length} in queue
             </LinkButton>
           )}
