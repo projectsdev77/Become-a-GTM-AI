@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
@@ -47,6 +47,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  // getSession() and onAuthStateChange both fire for the same initial
+  // session (a known supabase-js redundancy the pre-existing code already
+  // relied on for plain setSession/loadProfile, which is harmless to run
+  // twice) — but rejection has a real, one-shot side effect, so whichever
+  // of the two loses the race needs to wait on and defer to it rather than
+  // finding the sessionStorage flag already cleared and barreling ahead as
+  // if this were an ordinary successful login. This ref is that handoff.
+  const rejectionInFlight = useRef<Promise<boolean> | null>(null)
 
   async function loadProfile(userId: string) {
     const { data } = await supabase.from('profiles').select('*').eq('id', userId).single()
@@ -68,13 +76,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(undefined, () => {})
   }
 
-  // Returns true if it handled (rejected) this session itself — callers
-  // should skip their normal setSession/loadProfile in that case. Reads
-  // and clears the intent flag synchronously before any await, so of the
-  // two places this runs from (getSession below and onAuthStateChange),
-  // only whichever's callback body starts executing first actually acts
-  // on it — the other sees it already cleared and falls through normally.
-  async function rejectIfUnrecognizedGoogleLogin(user: User) {
+  // Returns true if this session should be treated as rejected — callers
+  // must skip their normal setSession/loadProfile in that case. Safe to
+  // call from both getSession and onAuthStateChange for the same initial
+  // session: the sessionStorage flag is consumed synchronously (before any
+  // await) by whichever call starts first, so it "claims" the rejection
+  // and stores its promise in rejectionInFlight; the other call sees the
+  // flag already gone but awaits that same promise instead of assuming
+  // "nothing to do here" and setting the real session.
+  async function rejectIfUnrecognizedGoogleLogin(user: User): Promise<boolean> {
+    if (rejectionInFlight.current) return rejectionInFlight.current
+
     const intent = sessionStorage.getItem(OAUTH_LOGIN_INTENT_KEY)
     sessionStorage.removeItem(OAUTH_LOGIN_INTENT_KEY)
     if (intent !== 'login') return false
@@ -82,18 +94,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const justCreated = Date.now() - new Date(user.created_at).getTime() < OAUTH_JUST_CREATED_WINDOW_MS
     if (!justCreated) return false
 
-    await supabase.functions.invoke('delete-account').catch(() => {})
-    await supabase.auth.signOut()
-    // A router navigate() here would race RequireAuth's own redirect (it
-    // also sends a session-less visitor to /login, from a render of the
-    // still-briefly-mounted /dashboard route) — whichever fires last wins
-    // the URL, and RequireAuth's plain "/login" has silently clobbered this
-    // one's ?error= before. A full reload sidesteps that entirely: the app
-    // remounts fresh at this exact URL with no /dashboard render involved.
-    window.location.replace(
-      `/login?error=${encodeURIComponent('No account found with this Google login. Sign up instead.')}`,
-    )
-    return true
+    const promise = (async () => {
+      await supabase.functions.invoke('delete-account').catch(() => {})
+      await supabase.auth.signOut()
+      // A router navigate() here would race RequireAuth's own redirect (it
+      // also sends a session-less visitor to /login, from a render of the
+      // still-briefly-mounted /dashboard route) — whichever fires last wins
+      // the URL, and RequireAuth's plain "/login" has silently clobbered
+      // this one's ?error= before. A full reload sidesteps that entirely:
+      // the app remounts fresh at this exact URL with no /dashboard render
+      // involved.
+      window.location.replace(
+        `/login?error=${encodeURIComponent('No account found with this Google login. Sign up instead.')}`,
+      )
+      return true
+    })()
+    rejectionInFlight.current = promise
+    return promise
   }
 
   useEffect(() => {
