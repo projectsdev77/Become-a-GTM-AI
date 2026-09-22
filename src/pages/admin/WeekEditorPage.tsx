@@ -9,7 +9,7 @@ import ReorderButtons from '@/components/admin/ReorderButtons'
 import ListRow from '@/components/ui/ListRow'
 import Callout from '@/components/ui/Callout'
 import { Button } from '@/components/ui/Button'
-import { Field, Label, TextAreaField } from '@/components/ui/Field'
+import { Field, Label, SelectField, TextAreaField } from '@/components/ui/Field'
 import { AssignmentIcon } from '@/components/ui/icons'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { useAdminCollection } from '@/hooks/useAdminCollection'
@@ -286,15 +286,15 @@ export default function WeekEditorPage() {
                       placeholder="New assignment title…"
                       className="min-w-[160px] flex-1"
                     />
-                    <select
+                    <SelectField
                       value={newAssignment.type}
                       onChange={(e) => setNewAssignment({ ...newAssignment, type: e.target.value as Assignment['assignment_type'] })}
-                      className="field w-auto"
+                      className="w-auto"
                     >
                       <option value="text">Text</option>
                       <option value="url">URL</option>
                       <option value="quiz">Quiz</option>
-                    </select>
+                    </SelectField>
                     <Button type="submit" variant="secondary">
                       + Add
                     </Button>
