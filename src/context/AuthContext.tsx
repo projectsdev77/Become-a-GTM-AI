@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { functionErrorMessage } from '@/lib/functionsError'
+import { friendlyDbError } from '@/lib/friendlyDbError'
 import type { Profile } from '@/types/database'
 
 const SUSPENDED_CHECK_INTERVAL_MS = 60_000
@@ -24,6 +25,7 @@ interface AuthContextValue {
   session: Session | null
   user: User | null
   profile: Profile | null
+  profileError: string | null
   loading: boolean
   signUp: (
     email: string,
@@ -44,6 +46,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [profileError, setProfileError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   // getSession() and onAuthStateChange both fire for the same initial
   // session (a known supabase-js redundancy the pre-existing code already
@@ -54,8 +57,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // if this were an ordinary successful login. This ref is that handoff.
   const rejectionInFlight = useRef<Promise<boolean> | null>(null)
 
+  // A failed fetch here (previously silent — data came back null and the
+  // error was dropped) used to leave RequireRole showing a spinner forever:
+  // it renders until `profile` is truthy, with no error and no way to
+  // retry short of a full page refresh (which just risks hitting the same
+  // transient failure again). Surfacing the error lets RequireRole show a
+  // real "couldn't load your account" state with a retry button instead.
   async function loadProfile(userId: string) {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single()
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
+    if (error) {
+      setProfileError(friendlyDbError(error, "Couldn't load your account."))
+      return
+    }
+    setProfileError(null)
     setProfile(data as Profile | null)
   }
 
@@ -297,6 +311,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session,
     user: session?.user ?? null,
     profile,
+    profileError,
     loading,
     signUp,
     signIn,
