@@ -84,9 +84,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     await supabase.functions.invoke('delete-account').catch(() => {})
     await supabase.auth.signOut()
-    navigate(
+    // A router navigate() here would race RequireAuth's own redirect (it
+    // also sends a session-less visitor to /login, from a render of the
+    // still-briefly-mounted /dashboard route) — whichever fires last wins
+    // the URL, and RequireAuth's plain "/login" has silently clobbered this
+    // one's ?error= before. A full reload sidesteps that entirely: the app
+    // remounts fresh at this exact URL with no /dashboard render involved.
+    window.location.replace(
       `/login?error=${encodeURIComponent('No account found with this Google login. Sign up instead.')}`,
-      { replace: true },
     )
     return true
   }
