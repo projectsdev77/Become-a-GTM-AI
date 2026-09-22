@@ -155,6 +155,7 @@ export default function CertificateEditorPage() {
                   signature_title: form.signature_title,
                   logo_url: form.logo_url,
                   accent_color: form.accent_color,
+                  student_name: SAMPLE.student_name,
                 }}
               />
             </div>

@@ -15,6 +15,7 @@ interface CertificateSnapshot {
   signature_title: string | null
   logo_url: string | null
   accent_color: string | null
+  student_name: string | null
 }
 
 export default function CertificatePage() {

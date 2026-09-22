@@ -20,6 +20,8 @@
 @import "@fontsource/poppins/700.css";
 @import "@fontsource/jetbrains-mono/400.css";
 @import "@fontsource/jetbrains-mono/500.css";
+/* certificate recipient-name treatment only — not a site-wide type family */
+@import "@fontsource/playfair-display/700-italic.css";
 
 @theme {
   /* ---- Dark ground ---- */
@@ -62,6 +64,7 @@
   --font-display: 'Archivo Black', sans-serif;
   --font-body:    'Poppins', sans-serif;
   --font-mono:    'JetBrains Mono', monospace;
+  --font-name:    'Playfair Display', serif;
 
   /* ---- Radius ---- */
   --radius-shell: 28px;
