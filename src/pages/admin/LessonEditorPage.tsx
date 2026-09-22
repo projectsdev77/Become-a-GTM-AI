@@ -8,6 +8,7 @@ import ReorderButtons from '@/components/admin/ReorderButtons'
 import { Button } from '@/components/ui/Button'
 import { Field, Label, TextAreaField, FieldError } from '@/components/ui/Field'
 import { Checkbox } from '@/components/ui/Checkbox'
+import { ChevronDownIcon } from '@/components/ui/icons'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { useAdminCollection } from '@/hooks/useAdminCollection'
 import type { Lesson, Resource, ResourceType } from '@/types/database'
@@ -46,17 +47,20 @@ function ResourceRow({
             className={`h-2.5 w-2.5 shrink-0 rounded-full ${resource.is_broken ? 'bg-alert' : 'bg-pass'}`}
             title={resource.is_broken ? 'Broken link' : 'Link healthy'}
           />
-          <select
-            value={resource.resource_type}
-            onChange={(e) => onUpdate({ resource_type: e.target.value as ResourceType })}
-            className="rounded-pill border border-border-secondary bg-inset px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-body"
-          >
-            {RESOURCE_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
+          <span className="relative inline-flex">
+            <select
+              value={resource.resource_type}
+              onChange={(e) => onUpdate({ resource_type: e.target.value as ResourceType })}
+              className="appearance-none rounded-pill border border-border-secondary bg-inset py-1 pl-2.5 pr-7 font-mono text-[10px] font-bold uppercase tracking-wide text-body"
+            >
+              {RESOURCE_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+            <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-muted" />
+          </span>
         </div>
         {resource.is_broken && <span className="font-mono text-[10.5px] font-bold uppercase text-danger-text">broken</span>}
       </div>
