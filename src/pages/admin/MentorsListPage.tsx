@@ -183,12 +183,12 @@ function MentorRow({ mentor, onRemoved }: { mentor: MentorRow; onRemoved: () => 
             <span className="badge badge-pass">Active</span>
           )}
           {!confirming ? (
-            <Button type="button" variant="secondary" size="sm" danger onClick={() => setConfirming(true)}>
+            <Button type="button" variant="ghost" size="sm" danger onClick={() => setConfirming(true)}>
               Remove
             </Button>
           ) : (
             <div className="flex items-center gap-2">
-              <Button type="button" variant="secondary" size="sm" danger onClick={() => void handleRemove()} disabled={removing}>
+              <Button type="button" variant="ghost" size="sm" danger onClick={() => void handleRemove()} disabled={removing}>
                 {removing ? 'Removing…' : 'Confirm'}
               </Button>
               <Button type="button" variant="ghost" size="sm" onClick={() => setConfirming(false)}>

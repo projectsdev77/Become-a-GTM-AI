@@ -14,7 +14,7 @@ function buttonClasses(variant: ButtonVariant, size: ButtonSize, danger: boolean
     primary: 'btn-primary',
     cta: 'btn-cta',
     secondary: `btn-secondary${danger ? ' danger' : ''}`,
-    ghost: 'btn-ghost',
+    ghost: `btn-ghost${danger ? ' danger' : ''}`,
   }
   const sizeCls = size === 'sm' && BADGED.includes(variant) ? 'min-h-[40px]' : size === 'sm' ? 'min-h-[38px] px-4 py-[9px] text-[12.5px]' : ''
   return `btn ${variantCls[variant]} ${sizeCls} ${className}`
