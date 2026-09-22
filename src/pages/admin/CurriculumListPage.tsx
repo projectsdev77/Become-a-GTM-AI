@@ -87,15 +87,16 @@ export default function CurriculumListPage() {
                       return (
                       <ListRow key={week.id} state={published ? 'active' : 'default'}>
                         <div className="min-w-0 flex-1 basis-[240px]">
-                          <div className="mb-1.5 flex flex-wrap items-center gap-2.5">
-                            <RowMeta className="mt-0">Week {String(week.position).padStart(2, '0')}</RowMeta>
-                            <StatusToggle status={week.status} onChange={(next) => void update(week.id, { status: next })} />
-                          </div>
-                          <Link to={`/admin/curriculum/weeks/${week.id}`} className="no-underline">
+                          <RowMeta className="mt-0 mb-1.5">Week {String(week.position).padStart(2, '0')}</RowMeta>
+                          <Link
+                            to={`/admin/curriculum/weeks/${week.id}`}
+                            className={`no-underline ${published ? 'text-ink-on-cream' : 'text-display'}`}
+                          >
                             <RowTitle>{week.title}</RowTitle>
                           </Link>
                         </div>
                         <div className="flex shrink-0 items-center gap-4">
+                          <StatusToggle status={week.status} onChange={(next) => void update(week.id, { status: next })} />
                           <ReorderButtons
                             canMoveUp={i > 0}
                             canMoveDown={i < weeks.length - 1}
