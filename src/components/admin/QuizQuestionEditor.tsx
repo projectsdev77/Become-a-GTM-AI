@@ -93,6 +93,7 @@ export default function QuizQuestionEditor({
         <button onClick={() => void addOption()} className="font-mono text-[11px] font-bold uppercase text-accent hover:underline">
           + add option
         </button>
+        {options.error && <p className="text-[12.5px] font-bold text-danger-text">{options.error}</p>}
       </div>
     </div>
   )

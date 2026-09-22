@@ -76,13 +76,17 @@ export default function AssignmentEditorPage() {
   }
 
   async function addQuestion() {
-    const question = await questions.create({ prompt: 'New question' })
-    if (!question) return
-    await supabase.from('quiz_options').insert([
-      { question_id: question.id, position: 1, text: 'Option A', is_correct: true },
-      { question_id: question.id, position: 2, text: 'Option B', is_correct: false },
-    ])
-    await questions.refresh()
+    // Deliberately doesn't pre-seed default options here: this question's
+    // QuizQuestionEditor mounts (and fetches its own, currently-empty
+    // options list) the moment questions.create() below triggers a
+    // re-render — a second, separate insert done from here would race
+    // that fetch and could finish after it, leaving that editor's local
+    // state stuck out of sync with the database (fewer options than are
+    // actually there), and every "+ add option" from then on would try to
+    // reuse an already-taken position and silently fail. The editor's own
+    // "+ add option" button already handles adding the first option
+    // correctly, so it does the job instead.
+    await questions.create({ prompt: 'New question' })
   }
 
   if (loading) return <FullPageSpinner />
