@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 
 export interface CertificateFields {
   title_text: string
@@ -29,8 +29,41 @@ export default function CertificateCard({
   /** Optional illustration band rendered above the logo lockup (public certificate page only). */
   illustration?: ReactNode
 }) {
+  // Falls back to the site's own amber for certificates issued before this
+  // field existed (rendered_snapshot is frozen at issue time, so an old
+  // snapshot's accent_color can be missing even after a template update).
+  const accent = fields.accent_color || 'var(--color-accent)'
+  const cornerSize = 'clamp(30px, 6vw, 50px)'
+
   return (
-    <div className="rounded-card bg-cream px-7 py-[clamp(24px,3.6vw,40px)] text-center text-ink-on-cream sm:px-[clamp(28px,5vw,56px)]">
+    <div
+      className="relative overflow-hidden rounded-card bg-cream px-7 py-[clamp(24px,3.6vw,40px)] text-center text-ink-on-cream sm:px-[clamp(28px,5vw,56px)]"
+      style={{ '--cert-accent': accent } as CSSProperties}
+    >
+      <div className="absolute inset-x-0 top-0 h-[5px]" style={{ background: 'var(--cert-accent)' }} aria-hidden="true" />
+      <span
+        className="absolute left-0 top-0"
+        style={{
+          width: cornerSize,
+          height: cornerSize,
+          background: 'var(--cert-accent)',
+          clipPath: 'polygon(0 0, 100% 0, 0 100%)',
+          opacity: 0.9,
+        }}
+        aria-hidden="true"
+      />
+      <span
+        className="absolute bottom-0 right-0"
+        style={{
+          width: cornerSize,
+          height: cornerSize,
+          background: 'var(--cert-accent)',
+          clipPath: 'polygon(100% 100%, 100% 0, 0 100%)',
+          opacity: 0.9,
+        }}
+        aria-hidden="true"
+      />
+
       {illustration}
       <div className="mb-9 flex items-center justify-center gap-[9px]">
         {fields.logo_url ? (
@@ -39,7 +72,7 @@ export default function CertificateCard({
           <>
             <span
               className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-chip font-display text-[13px] font-bold"
-              style={{ background: 'var(--color-ink-on-cream)', color: 'var(--color-cream)' }}
+              style={{ background: 'var(--cert-accent)', color: '#fff' }}
             >
               G
             </span>
@@ -50,7 +83,10 @@ export default function CertificateCard({
         )}
       </div>
 
-      <p className="mb-[22px] font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-label-on-cream">
+      <p
+        className="mb-[22px] font-mono text-[11px] font-bold uppercase tracking-[0.14em]"
+        style={{ color: 'var(--cert-accent)' }}
+      >
         Certificate of completion
       </p>
 
