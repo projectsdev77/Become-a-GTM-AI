@@ -10,7 +10,6 @@ import Avatar from '@/components/ui/Avatar'
 import { AlertIcon } from '@/components/ui/icons'
 import { FullPageSpinner } from '@/routes/ProtectedRoute'
 import { functionErrorMessage } from '@/lib/functionsError'
-import { friendlyDbError } from '@/lib/friendlyDbError'
 import type { Profile } from '@/types/database'
 
 interface MentorRow extends Profile {
@@ -157,10 +156,16 @@ function MentorRow({ mentor, onRemoved }: { mentor: MentorRow; onRemoved: () => 
   async function handleRemove() {
     setRemoving(true)
     setError(null)
-    const { error } = await supabase.rpc('admin_remove_mentor', { p_mentor_id: mentor.id })
+    const { data, error: invokeError } = await supabase.functions.invoke('admin-remove-mentor', {
+      body: { mentorId: mentor.id },
+    })
     setRemoving(false)
-    if (error) {
-      setError(friendlyDbError(error, "Couldn't remove this mentor."))
+    if (invokeError) {
+      setError(await functionErrorMessage(invokeError))
+      return
+    }
+    if (data?.error) {
+      setError(data.error as string)
       return
     }
     onRemoved()
