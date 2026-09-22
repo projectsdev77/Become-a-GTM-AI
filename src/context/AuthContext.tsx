@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { functionErrorMessage } from '@/lib/functionsError'
@@ -43,7 +42,6 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const navigate = useNavigate()
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
@@ -168,9 +166,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data } = await supabase.from('profiles').select('status').eq('id', userId as string).single()
       if (data?.status === 'suspended') {
         await supabase.auth.signOut()
-        navigate(`/login?error=${encodeURIComponent('Your account has been suspended. Contact support if this seems wrong.')}`, {
-          replace: true,
-        })
+        // Same race as rejectIfUnrecognizedGoogleLogin above: signOut()'s
+        // SIGNED_OUT event nulls session while loading is already false
+        // here (this fires mid-session, well past initial load), so
+        // RequireAuth re-renders and issues its own bare "/login" redirect
+        // (no error param, since it reads the *current* route's query
+        // string, not this one) — a router navigate() here can lose that
+        // race and have its ?error= silently clobbered. Full reload avoids
+        // the race instead of trying to out-order it.
+        window.location.replace(
+          `/login?error=${encodeURIComponent('Your account has been suspended. Contact support if this seems wrong.')}`,
+        )
       }
     }
 
@@ -184,7 +190,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearInterval(interval)
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
-  }, [session?.user?.id, navigate])
+  }, [session?.user?.id])
 
   async function signUp(email: string, password: string, fullName: string) {
     const { data, error } = await supabase.auth.signUp({
