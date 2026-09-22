@@ -13,12 +13,15 @@ export default function SubmissionResult({
   onRefresh,
   isLatest,
   continueHref,
+  nextAssignmentTitle,
 }: {
   submission: Submission
   onFlag: (reason: string) => void
   onRefresh?: () => void
   isLatest?: boolean
   continueHref?: string
+  /** When this week has another assignment after this one, its title — swaps the "next week is ready" copy for "next up: <title>". */
+  nextAssignmentTitle?: string
 }) {
   const [showFlagForm, setShowFlagForm] = useState(false)
   const [reason, setReason] = useState('')
@@ -100,11 +103,11 @@ export default function SubmissionResult({
       {submission.final_status === 'passed' && isLatest && (
         <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-card bg-accent px-4 py-3">
           <p className="font-mono text-[11px] uppercase tracking-wide text-on-accent">
-            Nice work — the next week is ready.
+            {nextAssignmentTitle ? `Nice work — next up: ${nextAssignmentTitle}.` : 'Nice work — the next week is ready.'}
           </p>
           {continueHref && (
             <LinkButton to={continueHref} variant="secondary" size="sm" className="shrink-0 border-on-accent text-on-accent">
-              Continue
+              {nextAssignmentTitle ? 'Next assignment' : 'Continue'}
             </LinkButton>
           )}
         </div>

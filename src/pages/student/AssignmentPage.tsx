@@ -21,7 +21,9 @@ const TYPE_LABEL: Record<string, string> = { quiz: 'Quiz', text: 'Text', url: 'U
 
 export default function AssignmentPage() {
   const { assignmentId, weekId } = useParams()
-  const { week } = useWeekDetail(weekId)
+  const { week, assignments } = useWeekDetail(weekId)
+  const currentIndex = assignments.findIndex((a) => a.id === assignmentId)
+  const nextAssignment = currentIndex >= 0 ? assignments[currentIndex + 1] : undefined
   const {
     assignment,
     questions,
@@ -120,7 +122,8 @@ export default function AssignmentPage() {
                       key={s.id}
                       submission={s}
                       isLatest={s.id === latest?.id}
-                      continueHref={week ? '/dashboard' : undefined}
+                      continueHref={nextAssignment ? `/weeks/${weekId}/assignments/${nextAssignment.id}` : week ? '/dashboard' : undefined}
+                      nextAssignmentTitle={nextAssignment?.title}
                       onRefresh={() => void refresh()}
                       onFlag={(reason) => {
                         if (s.id === latest?.id) void flagForReview(reason)
